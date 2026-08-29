@@ -7,6 +7,16 @@ import { planClean, runClean } from "@aicleaner/core";
 import type { CleanKind, ToolId } from "@aicleaner/core";
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Version
+// ─────────────────────────────────────────────────────────────────────────────
+
+// `__CLI_VERSION__` is substituted at bundle time by esbuild's `define` option
+// (see packages/cli/build.mjs). It keeps the version correct inside a SEA
+// binary where `import.meta.url` points at the executable, not a file.
+declare const __CLI_VERSION__: string;
+const VERSION: string = (typeof __CLI_VERSION__ === "string" ? __CLI_VERSION__ : "0.0.0");
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Arg parser
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -20,6 +30,7 @@ function parseArgs(argv: string[]) {
     else if (a === "--verbose" || a === "-v") args.verbose = true;
     else if (a === "--no-backup") args.backup = false;
     else if (a === "--backup")    args.backup = true;
+    else if (a === "--version" || a === "-V") args.version = true;
     else if (a.startsWith("--kind="))  args.kind = a.slice(7);
     else if (a === "--kind")           args.kind = argv[++i];
     else if (a.startsWith("--tool="))  args.tool = a.slice(7);
@@ -36,9 +47,10 @@ function parseArgs(argv: string[]) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function printHelp() {
-  console.log(`Sweep — AI coding tools cleaner
+  console.log(`Sweep — AI coding tools cleaner  v${VERSION}
 
 Usage:
+  aicleaner [--version] | <command> [flags]
   aicleaner scan    [--tool <id>] [--json] [--verbose]
   aicleaner clean   --kind cache|conversations|all [--tool <id>] [--dry-run] [--force] [--no-backup]
   aicleaner tools   [--verbose]
@@ -65,6 +77,7 @@ Tools:
   trae            ByteDance Trae IDE
 
 Flags:
+  --version / -V  Print the version of this binary and exit.
   --tool <id>     Limit to one tool (can be used with scan, clean, targets).
   --kind <k>      Which data to clean (required for clean).
   --dry-run       Show what would be deleted without deleting (default for clean).
@@ -196,6 +209,13 @@ function printTargets(toolIds?: ToolId[]) {
 
 export async function runCli(argv: string[]) {
   const args  = parseArgs(argv);
+
+  // --version / -V
+  if (args.version) {
+    console.log(VERSION);
+    return 0;
+  }
+
   const cmd   = (args._ as string[])[0] ?? "help";
   const isHelp = cmd === "help" || cmd === "-h" || cmd === "--help" || args.help;
 
@@ -295,9 +315,17 @@ export async function runCli(argv: string[]) {
 }
 
 // ── Entry point ────────────────────────────────────────────────────────────
+// Detect if this script is the main entry point.
+// In dev / `node run.ts` / `node dist/run.cjs` use process.argv[1].
+// In a SEA binary, process.argv[1] is the binary path itself, so we also
+// accept a `SEA` env probe or a runCli presence (we always run as main
+// when bundled — there is no other code path).
 const isMain =
   process.argv[1]?.endsWith("run.ts") ||
-  process.argv[1]?.endsWith("run.js");
+  process.argv[1]?.endsWith("run.js") ||
+  process.argv[1]?.endsWith("run.mjs") ||
+  process.argv[1]?.endsWith("run.cjs") ||
+  (process.argv[0] === process.execPath && process.argv[1] === process.execPath);
 
 if (isMain) {
   runCli(process.argv.slice(2)).then((code) => {

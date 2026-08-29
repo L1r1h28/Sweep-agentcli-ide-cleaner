@@ -29,3 +29,51 @@ jobs:
 
       - name: Run tests
         run: npm test --workspaces --if-present
+
+  build-binaries:
+    name: Build SEA Binary (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact: sweep-linux-x64
+          - os: windows-latest
+            artifact: sweep-win-x64.exe
+          - os: macos-latest
+            artifact: sweep-macos-${{ runner.arch }}
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CLI bundle
+        run: npm run build --workspace=@aicleaner/core --workspace=@aicleaner/cli
+
+      - name: Build SEA binary
+        run: node scripts/build-binary.mjs
+        working-directory: packages/cli
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: packages/cli/dist/${{ matrix.artifact }}
+          retention-days: 7
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-checksums
+          path: packages/cli/dist/SHA256SUMS.txt
+          retention-days: 7
