@@ -1,0 +1,10 @@
+# Source files — bundled into dist/extension.js at build time
+src/
+esbuild.mjs
+
+# Build config & dev tooling
+node_modules/
+.npmrc
+
+# Source maps (optional: remove if you want them for debugging)
+dist/*.map

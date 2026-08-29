@@ -1,0 +1,19 @@
+{
+  "name": "@aicleaner/core",
+  "version": "0.1.0",
+  "description": "Shared catalog, scan, backup, and clean engine for AI coding tool storage.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts"
+  },
+  "files": ["src", "README.md"],
+  "license": "MIT",
+  "author": "L1r1h28",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "vitest run"
+  }
+}

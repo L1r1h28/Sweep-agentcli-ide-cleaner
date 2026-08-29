@@ -1,0 +1,21 @@
+{
+  "name": "@aicleaner/cli",
+  "version": "0.1.0",
+  "description": "Sweep CLI — scan and clean AI coding tool caches and conversations.",
+  "type": "module",
+  "bin": {
+    "aicleaner": "./src/cli.mjs",
+    "sweep": "./src/cli.mjs"
+  },
+  "files": ["src", "README.md"],
+  "license": "MIT",
+  "author": "L1r1h28",
+  "dependencies": {
+    "@aicleaner/core": "*"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node src/cli.mjs",
+    "pack": "npm pack"
+  }
+}

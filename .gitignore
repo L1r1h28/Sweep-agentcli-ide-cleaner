@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build outputs and packaged artifacts
+dist/
+build/
+out/
+*.tsbuildinfo
+*.vsix
+
+# Local AI editor / agent configuration and installed skills
+.agents/
+.kilocode/
+.trae/
+.windsurf/
+
+# Local editor state
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.code-workspace
+
+# Logs, credentials, coverage, and temporary files
+*.log
+.env
+.env.*
+coverage/
+.nyc_output/
+backups/
+tmp/
+temp/
+.cache/
+*.bak
+*.backup
+*.swp
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini

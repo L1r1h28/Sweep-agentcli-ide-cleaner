@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本號（例如 0.3.0，不要加 v）'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --workspaces --if-present
+
+      - name: Build core
+        run: npm run build --workspace=packages/core
+
+      - name: Bump version
+        run: |
+          npm pkg set version=${{ inputs.version }} --workspace=packages/core
+          npm pkg set version=${{ inputs.version }} --workspace=packages/cli
+          npm pkg set version=${{ inputs.version }} --workspace=packages/vscode-extension
+
+      - name: Build CLI binaries
+        run: |
+          mkdir -p dist
+          bun build --compile --target=bun-windows-x64 packages/cli/src/cli.mjs --outfile dist/sweep-windows-x64.exe
+          bun build --compile --target=bun-darwin-arm64 packages/cli/src/cli.mjs --outfile dist/sweep-darwin-arm64
+          bun build --compile --target=bun-darwin-x64 packages/cli/src/cli.mjs --outfile dist/sweep-darwin-x64
+          bun build --compile --target=bun-linux-x64 packages/cli/src/cli.mjs --outfile dist/sweep-linux-x64
+          cd dist && sha256sum sweep-* > checksums.txt
+
+      - name: Package VS Code Extension
+        run: |
+          cd packages/vscode-extension
+          npx --yes @vscode/vsce package --out ../../dist/sweep-aicleaner-${{ inputs.version }}.vsix
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          files: |
+            dist/sweep-windows-x64.exe
+            dist/sweep-darwin-arm64
+            dist/sweep-darwin-x64
+            dist/sweep-linux-x64
+            dist/checksums.txt
+            dist/sweep-aicleaner-${{ inputs.version }}.vsix
+          draft: false
+          prerelease: false
