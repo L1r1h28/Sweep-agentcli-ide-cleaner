@@ -36,16 +36,16 @@
 - [ ] `npm test` 全部通過
 - [ ] Push 到 GitHub
 
-## Commit 3 — CLI 獨立 Binary `[Push]`
+## ✅ Commit 3 — CLI 獨立 Binary `[Push]`
 
-- [ ] 選定 CLI binary 打包工具（如 `pkg`、`sea`、`bun build --compile`、`deno compile`）
-- [ ] 產生 Windows x64 `.exe`
-- [ ] 產生 macOS Apple Silicon / Intel binary
-- [ ] 產生 Linux x64 binary
-- [ ] binary 仍使用原版的 `cache / conversations / all` 清理模型
-- [ ] 加入版本資訊與 `--help` 驗證
-- [ ] 加入 SHA-256 checksums
-- [ ] Push 到 GitHub
+- [x] 選定 CLI binary 打包工具：Node.js SEA (Single Executable Application)
+- [x] 產生 Windows x64 `.exe` (驗證通過)
+- [x] 產生 macOS Apple Silicon / Intel binary (CI 矩陣覆蓋)
+- [x] 產生 Linux x64 binary (CI 矩陣覆蓋)
+- [x] binary 仍使用原版的 `cache / conversations / all` 清理模型
+- [x] 加入版本資訊與 `--help` 驗證 (`--version` / `-V`)
+- [x] 加入 SHA-256 checksums (`SHA256SUMS.txt`)
+- [x] Push 到 GitHub
 
 ## Commit 4 — CLI Release `[Push]` `[Release]`
 
