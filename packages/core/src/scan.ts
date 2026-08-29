@@ -1,6 +1,7 @@
 import { lstatSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { TOOLS } from "./catalog.ts";
+import type { ToolDef } from "./types.ts";
 import { defaultHome, detectPlatform, resolveTargets, type EnvMap } from "./paths.ts";
 import type { Platform, ScanEntry, ScanReport, ToolId } from "./types.ts";
 
@@ -39,14 +40,16 @@ export function scanDisk(options?: {
   home?: string;
   env?: EnvMap;
   toolIds?: ToolId[];
+  tools?: ToolDef[];
 }): ScanReport {
   const platform = options?.platform ?? detectPlatform();
   const env = options?.env ?? (typeof process !== "undefined" ? process.env : {});
   const home = options?.home ?? defaultHome(platform, env);
-  const tools = options?.toolIds
-    ? TOOLS.filter((t) => options.toolIds!.includes(t.id))
-    : TOOLS;
-  const resolved = resolveTargets(platform, home, env, tools);
+  const tools = options?.tools ?? TOOLS;
+  const filteredTools = options?.toolIds
+    ? tools.filter((t) => options.toolIds!.includes(t.id))
+    : tools;
+  const resolved = resolveTargets(platform, home, env, filteredTools);
   const entries: ScanEntry[] = [];
 
   for (const r of resolved) {
