@@ -22,7 +22,7 @@
 - [x] 確認 `npm run build`（core typecheck → CLI bundle → Extension bundle）全部通過
 - [x] 確認 `node packages/cli/src/cli.mjs help` 正常執行
 - [x] 確認 `node --experimental-strip-types packages/cli/src/run.ts help` 正常執行
-- [ ] **Push 到 GitHub**
+- [x] **Push 到 GitHub**
 
 ## Commit 2 — Core 單元測試 `[Push]`
 
