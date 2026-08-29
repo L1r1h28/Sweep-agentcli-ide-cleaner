@@ -12,11 +12,11 @@ import { join } from "node:path";
 import { planClean, runClean } from "../src/clean.ts";
 import type { ScanEntry, ScanReport, ToolDef } from "../src/types.ts";
 
-function fakeReport(entries: Partial<ScanEntry>[]): ScanReport {
+function fakeReport(entries: Partial<ScanEntry>[], home?: string): ScanReport {
   return {
     scannedAt: new Date().toISOString(),
     platform: "linux",
-    home: "/home/you",
+    home: home ?? tmpdir(),
     entries: entries.map((e, i) => ({
       toolId: (e.toolId ?? "codex") as any,
       toolName: e.toolName ?? "Codex",
@@ -152,6 +152,7 @@ describe("runClean", () => {
         bytes: p.bytes ?? 100,
         exists: true,
       })),
+      tmp,
     );
   }
 
