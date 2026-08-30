@@ -19,7 +19,8 @@
   "scripts": {
     "build": "node build.mjs",
     "start": "node src/cli.mjs",
-    "pack": "npm pack"
+    "pack": "npm pack",
+    "test": "vitest run"
   },
   "devDependencies": {
     "postject": "^1.0.0-alpha.6"

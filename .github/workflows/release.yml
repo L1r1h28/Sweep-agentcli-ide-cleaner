@@ -4,16 +4,34 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本號（例如 0.3.0，不要加 v）'
+        description: '版本號（例如 0.4.0，不要加 v）'
         required: true
         type: string
+      draft:
+        description: '建立為草稿 (true/false)'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
+  build-cli-binaries:
+    name: Build CLI binary (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: cli-linux-x64
+          - os: windows-latest
+            artifact: cli-windows-x64
+          - os: macos-13
+            artifact: cli-darwin-x64
+          - os: macos-14
+            artifact: cli-darwin-arm64
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -25,48 +43,80 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - uses: oven-sh/setup-bun@v2
-
       - name: Install dependencies
         run: npm ci
+
+      - name: Bump version
+        run: |
+          npm pkg set version=${{ inputs.version }} --workspace=@aicleaner/core --no-git-tag-version
+          npm pkg set version=${{ inputs.version }} --workspace=@aicleaner/cli --no-git-tag-version
+
+      - name: Build CLI bundle
+        run: |
+          npm run build --workspace=@aicleaner/core
+          npm run build --workspace=@aicleaner/cli
 
       - name: Run tests
         run: npm test --workspaces --if-present
 
-      - name: Build core
-        run: npm run build --workspace=packages/core
+      - name: Build SEA binary
+        working-directory: packages/cli
+        run: node scripts/build-binary.mjs
 
-      - name: Bump version
-        run: |
-          npm pkg set version=${{ inputs.version }} --workspace=packages/core
-          npm pkg set version=${{ inputs.version }} --workspace=packages/cli
-          npm pkg set version=${{ inputs.version }} --workspace=packages/vscode-extension
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            packages/cli/dist/sweep-*
+          if-no-files-found: error
+          retention-days: 7
 
-      - name: Build CLI binaries
+  publish-release:
+    name: Publish GitHub Release
+    needs: build-cli-binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Collect binaries & calculate checksums
+        shell: bash
         run: |
           mkdir -p dist
-          bun build --compile --target=bun-windows-x64 packages/cli/src/cli.mjs --outfile dist/sweep-windows-x64.exe
-          bun build --compile --target=bun-darwin-arm64 packages/cli/src/cli.mjs --outfile dist/sweep-darwin-arm64
-          bun build --compile --target=bun-darwin-x64 packages/cli/src/cli.mjs --outfile dist/sweep-darwin-x64
-          bun build --compile --target=bun-linux-x64 packages/cli/src/cli.mjs --outfile dist/sweep-linux-x64
-          cd dist && sha256sum sweep-* > checksums.txt
+          find artifacts -type f \( -name "sweep-*" ! -name "*.blob" ! -name "*.cjs" ! -name "*.map" \) -exec cp {} dist/ \;
+          cd dist
+          chmod +x sweep-linux-x64 sweep-darwin-arm64 sweep-darwin-x64 2>/dev/null || true
+          sha256sum sweep-* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          ls -la
 
-      - name: Package VS Code Extension
+      - name: Substitute version in release notes
+        shell: bash
         run: |
-          cd packages/vscode-extension
-          npx --yes @vscode/vsce package --out ../../dist/sweep-aicleaner-${{ inputs.version }}.vsix
+          sed -i.bak "s/\${{ inputs.version }}/${VERSION_TAG:-${VERSION:-}}/g" RELEASE_NOTES.md 2>/dev/null || \
+          sed -i "s/\${{ inputs.version }}/${{ inputs.version }}/g" RELEASE_NOTES.md
+          cat RELEASE_NOTES.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.version }}
-          name: v${{ inputs.version }}
+          name: v${{ inputs.version }} — Sweep CLI
+          body_path: RELEASE_NOTES.md
           files: |
             dist/sweep-windows-x64.exe
             dist/sweep-darwin-arm64
             dist/sweep-darwin-x64
             dist/sweep-linux-x64
-            dist/checksums.txt
-            dist/sweep-aicleaner-${{ inputs.version }}.vsix
-          draft: false
+            dist/SHA256SUMS.txt
+          draft: ${{ inputs.draft }}
           prerelease: false

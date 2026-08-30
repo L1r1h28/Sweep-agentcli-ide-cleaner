@@ -1,0 +1,50 @@
+name: CLI Smoke Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke-test:
+    name: CLI Smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build --workspaces --if-present
+
+      - name: Run unit & smoke tests
+        run: npm test --workspaces --if-present
+
+      - name: Build SEA binary
+        working-directory: packages/cli
+        run: node scripts/build-binary.mjs
+
+      - name: Verify SEA binary version & help
+        shell: bash
+        run: |
+          BIN_DIR=packages/cli/dist
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            BIN="$BIN_DIR/sweep-windows-x64.exe"
+          else
+            BIN=$(ls $BIN_DIR/sweep-* 2>/dev/null | grep -v "\.cjs\|\.map\|\.blob\|SHA256SUMS" | head -1)
+          fi
+          echo "Using binary: $BIN"
+          ls -la "$BIN"
+          "$BIN" --version
+          "$BIN" help

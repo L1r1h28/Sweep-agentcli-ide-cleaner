@@ -5,9 +5,9 @@
  * Usage:
  *   node scripts/build-binary.mjs        # build for current platform
  *
- * On Windows, produces: dist/sweep-win-x64.exe
- * On macOS (Apple Silicon), produces: dist/sweep-macos-arm64
- * On macOS (Intel), produces: dist/sweep-macos-x64
+ * On Windows, produces: dist/sweep-windows-x64.exe
+ * On macOS (Apple Silicon), produces: dist/sweep-darwin-arm64
+ * On macOS (Intel), produces: dist/sweep-darwin-x64
  * On Linux, produces: dist/sweep-linux-x64
  */
 
@@ -71,8 +71,8 @@ function getBinaryName() {
   const platform = process.platform;
   const arch = process.arch;
 
-  if (platform === 'win32') return 'sweep-win-x64.exe';
-  if (platform === 'darwin') return arch === 'arm64' ? 'sweep-macos-arm64' : 'sweep-macos-x64';
+  if (platform === 'win32') return 'sweep-windows-x64.exe';
+  if (platform === 'darwin') return arch === 'arm64' ? 'sweep-darwin-arm64' : 'sweep-darwin-x64';
   if (platform === 'linux') return 'sweep-linux-x64';
   throw new Error(`Unsupported platform: ${platform}`);
 }
