@@ -48,6 +48,35 @@ With the heavy use of AI-assisted development tools (such as Antigravity, Codex,
 
 ---
 
+## 📥 Download & Installation
+
+You can get Sweep via **pre-built standalone binaries / VSIX** (no Node.js runtime required) or via **npm**:
+
+### Option 1: Direct Download (GitHub Releases)
+
+Download pre-built standalone binaries and extensions directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**:
+
+| Platform / Environment | File / Asset | Usage & Installation |
+| :--- | :--- | :--- |
+| **Windows x64** | `sweep-windows-x64.exe` | Run directly in PowerShell / CMD (e.g. `.\sweep-windows-x64.exe scan`) |
+| **macOS (Apple Silicon)** | `sweep-darwin-arm64` | `chmod +x sweep-darwin-arm64 && ./sweep-darwin-arm64 scan` |
+| **macOS (Intel)** | `sweep-darwin-x64` | `chmod +x sweep-darwin-x64 && ./sweep-darwin-x64 scan` |
+| **Linux x64** | `sweep-linux-x64` | `chmod +x sweep-linux-x64 && ./sweep-linux-x64 scan` |
+| **VS Code / Cursor / Windsurf** | `sweep-aicleaner-1.0.0.vsix` | Install via editor menu (*Extensions: Install from VSIX...*) or `code --install-extension <file>.vsix` |
+
+### Option 2: Run via Node.js / npm
+
+```bash
+# Run directly from source / workspace
+node packages/cli/src/cli.mjs scan
+
+# Or build & install CLI globally
+cd packages/cli && npm pack
+npm install -g aicleaner-cli-1.0.0.tgz
+```
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Using the CLI Tool

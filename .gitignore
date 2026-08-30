@@ -7,6 +7,9 @@ build/
 out/
 *.tsbuildinfo
 *.vsix
+*.tgz
+RELEASE_NOTES_BODY.md
+
 
 # Local AI editor / agent configuration and installed skills
 .agents/

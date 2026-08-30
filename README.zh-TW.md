@@ -48,6 +48,33 @@
 
 ---
 
+## 📥 下載與安裝 (Download)
+
+您可直接至 **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)** 下載預先編譯好的免安裝執行檔（無需安裝 Node.js 環境）或 VS Code 擴充套件檔（`.vsix`）：
+
+### 方法 1：直接下載預編譯執行檔與 VSIX (推薦)
+
+| 平台 / 編輯器 | 下載檔案 | 安裝與使用方式 |
+| :--- | :--- | :--- |
+| **Windows x64** | `sweep-windows-x64.exe` | 下載後直接在 PowerShell / CMD 中執行（如 `.\sweep-windows-x64.exe scan`） |
+| **macOS (Apple Silicon)** | `sweep-darwin-arm64` | `chmod +x sweep-darwin-arm64 && ./sweep-darwin-arm64 scan` |
+| **macOS (Intel)** | `sweep-darwin-x64` | `chmod +x sweep-darwin-x64 && ./sweep-darwin-x64 scan` |
+| **Linux x64** | `sweep-linux-x64` | `chmod +x sweep-linux-x64 && ./sweep-linux-x64 scan` |
+| **VS Code / Cursor / Trae** | `sweep-aicleaner-1.0.0.vsix` | 於編輯器擴充面板選擇「從 VSIX 安裝...」或執行 `code --install-extension <檔名>.vsix` |
+
+### 方法 2：透過 Node.js / npm
+
+```bash
+# 從原始碼直接執行
+node packages/cli/src/cli.mjs scan
+
+# 或編譯打包並全域安裝
+cd packages/cli && npm pack
+npm install -g aicleaner-cli-1.0.0.tgz
+```
+
+---
+
 ## 🚀 快速開始
 
 ### 1. 使用 CLI 終端工具

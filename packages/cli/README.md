@@ -10,14 +10,28 @@
 
 ## ⚡ Installation & Execution
 
-### Run via npx / local execution
+### 1. Direct Download (Pre-built Single Executable Binaries)
+
+No Node.js runtime required! Download zero-dependency binaries for your operating system directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**:
+- **Windows x64**: `sweep-windows-x64.exe`
+- **macOS (Apple Silicon)**: `sweep-darwin-arm64`
+- **macOS (Intel)**: `sweep-darwin-x64`
+- **Linux x64**: `sweep-linux-x64`
+
+```bash
+# Example (Linux/macOS):
+chmod +x sweep-linux-x64
+./sweep-linux-x64 scan
+```
+
+### 2. Run via Node.js / Local Execution
 
 ```bash
 # Direct run from source / repository
 node packages/cli/src/cli.mjs scan
 ```
 
-### Pack and Install Globally
+### 3. Pack and Install Globally
 
 ```bash
 cd packages/cli

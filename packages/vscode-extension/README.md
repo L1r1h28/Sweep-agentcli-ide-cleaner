@@ -34,9 +34,25 @@
 
 ---
 
-## 📦 Packaging & Local Installation
+## 📦 Installation
+ 
+### Option 1: Direct Download (.vsix)
 
-### Build & Package (.vsix)
+Download `sweep-aicleaner-1.0.0.vsix` directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**, then install via command line or IDE UI:
+
+```bash
+# In VS Code:
+code --install-extension sweep-aicleaner-1.0.0.vsix
+
+# In Cursor:
+cursor --install-extension sweep-aicleaner-1.0.0.vsix
+```
+
+Or open your editor, go to **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`), click `...` at the top right, and select **Install from VSIX...**.
+
+---
+
+### Option 2: Build & Package from Source (.vsix)
 
 ```bash
 # 1. Install dependencies from workspace root
@@ -46,14 +62,6 @@ npm install
 cd packages/vscode-extension
 npm run build
 npm run pack
-```
-
-### Install in VS Code / Cursor
-
-```bash
-code --install-extension sweep-aicleaner-1.0.0.vsix
-# or in Cursor:
-cursor --install-extension sweep-aicleaner-1.0.0.vsix
 ```
 
 ---
