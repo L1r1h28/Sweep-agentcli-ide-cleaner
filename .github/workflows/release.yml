@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       publish_stores:
-        description: '發布至各大商店 (VS Code Marketplace, Open VSX, npm)'
+        description: '發布至各大商店 (VS Code Marketplace, npm)'
         required: false
         type: boolean
         default: true
@@ -148,18 +148,18 @@ jobs:
             npx --yes @vscode/vsce publish --packagePath dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$VSCE_PAT" || echo "::warning title=VSCE Publish Failed::Failed to publish to VS Code Marketplace (check PAT token permissions)."
           fi
 
-      - name: Publish to Open VSX Registry
-        if: ${{ inputs.publish_stores && !inputs.draft }}
-        continue-on-error: true
-        env:
-          OVSX_PAT: ${{ secrets.OVSX_PAT }}
-        run: |
-          if [ -z "$OVSX_PAT" ]; then
-            echo "::warning title=OVSX_PAT Missing::OVSX_PAT secret not found, skipping Open VSX publishing."
-          else
-            echo "Publishing VSIX to Open VSX Registry..."
-            npx --yes ovsx publish dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$OVSX_PAT" || echo "::warning title=OVSX Publish Failed::Failed to publish to Open VSX (check PAT token permissions)."
-          fi
+      # - name: Publish to Open VSX Registry (Temporarily disabled)
+      #   if: ${{ inputs.publish_stores && !inputs.draft }}
+      #   continue-on-error: true
+      #   env:
+      #     OVSX_PAT: ${{ secrets.OVSX_PAT }}
+      #   run: |
+      #     if [ -z "$OVSX_PAT" ]; then
+      #       echo "::warning title=OVSX_PAT Missing::OVSX_PAT secret not found, skipping Open VSX publishing."
+      #     else
+      #       echo "Publishing VSIX to Open VSX Registry..."
+      #       npx --yes ovsx publish dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$OVSX_PAT" || echo "::warning title=OVSX Publish Failed::Failed to publish to Open VSX (check PAT token permissions)."
+      #     fi
 
       - name: Publish packages to npm Registry
         if: ${{ inputs.publish_stores && !inputs.draft }}
