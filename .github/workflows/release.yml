@@ -98,18 +98,8 @@ jobs:
           ls -la
 
       - name: Extract release notes from CHANGELOG.md
-        shell: bash
         run: |
-          node -e "
-            const fs = require('fs');
-            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
-            const version = '${{ inputs.version }}';
-            const escaped = version.replace(/\./g, '\\.');
-            const regex = new RegExp('## \\\[' + escaped + '\\\][^\\\n]*\\\n([\\\s\\\S]*?)(?=\\\n## \\\[|$)', 'm');
-            const match = content.match(regex);
-            const notes = match ? match[1].trim() : '# Sweep v' + version;
-            fs.writeFileSync('RELEASE_NOTES_BODY.md', notes);
-          "
+          node scripts/extract-release-notes.mjs ${{ inputs.version }}
           cat RELEASE_NOTES_BODY.md
 
       - name: Setup Node for extension packaging
