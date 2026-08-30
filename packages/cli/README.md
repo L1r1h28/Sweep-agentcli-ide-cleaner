@@ -79,7 +79,7 @@ sweep clean --kind cache --dry-run
 # Actually clean all safe caches (Electron/GPU/IndexedDB caches)
 sweep clean --kind cache --force
 
-# Clean conversation history with automatic backup to ~/AI-Cleaner-Backups/
+# Clean conversation history with automatic backup to ~/.sweep/backups/
 sweep clean --kind conversations --force
 
 # Clean conversations without creating a backup

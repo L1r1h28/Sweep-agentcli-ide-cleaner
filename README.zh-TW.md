@@ -26,7 +26,7 @@
 - 🛡️ **白名單保護機制（Never-Delete Guard）**：
   - 嚴格保護設定檔（`settings.json`、`config.toml`、`mcp_config.json`、`auth.json` 等）。
   - 嚴格避開執行環境與擴充套件目錄（如 Codex 的 `.sandbox-bin` 沙箱二進位檔、Kiro 的 `~/.kiro/extensions` 插件庫）。
-- 🗄️ **自動備份防護**：破壞性清除對話紀錄前，預設自動封存至 `~/AI-Cleaner-Backups/`。
+- 🗄️ **自動備份防護**：破壞性清除對話紀錄前，預設自動封存至 `~/.sweep/backups/`。
 - 🔍 **支援 Dry-Run 模擬**：在未實際異動磁碟前預覽可釋放空間與檔案清單。
 - 🌐 **跨平台支援**：完整支援 Windows、macOS 與 Linux。
 - 📦 **Monorepo 多套件架構**：提供核心共享模組、獨立 CLI 執行檔與 VS Code Extension。
@@ -98,7 +98,7 @@ sweep clean --kind conversations --dry-run
 # 安全清理所有工具的快取 (Cache)
 sweep clean --kind cache --force
 
-# 清理對話歷程（預設會自動備份至 ~/AI-Cleaner-Backups/）
+# 清理對話歷程（預設會自動備份至 ~/.sweep/backups/）
 sweep clean --kind conversations --force
 
 # 清理特定工具的快取且不備份
@@ -192,12 +192,13 @@ npx @vscode/vsce package --no-dependencies --allow-missing-repository
 
 ## ⚠️ 安全性與免責聲明
 
-* **對話刪除不可逆**：AI Agent 的 Memory、Transcripts 與 SQLite 對話庫一旦刪除將無法在 IDE 內復原對話上下文（除非從 `~/AI-Cleaner-Backups/` 還原）。
+* **對話刪除不可逆**：AI Agent 的 Memory、Transcripts 與 SQLite 對話庫一旦刪除將無法在 IDE 內復原對話上下文（除非從 `~/.sweep/backups/` 還原）。
 * **共用目錄警告**：OpenAI Codex CLI 與 Desktop App 共用 `~/.codex/sessions`，刪除對話將同時影響終端與桌面客戶端。
 * **關閉 IDE 後清理**：清理 Trae 等使用 SQLite WAL 模式（`database.db`, `database.db-wal`, `database.db-shm`）的工具時，建議先完全關閉 IDE。
 
 ---
 
-## 📄 授權條款
+## 📄 授權條款與銘謝
 
-本專案基於 [MIT License](LICENSE) 條款開源發布。
+- 本專案基於 [MIT License](LICENSE) 條款開源發布。
+- 圖示基於 [Lucide](https://lucide.dev)（[ISC License](https://github.com/lucide-icons/lucide/blob/main/LICENSE)）。

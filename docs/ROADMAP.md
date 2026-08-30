@@ -68,63 +68,106 @@
 - [x] 驗證 Codex sandbox 與 Kiro extensions 保護規則
 - [x] 重新打包 VSIX 並完成 v1.0.1 發布
 
-## 📌 待修復與後續改進項目 (Next Iterations)
+## ✅ Commit 6 — 預設備份路徑統一至 `~/.sweep/backups/` 與 UI 圖示更新 `[Push]`
 
-### 1. VS Code Extension UI 按鈕優化與行為修復
-- [ ] **移除重複的摺疊按鈕**：
-  - 診斷：`package.json` 中的 `view/title` 註冊了自訂 `sweep.collapseAll`，同時 `createTreeView` 啟用了 `showCollapseAll: true`，導致標題列出現兩個摺疊圖示。
-  - 改善方案：移除多餘的自訂 collapse 按鈕，保留 VS Code 原生 `showCollapseAll` 機制。
-- [ ] **修復「展開所有節點 (Expand All)」功能**：
-  - 診斷：單純觸發 `refresh()` 無法讓 VS Code TreeView 主動展開子項目。
-  - 改善方案：使用 `treeView.reveal()` 配合 `{ expand: 3 }` 或在 `SweepTreeDataProvider` 中加入全域展開狀態控制，確保一鍵展開所有工具與目標項目。
-- [ ] **簡化標題列按鈕配置**：
-  - 標題列僅保留核心功能：🔍 掃描、🗑️ 清理快取、⚠️ 清理對話紀錄、與原生 ➖ 摺疊。
+- [x] **預設備份路徑規格統一 (`~/.sweep/backups/`)**：
+  - [x] 核心備份路徑遷移：將 `~/AI-Cleaner-Backups/` 遷移為 `~/.sweep/backups/<timestamp>/`（`packages/core/src/backup.ts`）
+  - [x] 測試案例同步更新：更新 `backup.test.ts` 與 `smoke.test.ts` 斷言
+  - [x] 多語系文件同步：修正 `README.MD`、`README.zh-TW.md`、`README.zh-CN.md`、`packages/core/README.md`、`packages/cli/README.md`、`packages/vscode-extension/README.md`
+  - [x] CHANGELOG 維護：更新版本紀錄並註明 CHANGELOG 一律使用英文維護
+- [x] **UI 圖示更新與 Lucide 授權銘謝**：
+  - [x] 更新 VS Code Extension 圖示為 Lucide `brush-cleaning` SVG（`packages/vscode-extension/media/icon.svg`）
+  - [x] 各語言 README 補齊 Lucide ISC License 銘謝條款
 
-### 2. VS Code Extension 多語系 i18n 支援（繁中 / 英文 / 簡中）
-- [ ] **選單與指令本地化 (`package.nls.json`)**：
-  - `package.nls.json`（預設英文 English）
-  - `package.nls.zh-tw.json`（繁體中文）
-  - `package.nls.zh-cn.json`（簡體中文）
-- [ ] **程式碼內部字串本地化 (`vscode.l10n`)**：
-  - 使用 `vscode.l10n.t()` 封裝延伸模組之通知訊息、確認視窗（Modal）、進度提示與 Tooltip 說明。
-- [ ] **Extension 專屬多語系文件**：
-  - `packages/vscode-extension/README.md`（英文）
-  - `packages/vscode-extension/README.zh-TW.md`（繁體中文）
-  - `packages/vscode-extension/README.zh-CN.md`（簡體中文）
+## Commit 7 — VS Code Extension UI 按鈕優化與多語系 (i18n) `[Push]`
 
-### 3. 細緻化對話清理機制 (Granular Conversation Cleaning & Management)
-- [ ] **依時間/年齡篩選清理 (Time-based Cleanup)**：
-  - 支援清理超過指定天數的歷史對話（例如 `--older-than 30d` / 7 天前 / 90 天前），保留近期活躍的 session。
-- [ ] **依專案/工作區篩選 (Project/Workspace-scoped Cleanup)**：
-  - 支援針對特定工作區目錄（如 Claude Code `projects/<encoded-cwd>`、Kiro sessions、Antigravity brain）清理對話，保留核心專案歷史。
-- [ ] **個別 Session 瀏覽與挑選刪除 (Individual Session Inspection & Selective Cleaning)**：
-  - 在 VS Code 側邊欄樹狀結構或 QuickPick 中列出獨立 session（顯示建立日期、標題/首句摘要、佔用容量），支援單選或多選刪除特定對話。
-- [ ] **大型 Session 篩選與清理 (Size-based / Heavy Session Filtering)**：
-  - 找出佔用過大空間的異常 session（例如包含大型 tool results、截圖、錄影或超過 50 MB 的 session）。
-- [ ] **對話封存與匯出 (Export & Archive to Markdown/JSON)**：
-  - 在執行清理前提供將對話匯出成一般 Markdown 或 JSON 格式歸檔的功能，兼顧釋放空間與知識留存。
+- [ ] **VS Code Extension UI 按鈕優化與行為修復**：
+  - [ ] 移除重複的摺疊按鈕（移除 `package.json` 自訂 collapse，保留 VS Code 原生 `showCollapseAll`）
+  - [ ] 修復「展開所有節點 (Expand All)」功能（使用 `treeView.reveal()` 或 DataProvider 狀態控制）
+  - [ ] 簡化標題列按鈕配置（保留：🔍 掃描、🗑️ 清理快取、⚠️ 清理對話、➖ 原生摺疊）
+- [ ] **VS Code Extension 多語系 i18n 支援（繁中 / 英文 / 簡中）**：
+  - [ ] 選單與指令本地化：`package.nls.json` (EN)、`package.nls.zh-tw.json` (繁中)、`package.nls.zh-cn.json` (簡中)
+  - [ ] 程式碼內部字串本地化：使用 `vscode.l10n.t()` 封裝通知訊息、確認視窗（Modal）、進度提示與 Tooltip
+  - [ ] Extension 專屬多語系文件：`README.md`、`README.zh-TW.md`、`README.zh-CN.md`
+- [ ] 驗證多語系切換與 UI 操作正常
+- [ ] Push 到 GitHub
 
-### 4. 使用者自訂設定與排除名單 (Custom Settings & Whitelist/Ignore List)
-- [ ] **自訂工具儲存路徑記憶 (Custom Tool Paths Override & Persistence)**：
-  - 支援使用者自訂非標準路徑（例如便攜版 IDE、自訂磁碟代號 `D:\...`、自訂 `CLAUDE_CONFIG_DIR` 或自訂 AppData 路徑），自動記憶並納入掃描。
-- [ ] **白名單與永久排除規則 (User Whitelist / Ignore Patterns)**：
-  - 允許使用者指定「絕不刪除」的特定專案、對話 Session 或指定子資料夾（例如特定專案的 brain 或重要 session）。
-  - 在執行「一鍵清理」或批次清理時，自動比對並完全保護白名單路徑。
-- [ ] **VS Code 設定整合 (`sweep.*`)**：
-  - 於 `settings.json` 提供 `sweep.customPaths`、`sweep.excludePatterns` 等設定項。
-  - 在側邊欄樹狀項目的右鍵選單提供快捷動作：「加入排除名單 (Add to Whitelist/Ignore)」與「移除排除」。
-- [ ] **CLI 設定檔共用 (`~/.sweeprc` / `config.json`)**：
-  - 建立共用設定檔格式，使 CLI 工具（`sweep scan` / `sweep clean`）與 VS Code 延伸模組共享同一份自訂路徑與排除規則。
+## Commit 8 — 細緻化對話清理機制 (Granular Conversation Cleaning) `[Push]`
 
-## Commit 7 — CI / Release 收尾 `[Push]`
+- [ ] **細緻化對話清理機制 (Granular Conversation Cleaning)**：
+  - [ ] 依時間/年齡篩選清理（支援 `--older-than 30d` / 7 天前 / 90 天前，保留近期活躍 session）
+  - [ ] 依專案/工作區篩選（支援清理特定專案資料夾如 Claude Code `projects/`、Kiro sessions、Antigravity brain）
+  - [ ] 個別 Session 瀏覽與挑選刪除（側邊欄或 QuickPick 列出 session 標題、日期、容量並支援挑選刪除）
+  - [ ] 大型 Session 篩選與清理（篩選出 >50MB 或異常佔用的大型 session）
+  - [ ] 對話封存與匯出（清理前提供匯出為 Markdown/JSON 封存功能）
+- [ ] 撰寫單元測試覆蓋細緻化篩選與對話封存邏輯
+- [ ] Push 到 GitHub
 
-- [ ] CI 在 Windows / macOS / Linux 執行 build 與 test
+## Commit 9 — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
+
+- [ ] **備份管理與一鍵還原機制 (Backup Management & One-Click Restore)**：
+  - [ ] Core 還原引擎（`packages/core/src/restore.ts`）：建立 `manifest.json` 記錄原始路徑、時間與工具對應
+  - [ ] 支援指定還原（全量還原、指定工具如僅還原 Claude/Kiro、或指定時間點還原）
+  - [ ] CLI 還原指令：
+    - `sweep restore`（互動式選單或指定時間戳記一鍵還原）
+    - `sweep backups list`（列出所有本機備份時間、容量與工具項目）
+    - `sweep backups prune --older-than 14d`（過期備份清理，避免備份本身過度佔用硬碟）
+  - [ ] VS Code Extension 備份與還原 UI：
+    - 側邊欄或 QuickPick 整合「📦 備份歷史」檢視
+    - 提供「⏪ 一鍵還原 (Restore from Backup)」按鈕與安全性確認
+    - 提供「📁 開啟備份資料夾 (Open Backup Folder)」捷徑
+- [ ] 撰寫單元測試覆蓋備份清單、過期清理與還原機制
+- [ ] Push 到 GitHub
+
+## Commit 10 — 使用者自訂設定與排除名單 (Custom Settings & Whitelist) `[Push]`
+
+- [ ] **使用者自訂設定與排除名單 (Custom Settings & Whitelist)**：
+  - [ ] 自訂工具儲存路徑記憶（支援非標準路徑、便攜版、自訂磁碟代號、自訂環境變數路徑）
+  - [ ] 白名單與永久排除規則（支援指定絕不刪除之專案、Session 或路徑 pattern）
+  - [ ] VS Code 設定整合（`sweep.customPaths`、`sweep.excludePatterns` 與樹狀右鍵「加入/移除白名單」）
+  - [ ] CLI 與 Extension 共用設定檔（`~/.sweeprc` / `config.json` 同步共享規則）
+- [ ] 撰寫單元測試覆蓋自訂路徑與白名單過濾規則
+- [ ] Push 到 GitHub
+
+## Commit 11 — CI / Release 工作流擴充與商店發布配置 `[Push]`
+
+- [ ] CI 在 Windows / macOS / Linux 執行完整 build 與 test
 - [x] 升級 CI / Release workflows 之 Node.js 版本至 Node.js 24 (與本機環境統一)
-- [ ] Release workflow 使用 `--no-git-tag-version`
-- [ ] Release workflow 使用 `--no-dependencies` 打包 VSIX
+- [ ] Release workflow 使用 `--no-git-tag-version` 與 `--no-dependencies` 打包 VSIX
+- [ ] **擴充 `.github/workflows/release.yml` 商店自動化發布工作流 (Store Publishing Pipeline)**：
+  - [ ] 支援 workflow inputs 勾選 `publish_stores`（預設 true，草稿模式可跳過）
+  - [ ] **VS Code Marketplace 發布步驟**：
+    - 使用 `npx @vscode/vsce publish --packagePath dist/*.vsix -p ${{ secrets.VSCE_PAT }}`
+  - [ ] **Open VSX Registry 發布步驟**（供 Cursor / VSCodium 安裝）：
+    - 使用 `npx ovsx publish dist/*.vsix -p ${{ secrets.OVSX_PAT }}`
+  - [ ] **npm 官方套件庫發布步驟**（供 `npm i -g @aicleaner/cli`）：
+    - 設定 `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`
+    - 依序發布 `@aicleaner/core` 與 `@aicleaner/cli`（`--access public`）
+  - [ ] 加入 Token 存在性檢查與發布失敗警告機制
 - [ ] 確認 workflow 不會上傳私人設定、skills、`node_modules` 或本機掃描報告
 - [ ] 確認 GitHub repository 的 description、license、README 與版本號一致
 - [ ] Push 到 GitHub
+
+## Commit 12 — 官方商店發布 (Marketplace & npm) 與 v1.1.0 正式發行 `[Push]` `[Release]`
+
+- [ ] **商店帳號與發行者身分設定 (Publishers & Tokens Setup)**：
+  - [ ] 註冊微軟發行者（Publisher ID: `L1r1h28`）並在 Azure DevOps 產出 PAT（Marketplace Manage 權限）
+  - [ ] 登入 Open VSX 建立 Namespace 並產出 Access Token
+  - [ ] 登入 npmjs.com 建立 `@aicleaner` 組織並產出 Granular/Publish Access Token
+  - [ ] 將三個 Token 寫入 GitHub Repo Secrets：
+    - `VSCE_PAT`
+    - `OVSX_PAT`
+    - `NPM_TOKEN`
+- [ ] **觸發 GitHub Actions 執行自動化發布**：
+  - [ ] 觸發 Release workflow（版本號 `1.1.0`）
+  - [ ] 自動完成全平台 CLI SEA binary 編譯、單元測試、SHA-256 計算、VSIX 打包
+  - [ ] 自動發布至 Visual Studio Marketplace
+  - [ ] 自動發布至 Open VSX Registry
+  - [ ] 自動發布 `@aicleaner/cli` 與 `@aicleaner/core` 至 npm
+  - [ ] 自動建立 GitHub Release v1.1.0 並掛載所有 release assets 與 Release Notes
+- [ ] **驗證安裝與上架狀態**：
+  - [ ] 驗證 VS Code / Cursor 擴充功能商店搜尋 `sweep-aicleaner` 並安裝成功
+  - [ ] 驗證 `npx @aicleaner/cli scan` 與 `npm i -g @aicleaner/cli` 正確執行
 
 ---
 

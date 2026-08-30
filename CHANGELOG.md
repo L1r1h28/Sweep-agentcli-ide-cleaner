@@ -1,5 +1,7 @@
 # Changelog
 
+> **Note**: This changelog must always be written and maintained in English.
+
 All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

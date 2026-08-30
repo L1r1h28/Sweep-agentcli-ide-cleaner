@@ -14,7 +14,7 @@
 - 📊 **Activity Bar Integration**: Dedicated **Sweep** icon in the Activity Bar for quick storage inspection.
 - ⚡ **Safe Cache Clearing**: One-click cleanup for Electron cache, GPU cache, and knowledge graph indexes without losing chats.
 - 💬 **Conversation & Agent State Management**: Granular control over conversation records with high-risk warning confirmation.
-- 🛡️ **Dry-Run & Backup Support**: Preview estimated space recovery and quickly open the local backup directory (`~/.sweep-cleaner/backups` / `~/AI-Cleaner-Backups`).
+- 🛡️ **Dry-Run & Backup Support**: Preview estimated space recovery and safely backup conversations to `~/.sweep/backups/`.
 - 🤖 **Comprehensive Tool Support**: Works across Antigravity, OpenAI Codex, Claude Code, Windsurf, Kiro, and Trae IDE.
 
 ---
@@ -72,6 +72,7 @@ The extension is bundled using `esbuild` into a single, self-contained CommonJS 
 
 ---
 
-## 📄 License
+## 📄 License & Acknowledgments
 
-MIT © [L1r1h28](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/blob/main/LICENSE)
+- MIT © [L1r1h28](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/blob/main/LICENSE)
+- Icons based on [Lucide](https://lucide.dev), [ISC License](https://github.com/lucide-icons/lucide/blob/main/LICENSE).

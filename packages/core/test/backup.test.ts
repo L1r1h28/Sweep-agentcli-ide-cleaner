@@ -9,7 +9,7 @@ describe("backupRoot", () => {
     const home = "/home/you";
     const now = new Date("2026-01-15T08:30:00.000Z");
     const root = backupRoot(home, now);
-    expect(root.replace(/\\/g, '/')).toMatch(/\/home\/you\/AI-Cleaner-Backups\/2026-01-15T08-30-00$/);
+    expect(root.replace(/\\/g, '/')).toMatch(/\/home\/you\/\.sweep\/backups\/2026-01-15T08-30-00$/);
   });
 });
 

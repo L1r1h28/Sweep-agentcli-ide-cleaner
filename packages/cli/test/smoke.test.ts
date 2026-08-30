@@ -124,8 +124,8 @@ describe("CLI Smoke & End-to-End Tests", () => {
     // Original conversation file should be deleted
     expect(existsSync(chatFile)).toBe(false);
 
-    // Backup directory should exist under ~/AI-Cleaner-Backups/
-    const backupBase = join(fakeHome, "AI-Cleaner-Backups");
+    // Backup directory should exist under ~/.sweep/backups/
+    const backupBase = join(fakeHome, ".sweep", "backups");
     expect(existsSync(backupBase)).toBe(true);
 
     const backupSubdirs = readdirSync(backupBase);

@@ -15,7 +15,7 @@
 - 🗺️ **Cross-Platform Path Resolution**: Automatically expands `~`, `%USERPROFILE%`, `%APPDATA%`, and `%LOCALAPPDATA%` across Windows, macOS, and Linux.
 - 🛡️ **Never-Delete Guard**: Regex-based protection layer safeguarding config files (`settings.json`, `auth.json`, `config.toml`, `mcp_config.json`), extensions, and runtime environments (`.sandbox-bin/`, `~/.kiro/extensions`).
 - 💾 **Safe vs. Destructive Separation**: Built-in distinction between `cache` (low risk) and `conversations` (high risk).
-- 📦 **Automatic Backup System**: Creates timestamped backup archives before removing conversation history (`~/AI-Cleaner-Backups/<timestamp>`).
+- 📦 **Automatic Backup System**: Creates timestamped backup archives before removing conversation history (`~/.sweep/backups/<timestamp>`).
 - 🧪 **Isomorphic Exports**:
   - `.` (Browser / Webview safe): Target definitions, demo data, formatters, and path resolver.
   - `./node` (Node.js runtime): File scanner (`scanDisk`), cleaner (`runClean`), and backup orchestrator (`copyToBackup`).

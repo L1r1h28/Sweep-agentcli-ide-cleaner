@@ -26,7 +26,7 @@ With the heavy use of AI-assisted development tools (such as Antigravity, Codex,
 - 🛡️ **Never-Delete Guard (Whitelist Protection)**:
   - Strictly protects configuration files (`settings.json`, `config.toml`, `mcp_config.json`, `auth.json`, etc.).
   - Bypasses runtime and plugin directories (e.g., Codex's `.sandbox-bin` binaries, Kiro's `~/.kiro/extensions` store).
-- 🗄️ **Automatic Backup Protection**: Automatically archives conversation logs to `~/AI-Cleaner-Backups/` before performing destructive deletions.
+- 🗄️ **Automatic Backup Protection**: Automatically archives conversation logs to `~/.sweep/backups/` before performing destructive deletions.
 - 🔍 **Dry-Run Simulation**: Preview reclaimable disk space and target file lists without touching the disk.
 - 🌐 **Cross-Platform Support**: Fully supports Windows, macOS, and Linux.
 - 📦 **Monorepo Architecture**: Includes a shared core library, standalone CLI binary, and VS Code Extension.
@@ -100,7 +100,7 @@ sweep clean --kind conversations --dry-run
 # Safely clean cache across all tools
 sweep clean --kind cache --force
 
-# Clean conversation logs (auto-backups to ~/AI-Cleaner-Backups/ by default)
+# Clean conversation logs (auto-backups to ~/.sweep/backups/ by default)
 sweep clean --kind conversations --force
 
 # Clean cache for a specific tool without backing up
@@ -194,12 +194,13 @@ npx @vscode/vsce package --no-dependencies --allow-missing-repository
 
 ## ⚠️ Safety & Disclaimers
 
-* **Conversation Deletion is Irreversible**: Once AI Agent Memory, Transcripts, and SQLite databases are deleted, conversation context cannot be restored inside your IDE (unless restored manually from `~/AI-Cleaner-Backups/`).
+* **Conversation Deletion is Irreversible**: Once AI Agent Memory, Transcripts, and SQLite databases are deleted, conversation context cannot be restored inside your IDE (unless restored manually from `~/.sweep/backups/`).
 * **Shared Directory Warning**: OpenAI Codex CLI and Desktop App share `~/.codex/sessions`. Deleting conversation sessions will affect both terminal and GUI clients.
 * **Close IDEs Before Cleaning**: When cleaning tools that use SQLite WAL mode (such as Trae's `database.db`, `database.db-wal`, `database.db-shm`), it is recommended to completely close the IDE first.
 
 ---
 
-## 📄 License
+## 📄 License & Acknowledgments
 
-This project is licensed under the [MIT License](LICENSE).
+- This project is licensed under the [MIT License](LICENSE).
+- Icons based on [Lucide](https://lucide.dev), [ISC License](https://github.com/lucide-icons/lucide/blob/main/LICENSE).
