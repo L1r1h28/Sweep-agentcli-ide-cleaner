@@ -7,6 +7,32 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### Google Antigravity Deep Optimization & Semantic Session Unification (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Semantic Session & Brain Unification**:
+  - Unified `brain/<UUID>` directories and `conversations/<UUID>.db` SQLite databases into single logical `ConversationSession` entities with matching UUIDs.
+  - Eliminated random UUID clutter, orphan `.db-wal` / `.db-shm` display fragments, and double-counting in storage statistics.
+  - Dual-path deletion and backup: cleaning an Antigravity session now safely and atomically removes both the Brain memory directory and SQLite database files simultaneously.
+- **East Asian Display Width Aware Title Sanitization & Truncation**:
+  - Implemented East Asian Character Width (`getDisplayWidth`, `truncateByDisplayWidth`) ensuring uniform terminal/treeview alignment (CJK characters = 2 columns, ASCII = 1 column, target: 26 columns).
+  - Sanitization pipeline strips IDE injected XML tags (`<USER_REQUEST>`, `<ADDITIONAL_METADATA>`), file mention long paths (`@[c:\...\file.md:L1-L20]`), and markdown artifacts to prioritize real human prompts.
+  - Automatic timestamp fallback (`Session (MM-DD HH:mm)`) when no text prompt exists.
+  - Early-break stream reader parses `transcript.jsonl` in < 2.5ms per session without memory overhead.
+- **Safety Protection Boundaries for Memory & Checkpoints**:
+  - Added strict `NEVER_DELETE_GLOBS` protection for `~/.gemini/history/**` (Shadow Git checkpoints / rewind repos), `~/.gemini/**/knowledge/**` (Agent long-term memory & knowledge graph), `builtin/**` (skills), and engine binaries (`bin/`).
+  - Added `google_accounts.json`, `oauth_creds.json`, and `GEMINI.md` to permanent protection rules.
+- **Real Electron Cache Path Resolution**:
+  - Corrected Windows Electron cache path to `%APPDATA%\Antigravity IDE` (accounting for space in directory name), successfully discovering Chrome and V8 cache data.
+  - Categorized `daemon/` Language Server logs and `crashes/` (0-byte logs) under safe-to-delete cache targets.
+- **VS Code Tree View & UI Improvements**:
+  - Added `sweep.hideUninstalledTools` setting to dynamically hide AI tools not installed on the local machine or occupying 0 B.
+  - Enriched Session Tree Item tooltips with detailed storage breakdowns across linked brain directories and SQLite databases.
+
+---
+
 ## [1.1.3] - 2026-08-31
 
 ### 🚀 CI / CD & Release Automation

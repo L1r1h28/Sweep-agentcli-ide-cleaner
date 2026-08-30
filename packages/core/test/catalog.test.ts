@@ -3,11 +3,13 @@ import { TOOLS, getTool, NEVER_DELETE_GLOBS } from "../src/catalog.ts";
 import type { CleanKind } from "../src/types.ts";
 
 describe("catalog", () => {
-  it("has exactly six tools", () => {
-    expect(TOOLS.length).toBe(6);
+  it("has exactly eight tools with separated product lines", () => {
+    expect(TOOLS.length).toBe(8);
     const ids = TOOLS.map((t) => t.id);
     expect(ids).toEqual([
       "antigravity",
+      "antigravity-desktop",
+      "antigravity-cli",
       "codex",
       "claude-code",
       "windsurf",

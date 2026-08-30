@@ -15,48 +15,57 @@
 ```
 C:\Users\<user>\.gemini\
 ├── antigravity-ide\          377 MB  ← 主要資料夾
-│   ├── brain\                 96 MB  🔴 agent 記憶、transcript、artifacts
-│   ├── conversations\        232 MB  🔴 .pb / .db 對話檔（最大）
-│   ├── implicit\              35 MB  🔴 隱性對話狀態
-│   ├── annotations\            0 MB  🔴 對話標注
-│   ├── browser_recordings\    0 MB  🔴 錄影
-│   ├── context_state\          0 MB  🔴 上下文狀態
-│   ├── code_tracker\           1 MB  🟡 程式碼追蹤暫存
-│   ├── bin\                   13 MB  ⛔ 執行檔
-│   ├── builtin\                0 MB  ⛔ 內建設定
-│   ├── daemon\                 0 MB  ⛔ 背景服務
-│   ├── crashes\                0 MB  🟡 crash 報告
-│   └── ...（其他系統目錄）
-├── antigravity-backup\        34 MB
+│   ├── brain\                 96 MB  🔴 agent 記憶、transcript.jsonl（純文字對話記錄）、artifacts
+│   ├── conversations\        232 MB  🔴 .db SQLite 資料庫（與 brain/<UUID> 呈 1:1 一對一對應）
+│   ├── implicit\              35 MB  🔴 .pb 二進位隱性對話狀態
+│   ├── knowledge\              0 MB  ⛔ **Agent 核心知識庫與記憶庫（不要刪除）**
+│   ├── annotations\            0 MB  🔴 對話標注（.pbtxt 記錄檢視時間）
+│   ├── browser_recordings\    0 MB  🔴 錄影暫存
+│   ├── context_state\          0 MB  🔴 上下文狀態暫存
+│   ├── code_tracker\           1 MB  🟡 程式碼編輯歷史與影子修訂暫存 (active/<repo_hash>)
+│   ├── daemon\                 0 MB  🟡 語言伺服器守護程序日誌 (ls_*.json, ls_*.log)
+│   ├── crashes\                0 MB  🟡 崩潰日誌 (crash_*.log，多為 0 Bytes)
+│   ├── bin\                   13 MB  ⛔ **核心執行引擎與工具 (agentapi.bat, webm_encoder.exe)**
+│   ├── builtin\                0 MB  ⛔ **原廠內建技能庫 (skills/)**
+│   └── plugins\                0 MB  ⛔ 擴充插件
+├── antigravity-backup\        34 MB  🔴 歷史備份庫（可手動管理）
 │   ├── brain\                  0 MB  🔴 備份 agent 記憶
 │   ├── conversations\          0 MB  🔴 備份對話
 │   ├── implicit\              33 MB  🔴 備份隱性狀態
 │   └── ...
-├── config\                     0 MB  ⛔ 設定
-├── history\                    0 MB  ⛔ 指令歷史
-└── tmp\                        5 MB  🟡 暫存
+├── config\                     0 MB  ⛔ 全域設定 (config.json, mcp_config.json, projects, sidecars)
+├── history\                    0 MB  ⛔ **Shadow Git 專案檢查點 (Checkpoint / Rewind，含 .git，不要刪除)**
+├── google_accounts.json        0 MB  ⛔ **Google 登入帳號設定（不要刪除）**
+├── oauth_creds.json            0 MB  ⛔ **OAuth 授權憑證（不要刪除）**
+├── settings.json               0 MB  ⛔ **全域偏好設定（不要刪除）**
+├── GEMINI.md                   0 MB  ⛔ **全域 Prompt 規則（不要刪除）**
+└── tmp\                        5 MB  🟡 暫存目錄 (含嵌入式 rg.exe 與 chats 暫存)
 
-C:\Users\<user>\AppData\Roaming\Antigravity IDE\    350 MB  ← Electron 快取
-├── Cache\                     10 MB  🟡
-├── CachedData\                85 MB  🟡 VS Code 引擎快取
-├── CachedExtensionVSIXs\       0 MB  🟡
-├── GPUCache\                   6 MB  🟡
+C:\Users\<user>\AppData\Roaming\Antigravity IDE\    350 MB  ← Electron 快取（路徑中間帶空格）
+├── Cache\                     10 MB  🟡 Chrome 網路快取
+├── CachedData\                85 MB  🟡 VS Code / V8 引擎編譯快取
+├── CachedExtensionVSIXs\       0 MB  🟡 擴充套件暫存
+├── GPUCache\                   6 MB  🟡 GPU 快取
 ├── DawnWebGPUCache\            1 MB  🟡
 ├── DawnGraphiteCache\          1 MB  🟡
 ├── WebStorage\               153 MB  🟡 IndexedDB / Local Storage（最大）
-├── logs\                      33 MB  🟡
-├── Crashpad\                  33 MB  🟡
-├── blob_storage\               0 MB  🟡
-├── Code Cache\                 0 MB  🟡
+├── logs\                      33 MB  🟡 執行日誌
+├── Crashpad\                  33 MB  🟡 Crash 暫存
+├── blob_storage\               0 MB  🟡 Blob 快取
+├── Code Cache\                 0 MB  🟡 代碼快取
 ├── Session Storage\            0 MB  🟡
 ├── Local Storage\              0 MB  🟡
 └── User\                      25 MB  ⛔ 使用者設定、擴充套件
 ```
 
 **注意事項：**
-- 本機只有 `antigravity-ide` 和 `antigravity-backup`，不存在 `antigravity/` 或 `antigravity-cli/`
-- `brain/` 通常是容量最大的對話資料；`conversations/` 存放 .pb/.db 原始檔
-- `WebStorage` (153 MB) 是 Electron IndexedDB 快取，安全可清
+- `brain/<UUID>/` 與 `conversations/<UUID>.db` 為 **100% 一對一關聯**：
+  - `brain/<UUID>/.system_generated/logs/transcript.jsonl` 為 UTF-8 純文字 JSON Lines，內含使用者首則提問與 ISO 時間戳記，可進行輕量高效串流解析與中英視寬標題截斷。
+  - `conversations/<UUID>.db` 為 SQLite 3 資料庫，儲存原始步驟 Protobuf 二進位 Blob。
+  - 刪除 Session 時必須雙向連動清理（同時刪除 `brain/<UUID>/` 與 `conversations/<UUID>.db*`）。
+- `~/.gemini/history/` 內為 Shadow Git 檢查點（Checkpoint Repo），刪除會破壞 Agent 回到檢查點與 Diff 功能，**必須絕對保護**。
+- `~/.gemini/antigravity-ide/knowledge/` 是 Agent 長期記憶與知識庫，**非快取垃圾，禁止預設刪除**。
+- Windows AppData 真實路徑為 `%APPDATA%\Antigravity IDE`（資料夾名稱帶有空格）。
 
 ---
 
@@ -214,12 +223,14 @@ C:\Users\<user>\AppData\Roaming\Trae\
 
 ---
 
-## 6. Claude Code（參考，本機未安裝）
+## 6. Claude Code（Anthropic）
 
-路徑來源：官方文件與社群確認。
+實際根目錄：`%USERPROFILE%\.claude\`（本機已存在 `backups/` 與 `sessions/`）
 
 ```
 %USERPROFILE%\.claude\             (CLAUDE_CONFIG_DIR 可覆寫)
+├── sessions\                      🔴 Session 對話紀錄
+├── backups\                       🔴 備份存檔
 ├── projects\                      🔴 JSONL 對話，依工作目錄分類
 │   └── <encoded-cwd>\
 │       └── <session-id>.jsonl
@@ -256,8 +267,10 @@ C:\Users\<user>\AppData\Roaming\Trae\
 
 | 工具 | Windows | macOS | Linux |
 |------|---------|-------|-------|
-| Antigravity 對話 | `%USERPROFILE%\.gemini\antigravity-ide\conversations` | `~/.gemini/antigravity-ide/conversations` | 同 macOS |
-| Antigravity 快取 | `%APPDATA%\Antigravity IDE\Cache` | `~/Library/Application Support/Antigravity IDE/Cache` | `~/.config/Antigravity IDE/Cache` |
+| Antigravity IDE 對話 | `%USERPROFILE%\.gemini\antigravity-ide\conversations` | `~/.gemini/antigravity-ide/conversations` | 同 macOS |
+| Antigravity IDE 快取 | `%APPDATA%\Antigravity IDE\` | `~/Library/Application Support/Antigravity IDE/` | `~/.config/Antigravity IDE/` |
+| Antigravity 瀏覽器快取 | `%USERPROFILE%\.gemini\antigravity-browser-profile\` | `~/.gemini/antigravity-browser-profile/` | 同 macOS |
+| Antigravity 安裝包快取 | `%LOCALAPPDATA%\antigravity-updater\` | `~/Library/Caches/antigravity-updater/` | `~/.cache/antigravity-updater/` |
 | Codex sessions | `%USERPROFILE%\.codex\sessions` | `~/.codex/sessions` | 同 macOS |
 | Windsurf cascade | `%USERPROFILE%\.codeium\windsurf\cascade` | `~/.codeium/windsurf/cascade` | 同 macOS |
 | Kiro IDE 對話 | `%APPDATA%\Kiro\User\globalStorage\kiro.kiroagent` | `~/Library/Application Support/Kiro/User/globalStorage/kiro.kiroagent` | `~/.config/Kiro/User/globalStorage/kiro.kiroagent` |

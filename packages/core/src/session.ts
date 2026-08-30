@@ -1,5 +1,12 @@
 import { existsSync, lstatSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
+import {
+  extractCleanProjectName,
+  extractProjectFromContent,
+  isEastAsianFullWidth,
+  sanitizeAntigravityPrompt,
+  truncateByDisplayWidth,
+} from "./adapters/antigravity.ts";
 import { backupRoot, copyToBackup } from "./backup.ts";
 import { NEVER_DELETE_GLOBS, TOOLS } from "./catalog.ts";
 import { loadConfig } from "./config.ts";
@@ -13,6 +20,7 @@ export interface ConversationSession {
   toolName: string;
   targetId: string;
   path: string;
+  associatedPaths?: string[];
   projectName?: string;
   title?: string;
   updatedAt: string;
@@ -154,24 +162,23 @@ function extractTranscriptInfo(filePath: string): { title?: string; projectName?
         const obj = JSON.parse(line);
         // Antigravity style
         if (!projectName && obj.user_information?.CorpusName) {
-          projectName = obj.user_information.CorpusName;
+          projectName = extractCleanProjectName(obj.user_information.CorpusName);
         }
         if (!projectName && obj.content && typeof obj.content === "string") {
-          const match = obj.content.match(/[cC]:[\\/][^\\/\s]+\\[^\\/\s]+\\([a-zA-Z0-9_\-\.]+)/i);
-          if (match) projectName = match[1];
+          projectName = extractProjectFromContent(obj.content);
         }
         if (!title && (obj.type === "USER_INPUT" || obj.source === "USER_EXPLICIT" || obj.role === "user")) {
           const raw = typeof obj.content === "string" ? obj.content : JSON.stringify(obj.content ?? "");
-          const clean = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-          if (clean.length > 0) {
-            title = clean.slice(0, 80);
+          const sanitized = sanitizeAntigravityPrompt(raw, 26);
+          if (sanitized) {
+            title = sanitized;
           }
         }
         // Codex style
         if (!title && obj.payload?.messages) {
           const firstUser = obj.payload.messages.find((m: any) => m.role === "user");
           if (firstUser?.content) {
-            title = String(firstUser.content).slice(0, 80);
+            title = truncateByDisplayWidth(String(firstUser.content).replace(/[\r\n]+/g, " ").trim(), 26);
           }
         }
       } catch {
@@ -230,8 +237,8 @@ function inspectSessionItem(
       if (existsSync(metaFile)) {
         try {
           const meta = JSON.parse(readFileSync(metaFile, "utf-8"));
-          if (meta.title && !title) title = meta.title;
-          if (meta.summary && !title) title = String(meta.summary).slice(0, 80);
+          if (meta.title && !title) title = truncateByDisplayWidth(meta.title, 26);
+          if (meta.summary && !title) title = truncateByDisplayWidth(String(meta.summary), 26);
           if (meta.project && !projectName) projectName = meta.project;
         } catch {
           // ignore
@@ -248,6 +255,8 @@ function inspectSessionItem(
 
     const id = basename(itemPath).replace(/\.(jsonl|json|pb|db)$/i, "");
     const ageDays = Math.max(0, Math.round(((nowMs - mtimeMs) / (1000 * 60 * 60 * 24)) * 10) / 10);
+    const d = new Date(mtimeMs);
+    const formattedFallback = `Session (${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")})`;
 
     return {
       id,
@@ -255,8 +264,9 @@ function inspectSessionItem(
       toolName,
       targetId,
       path: itemPath,
+      associatedPaths: [itemPath],
       projectName,
-      title,
+      title: title || formattedFallback,
       updatedAt: new Date(mtimeMs).toISOString(),
       ageDays,
       bytes,
@@ -290,7 +300,98 @@ export function scanSessions(options?: {
   const sessions: ConversationSession[] = [];
   const nowMs = Date.now();
 
+  // 1. Check if Antigravity variants (IDE, Desktop, CLI) are among targets, and process their sessions in unified mode
+  const agVariantIds: ToolId[] = ["antigravity", "antigravity-ide", "antigravity-desktop", "antigravity-cli"];
+  const agTargets = convTargets.filter((r) => agVariantIds.includes(r.toolId));
+
+  for (const agToolId of agVariantIds) {
+    const specificTargets = agTargets.filter((r) => r.toolId === agToolId);
+    if (specificTargets.length === 0) continue;
+
+    const toolDef = tools.find((t) => t.id === agToolId) || { name: "Antigravity IDE", id: agToolId };
+    const brainPaths: string[] = [];
+    const convPaths: string[] = [];
+    for (const r of specificTargets) {
+      for (const p of r.resolvedPaths) {
+        if (p.toLowerCase().endsWith("brain") || p.toLowerCase().includes("brain")) {
+          brainPaths.push(p);
+        } else if (p.toLowerCase().endsWith("conversations") || p.toLowerCase().includes("conversations")) {
+          convPaths.push(p);
+        }
+      }
+    }
+
+    const agSessionsMap = new Map<string, ConversationSession>();
+    const defaultTargetId = specificTargets[0]!.target.id;
+
+    // Scan brain folders
+    for (const bDir of brainPaths) {
+      if (!existsSync(bDir)) continue;
+      try {
+        const entries = readdirSync(bDir);
+        for (const e of entries) {
+          if (e === "tempmediaStorage") continue;
+          const fullPath = join(bDir, e);
+          try {
+            if (!statSync(fullPath).isDirectory()) continue;
+          } catch {
+            continue;
+          }
+
+          const s = inspectSessionItem(fullPath, agToolId, toolDef.name, defaultTargetId, nowMs);
+          if (s) {
+            agSessionsMap.set(e, s);
+          }
+        }
+      } catch {}
+    }
+
+    // Scan and merge conversations db files
+    for (const cDir of convPaths) {
+      if (!existsSync(cDir)) continue;
+      try {
+        const entries = readdirSync(cDir);
+        for (const e of entries) {
+          const extMatch = e.match(/^(.+?)\.db(-wal|-shm)?$/i);
+          if (!extMatch) continue;
+          const uuid = extMatch[1]!;
+          const fullPath = join(cDir, e);
+          let st;
+          try {
+            st = statSync(fullPath);
+          } catch {
+            continue;
+          }
+
+          const existing = agSessionsMap.get(uuid);
+          if (existing) {
+            existing.bytes += st.size;
+            existing.fileCount += 1;
+            if (!existing.associatedPaths) existing.associatedPaths = [existing.path];
+            if (!existing.associatedPaths.includes(fullPath)) {
+              existing.associatedPaths.push(fullPath);
+            }
+          } else {
+            const s = inspectSessionItem(fullPath, agToolId, toolDef.name, defaultTargetId, nowMs);
+            if (s) {
+              s.id = uuid;
+              agSessionsMap.set(uuid, s);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    for (const s of agSessionsMap.values()) {
+      s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+      sessions.push(s);
+    }
+  }
+
+  // 2. Process all other tools (or targets not Antigravity conversations)
   for (const r of convTargets) {
+    if (agVariantIds.includes(r.toolId)) continue; // Already unified above
+
     for (const targetPath of r.resolvedPaths) {
       if (!existsSync(targetPath)) continue;
 
@@ -302,7 +403,6 @@ export function scanSessions(options?: {
       }
 
       if (!st.isDirectory()) {
-        // Individual file target
         const s = inspectSessionItem(targetPath, r.toolId, r.toolName, r.target.id, nowMs);
         if (s) {
           s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
@@ -332,13 +432,11 @@ export function scanSessions(options?: {
               continue;
             }
           }
-        } catch {
-          // ignore
-        }
+        } catch {}
         continue;
       }
 
-      // Standard directory of sessions (Antigravity brain/<uuid>, Codex sessions/*.jsonl, etc.)
+      // Standard directory of sessions
       try {
         const children = readdirSync(targetPath);
         for (const child of children) {
@@ -349,9 +447,7 @@ export function scanSessions(options?: {
             sessions.push(s);
           }
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
   }
 
@@ -594,16 +690,23 @@ export function cleanSessions(
       continue;
     }
 
+    const targetPaths = session.associatedPaths && session.associatedPaths.length > 0
+      ? session.associatedPaths
+      : [session.path];
+
     try {
-      if (backupDir && existsSync(session.path)) {
-        try {
-          copyToBackup(session.path, backupDir);
-        } catch {
-          // continue even if backup fails for single file
+      for (const p of targetPaths) {
+        if (!existsSync(p)) continue;
+        if (backupDir) {
+          try {
+            copyToBackup(p, backupDir);
+          } catch {
+            // continue even if backup fails for single path
+          }
         }
+        rmSync(p, { recursive: true, force: true });
       }
 
-      rmSync(session.path, { recursive: true, force: true });
       items.push({
         session,
         action: backupDir ? "backed-up" : "deleted",

@@ -161,23 +161,66 @@
 - [x] 確認 GitHub repository 的 description、license、README 與版本號一致
 - [x] Push 到 GitHub
 
-## Commit 12 [v1.2.0] — 官方商店發布 (Marketplace & npm) 與 v1.2.0 正式發行 `[Push]` `[Release]`
+## Commit 12 [v1.1.4] — 發行前準備與商店金鑰配置完成 (Publishers & Tokens Setup) `[Push]`
 
-- [ ] **商店帳號與發行者身分設定 (Publishers & Tokens Setup)**：
-  - [ ] 註冊微軟發行者（Publisher ID: `L1r1h28`）並在 Azure DevOps 產出 PAT（Marketplace Manage 權限）
-  - [ ] 登入 Open VSX 建立 Namespace 並產出 Access Token
-  - [ ] 登入 npmjs.com 建立 `@aicleaner` 組織並產出 Granular/Publish Access Token
-  - [ ] 將三個 Token 寫入 GitHub Repo Secrets：
-    - `VSCE_PAT`
-    - `OVSX_PAT`
-    - `NPM_TOKEN`
+- [x] **商店帳號與發行者身分設定 (Publishers & Tokens Setup)**：
+  - [x] 註冊微軟發行者（Publisher ID: `L1r1h28`）並在 Azure DevOps 產出 PAT（Marketplace Manage 權限）
+  - [x] 登入 Open VSX 建立 Namespace 並產出 Access Token
+  - [x] 登入 npmjs.com 建立 `@aicleaner` 組織並產出 Granular/Publish Access Token
+  - [x] 將三個 Token 寫入 GitHub Repo Secrets (`VSCE_PAT`, `OVSX_PAT`, `NPM_TOKEN`)
+
+## Commit 13 [v1.1.5] — Google Antigravity 深度調優、UI/UX 與 Session 管理精進 `[Push]`
+
+- [x] **Session 與 Brain 整合與語意化展示 (Semantic Session & Brain Unification)**：
+  - [x] **消除隨機 UUID 與 SQLite 碎片展示**：將目前顯示的隨機 UUID（如 `024c574b-6237...`）與 `.db-wal` / `.db-shm` 檔案合併為單一邏輯 Session 項目
+  - [x] **智慧標題與時間解析**：從 `transcript.jsonl` / `metadata.json` / SQLite 解析首則對話 prompt 作為標題，無標題時顯示友善格式化日期時間（如 `2026-08-31 03:30`），支援中英視圖寬度適配（East Asian Display Width）
+  - [x] **`conversations/<id>` 與 `brain/<id>` 一對一關聯整合**：確認兩者以相同 UUID 關聯，在 UI / CLI 合併為單一項目展示；執行 Session 刪除時同步清理對應的 Brain 記憶庫、Artifacts 與 SQLite 資料庫
+  - [x] **Context State 與 Annotations 角色釐清與安全清理**：確認 `~/.gemini/antigravity-ide/context_state` 與 `annotations/` 之生命週期與清理安全規則，嚴格保護 `knowledge/`（核心知識庫）與 `history/`（Shadow Git 檢查點）
+- [x] **產品線細分與真實路徑驗證 (Product Lines & Real Path Validation)**：
+  - [x] **產品線獨立展示與清理**：評估並區隔 **Antigravity IDE**、**Antigravity 2.0 (Desktop App)** 與 **Antigravity CLI (`agy`)** 儲存路徑
+  - [x] **排查 Electron / IDE 快取路徑**：修正特定環境下 Electron 快取顯示「沒有找到」的問題，確認 Windows (`%APPDATA%\Antigravity IDE`)、macOS (`~/Library/Application Support/Antigravity IDE`) 與 Linux 真實路徑
+- [x] **未安裝軟體動態過濾 (Installed Tools Only Filter)**：
+  - [x] UI 樹狀檢視與 CLI 掃描支援 `sweep.hideUninstalledTools`，提供精簡乾淨的視圖
+
+## Commit 14 [v1.1.6] — OpenAI Codex 深度調優、Session 解析與沙箱防護驗證
+
+- [ ] **Session 智慧標題解析**：解析 Codex `sessions/rollout-*.jsonl` 首則訊息與 Workspace 名稱
+- [ ] **產品線獨立展示**：區隔 Codex Desktop 與 Codex CLI 運作快取與會話
+- [ ] **沙盒與憑證防護確認**：確保 `.sandbox-bin/` 與 `auth.json` 永不被掃描為可刪除目標
+
+## Commit 15 [v1.1.7] — Anthropic Claude Code 深度調優與專案會話關聯
+
+- [ ] **專案會話層級歸屬**：解析 `~/.claude/projects/` 底下子目錄之 Git Repo 名稱與 Session 標題
+- [ ] **File History 快取精準清理**：區隔 `file-history/` 暫存檔與核心對話紀錄
+- [ ] **白名單保護機制驗證**：確保 `settings.json` 與 `CLAUDE.md` 受白名單嚴格保護
+
+## Commit 16 [v1.1.8] — Codeium Windsurf & Cascade 深度調優
+
+- [ ] **Cascade 對話與記憶庫彙整**：解析 `cascade/` 內多檔案與 SQLite WAL 檔案，提供完整會話標題
+- [ ] **IDE 快取精準定位**：確認 Windsurf CachedData、GPUCache 與 Code Cache 路徑有效性
+- [ ] **MCP 設定檔安全保護**：確認 `mcp_config.json` 永不被快取清理誤刪
+
+## Commit 17 [v1.1.9] — AWS Kiro & ByteDance Trae 深度調優
+
+- [ ] **Kiro .chat Session 解析**：解析 `.chat` 會話檔案內容與標題
+- [ ] **Kiro 插件庫與 Steering 保護**：驗證 `~/.kiro/extensions` 與 `steering/` 排除規則
+- [ ] **Trae SOLO SQLite 彙整**：將 Trae `database.db`、`database.db-wal` 彙整並解析會話
+
+## Commit 18 [v1.1.10] — UI / UX 全面打磨與互動強化
+
+- [ ] **未安裝工具過濾切換**：在 VS Code View Title 與 CLI 提供未安裝/空項目隱藏開關
+- [ ] **多選批次清理與搜尋**：Extension 支援快速勾選特定 Session 批次清理與關鍵字篩選
+- [ ] **即時動態容量計算**：清理後動態更新 Tree View 節點容量與釋放空間提示
+
+## Commit 19 [v1.2.0] — 官方商店發布 (Marketplace & npm) 與 v1.2.0 正式發行 `[Push]` `[Release]`
+
 - [ ] **觸發 GitHub Actions 執行自動化發布**：
-  - [ ] 觸發 Release workflow（版本號 `1.1.0`）
+  - [ ] 觸發 Release workflow（版本號 `1.2.0`）
   - [ ] 自動完成全平台 CLI SEA binary 編譯、單元測試、SHA-256 計算、VSIX 打包
   - [ ] 自動發布至 Visual Studio Marketplace
   - [ ] 自動發布至 Open VSX Registry
   - [ ] 自動發布 `@aicleaner/cli` 與 `@aicleaner/core` 至 npm
-  - [ ] 自動建立 GitHub Release v1.1.0 並掛載所有 release assets 與 Release Notes
+  - [ ] 自動建立 GitHub Release v1.2.0 並掛載所有 release assets 與 Release Notes
 - [ ] **驗證安裝與上架狀態**：
   - [ ] 驗證 VS Code / Cursor 擴充功能商店搜尋 `sweep-aicleaner` 並安裝成功
   - [ ] 驗證 `npx @aicleaner/cli scan` 與 `npm i -g @aicleaner/cli` 正確執行

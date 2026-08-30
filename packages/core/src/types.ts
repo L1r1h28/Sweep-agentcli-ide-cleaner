@@ -6,6 +6,9 @@ export type Risk = "low" | "high";
 
 export type ToolId =
   | "antigravity"
+  | "antigravity-ide"
+  | "antigravity-desktop"
+  | "antigravity-cli"
   | "codex"
   | "claude-code"
   | "windsurf"

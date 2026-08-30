@@ -85,14 +85,17 @@ export function getEffectiveConfig(): SweepConfig {
   const diskConfig = loadConfig();
   const vsConfig = vscode.workspace.getConfiguration("sweep");
 
-  const vsCustomPaths = vsConfig.get<Record<string, string[]>>("customPaths") || {};
+  const rawCustom = vsConfig.get("customPaths");
+  const vsCustomPaths = rawCustom && typeof rawCustom === "object" && !Array.isArray(rawCustom) ? rawCustom : {};
   const customPaths = {
     ...diskConfig.customPaths,
     ...vsCustomPaths,
   };
 
-  const extraPatterns = vsConfig.get<string[]>("excludePatterns") || [];
-  const extraProjects = vsConfig.get<string[]>("whitelistProjects") || [];
+  const rawPatterns = vsConfig.get("excludePatterns");
+  const extraPatterns = Array.isArray(rawPatterns) ? rawPatterns : [];
+  const rawProjects = vsConfig.get("whitelistProjects");
+  const extraProjects = Array.isArray(rawProjects) ? rawProjects : [];
 
   const patterns = Array.from(
     new Set([...(diskConfig.whitelist.patterns || []), ...extraPatterns])
@@ -157,7 +160,9 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
   private buildTree(): void {
     if (!this.report) return;
     const report = this.report;
-    const allSessions = this.sessions;
+    const allSessions = this.sessions || [];
+    const vsConfig = vscode.workspace.getConfiguration("sweep");
+    const hideUninstalled = vsConfig.get<boolean>("hideUninstalledTools", true);
 
     this.rootNodes = TOOLS.map((tool) => {
       const toolEntries = report.entries.filter((e) => e.toolId === tool.id);
@@ -170,7 +175,7 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
 
       const toolNode = new ToolNode(tool, toolEntries, totalBytes, cacheBytes, convBytes);
 
-      toolNode.targets = tool.targets.map((target) => {
+      let targetList = tool.targets.map((target) => {
         const targetEntries = toolEntries.filter((e) => e.targetId === target.id);
         const targetTotalBytes = targetEntries
           .filter((e) => e.exists)
@@ -187,7 +192,9 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
           targetTotalBytes
         );
 
-        targetNode.paths = targetEntries.map((entry) => new PathNode(targetNode, entry));
+        targetNode.paths = targetEntries
+          .filter((entry) => !hideUninstalled || entry.exists)
+          .map((entry) => new PathNode(targetNode, entry));
 
         // If target is conversation, attach matching scanned individual sessions
         if (target.kind === "conversations") {
@@ -200,8 +207,17 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
         return targetNode;
       });
 
+      if (hideUninstalled) {
+        targetList = targetList.filter((t) => t.totalBytes > 0 || t.sessions.length > 0);
+      }
+
+      toolNode.targets = targetList;
       return toolNode;
     });
+
+    if (hideUninstalled) {
+      this.rootNodes = this.rootNodes.filter((n) => n.totalBytes > 0);
+    }
   }
 
   refresh(): ScanReport {
@@ -306,16 +322,24 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
       const title = session.title || session.id;
       const isWhitelisted = Boolean(session.isWhitelisted);
 
+      // Clean display title without bracket prefixes
       const item = new vscode.TreeItem(
-        session.projectName ? `[${session.projectName}] ${title}` : title,
+        title,
         vscode.TreeItemCollapsibleState.None
       );
 
       item.contextValue = isWhitelisted ? "sessionEntry:whitelisted" : "sessionEntry";
-      item.description = `${formatBytes(session.bytes)} · ${session.ageDays}d${isWhitelisted ? " · 🛡️ Whitelisted" : ""}`;
+      const projectPart = session.projectName ? ` · 📁 ${session.projectName}` : "";
+      item.description = `${formatBytes(session.bytes)} · ${session.ageDays}d${projectPart}${isWhitelisted ? " · 🛡️ Whitelisted" : ""}`;
       item.iconPath = isWhitelisted
         ? new vscode.ThemeIcon("shield", new vscode.ThemeColor("charts.green"))
         : new vscode.ThemeIcon("comment");
+
+      const associatedInfo =
+        session.associatedPaths && session.associatedPaths.length > 1
+          ? `\n• **Linked Storage Paths (${session.associatedPaths.length})**:\n` +
+            session.associatedPaths.map((p) => `  - \`${p}\``).join("\n")
+          : `\n• **Path**: \`${session.path}\``;
 
       item.tooltip = new vscode.MarkdownString(
         `### ${title}${isWhitelisted ? " 🛡️ [Whitelisted / Protected]" : ""}\n\n` +
@@ -323,9 +347,9 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
           (session.projectName ? `• **Project**: \`${session.projectName}\`\n` : "") +
           `• **Tool**: ${session.toolName}\n` +
           `• **Status**: ${isWhitelisted ? "🛡️ Protected by Whitelist" : "Normal"}\n` +
-          `• **Size**: ${formatBytes(session.bytes)} (${session.fileCount} files)\n` +
-          `• **Age**: ${session.ageDays} days ago (${session.updatedAt})\n` +
-          `• **Path**: \`${session.path}\``
+          `• **Total Size**: ${formatBytes(session.bytes)} (${session.fileCount} files)\n` +
+          `• **Age**: ${session.ageDays} days ago (${session.updatedAt})` +
+          associatedInfo
       );
 
       return item;
