@@ -99,19 +99,27 @@ jobs:
           cat SHA256SUMS.txt
           ls -la
 
-      - name: Substitute version in release notes
+      - name: Extract release notes from CHANGELOG.md
         shell: bash
         run: |
-          sed -i.bak "s/\${{ inputs.version }}/${VERSION_TAG:-${VERSION:-}}/g" RELEASE_NOTES.md 2>/dev/null || \
-          sed -i "s/\${{ inputs.version }}/${{ inputs.version }}/g" RELEASE_NOTES.md
-          cat RELEASE_NOTES.md
+          node -e "
+            const fs = require('fs');
+            const content = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const version = '${{ inputs.version }}';
+            const escaped = version.replace(/\./g, '\\.');
+            const regex = new RegExp('## \\\[' + escaped + '\\\][^\\\n]*\\\n([\\\s\\\S]*?)(?=\\\n## \\\[|$)', 'm');
+            const match = content.match(regex);
+            const notes = match ? match[1].trim() : '# Sweep v' + version;
+            fs.writeFileSync('RELEASE_NOTES_BODY.md', notes);
+          "
+          cat RELEASE_NOTES_BODY.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.version }}
           name: v${{ inputs.version }} — Sweep CLI
-          body_path: RELEASE_NOTES.md
+          body_path: RELEASE_NOTES_BODY.md
           files: |
             dist/sweep-windows-x64.exe
             dist/sweep-darwin-arm64
