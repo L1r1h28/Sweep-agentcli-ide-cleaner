@@ -8,4 +8,7 @@ export * from "./backup.ts";
 export * from "./demo.ts";
 export * from "./session.ts";
 export * from "./restore.ts";
+export * from "./config.ts";
+export * from "./filter.ts";
+
 

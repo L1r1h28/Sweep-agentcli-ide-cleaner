@@ -15,6 +15,11 @@ import {
   pruneBackups,
   restoreBackup,
   getLatestBackup,
+  loadConfig,
+  saveConfig,
+  getConfigPath,
+  addToWhitelist,
+  removeFromWhitelist,
   type ToolDef,
   type ScanReport,
   type ScanEntry,
@@ -22,6 +27,7 @@ import {
   type ToolId,
   type ConversationSession,
   type BackupSummary,
+  type SweepConfig,
 } from "@aicleaner/core";
 
 export class ToolNode {
@@ -75,6 +81,42 @@ export class SessionNode {
 
 export type TreeNode = ToolNode | TargetNode | PathNode | SessionNode;
 
+export function getEffectiveConfig(): SweepConfig {
+  const diskConfig = loadConfig();
+  const vsConfig = vscode.workspace.getConfiguration("sweep");
+
+  const vsCustomPaths = vsConfig.get<Record<string, string[]>>("customPaths") || {};
+  const customPaths = {
+    ...diskConfig.customPaths,
+    ...vsCustomPaths,
+  };
+
+  const extraPatterns = vsConfig.get<string[]>("excludePatterns") || [];
+  const extraProjects = vsConfig.get<string[]>("whitelistProjects") || [];
+
+  const patterns = Array.from(
+    new Set([...(diskConfig.whitelist.patterns || []), ...extraPatterns])
+  );
+  const projects = Array.from(
+    new Set([...(diskConfig.whitelist.projects || []), ...extraProjects])
+  );
+
+  return {
+    version: diskConfig.version,
+    customPaths: customPaths as SweepConfig["customPaths"],
+    whitelist: {
+      projects,
+      patterns,
+      sessionIds: diskConfig.whitelist.sessionIds || [],
+    },
+    defaults: {
+      backupBeforeClean:
+        vsConfig.get<boolean>("backupBeforeClean") ?? diskConfig.defaults?.backupBeforeClean ?? true,
+      olderThanDays: diskConfig.defaults?.olderThanDays ?? 30,
+    },
+  };
+}
+
 export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
   private _onDidChangeTreeData = new vscode.EventEmitter<TreeNode | undefined | null | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -89,8 +131,9 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
 
   getReport(): ScanReport {
     if (!this.report) {
-      this.report = scanDisk();
-      this.sessions = scanSessions();
+      const config = getEffectiveConfig();
+      this.report = scanDisk({ config });
+      this.sessions = scanSessions({ config });
       this.buildTree();
     }
     return this.report;
@@ -98,7 +141,8 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
 
   getSessions(): ConversationSession[] {
     if (!this.sessions || this.sessions.length === 0) {
-      this.sessions = scanSessions();
+      const config = getEffectiveConfig();
+      this.sessions = scanSessions({ config });
     }
     return this.sessions;
   }
@@ -161,8 +205,9 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
   }
 
   refresh(): ScanReport {
-    this.report = scanDisk();
-    this.sessions = scanSessions();
+    const config = getEffectiveConfig();
+    this.report = scanDisk({ config });
+    this.sessions = scanSessions({ config });
     this.buildTree();
     this._onDidChangeTreeData.fire();
     return this.report;
@@ -259,19 +304,25 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
     if (element instanceof SessionNode) {
       const { session } = element;
       const title = session.title || session.id;
+      const isWhitelisted = Boolean(session.isWhitelisted);
+
       const item = new vscode.TreeItem(
         session.projectName ? `[${session.projectName}] ${title}` : title,
         vscode.TreeItemCollapsibleState.None
       );
 
-      item.contextValue = "sessionEntry";
-      item.description = `${formatBytes(session.bytes)} · ${session.ageDays}d`;
-      item.iconPath = new vscode.ThemeIcon("comment");
+      item.contextValue = isWhitelisted ? "sessionEntry:whitelisted" : "sessionEntry";
+      item.description = `${formatBytes(session.bytes)} · ${session.ageDays}d${isWhitelisted ? " · 🛡️ Whitelisted" : ""}`;
+      item.iconPath = isWhitelisted
+        ? new vscode.ThemeIcon("shield", new vscode.ThemeColor("charts.green"))
+        : new vscode.ThemeIcon("comment");
+
       item.tooltip = new vscode.MarkdownString(
-        `### ${title}\n\n` +
+        `### ${title}${isWhitelisted ? " 🛡️ [Whitelisted / Protected]" : ""}\n\n` +
           `• **Session ID**: \`${session.id}\`\n` +
           (session.projectName ? `• **Project**: \`${session.projectName}\`\n` : "") +
           `• **Tool**: ${session.toolName}\n` +
+          `• **Status**: ${isWhitelisted ? "🛡️ Protected by Whitelist" : "Normal"}\n` +
           `• **Size**: ${formatBytes(session.bytes)} (${session.fileCount} files)\n` +
           `• **Age**: ${session.ageDays} days ago (${session.updatedAt})\n` +
           `• **Path**: \`${session.path}\``
@@ -284,15 +335,21 @@ export class SweepTreeDataProvider implements vscode.TreeDataProvider<TreeNode> 
     const { entry } = element;
     const item = new vscode.TreeItem(entry.path, vscode.TreeItemCollapsibleState.None);
 
-    item.contextValue = "pathEntry";
+    const isWhitelisted = Boolean(entry.isWhitelisted);
+    item.contextValue = isWhitelisted ? "pathEntry:whitelisted" : "pathEntry";
+
     if (entry.exists) {
-      item.description = `${formatBytes(entry.bytes)} (${vscode.l10n.t("{0} files", entry.fileCount)})`;
-      item.iconPath = new vscode.ThemeIcon("check", new vscode.ThemeColor("testing.iconPassed"));
+      item.description = isWhitelisted
+        ? `${formatBytes(entry.bytes)} (🛡️ Whitelisted)`
+        : `${formatBytes(entry.bytes)} (${vscode.l10n.t("{0} files", entry.fileCount)})`;
+      item.iconPath = isWhitelisted
+        ? new vscode.ThemeIcon("shield", new vscode.ThemeColor("charts.green"))
+        : new vscode.ThemeIcon("check", new vscode.ThemeColor("testing.iconPassed"));
       item.tooltip = `${entry.path}\n${vscode.l10n.t(
         "Size: {0} ({1} files)",
         formatBytes(entry.bytes),
         entry.fileCount
-      )}`;
+      )}${isWhitelisted ? " (Protected by Whitelist)" : ""}`;
     } else {
       item.description = vscode.l10n.t("(not found)");
       item.iconPath = new vscode.ThemeIcon(
@@ -960,6 +1017,148 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
+  // sweep.addToWhitelist
+  const addToWhitelistCmd = vscode.commands.registerCommand(
+    "sweep.addToWhitelist",
+    async (node?: TreeNode) => {
+      if (node instanceof SessionNode) {
+        const { session } = node;
+        const pick = await vscode.window.showQuickPick(
+          [
+            {
+              label: vscode.l10n.t("Protect Session ID: {0}", session.id),
+              type: "session" as const,
+              val: session.id,
+            },
+            ...(session.projectName
+              ? [
+                  {
+                    label: vscode.l10n.t("Protect Entire Project: {0}", session.projectName),
+                    type: "project" as const,
+                    val: session.projectName,
+                  },
+                ]
+              : []),
+            {
+              label: vscode.l10n.t("Protect Path Pattern: {0}", session.path),
+              type: "pattern" as const,
+              val: session.path,
+            },
+          ],
+          { placeHolder: vscode.l10n.t("Select whitelist protection scope") }
+        );
+        if (!pick) return;
+        addToWhitelist({ type: pick.type, value: pick.val });
+        vscode.window.showInformationMessage(
+          vscode.l10n.t("Sweep: Added \"{0}\" to whitelist.", pick.val)
+        );
+        treeDataProvider.refresh();
+        return;
+      }
+
+      if (node instanceof PathNode) {
+        addToWhitelist({ type: "pattern", value: node.entry.path });
+        vscode.window.showInformationMessage(
+          vscode.l10n.t("Sweep: Added \"{0}\" to whitelist.", node.entry.path)
+        );
+        treeDataProvider.refresh();
+        return;
+      }
+
+      const input = await vscode.window.showInputBox({
+        prompt: vscode.l10n.t("Enter project name, glob pattern, or session ID to protect"),
+        placeHolder: "e.g. my-project, **/keep-*/**, or session UUID",
+      });
+      if (!input || !input.trim()) return;
+      const trimmed = input.trim();
+      let type: "project" | "pattern" | "session" = "project";
+      if (trimmed.includes("*") || trimmed.includes("/") || trimmed.includes("\\")) {
+        type = "pattern";
+      } else if (/^[0-9a-f-]{16,}$/i.test(trimmed)) {
+        type = "session";
+      }
+
+      addToWhitelist({ type, value: trimmed });
+      vscode.window.showInformationMessage(
+        vscode.l10n.t("Sweep: Added \"{0}\" to whitelist.", trimmed)
+      );
+      treeDataProvider.refresh();
+    }
+  );
+
+  // sweep.removeFromWhitelist
+  const removeFromWhitelistCmd = vscode.commands.registerCommand(
+    "sweep.removeFromWhitelist",
+    async (node?: TreeNode) => {
+      if (node instanceof SessionNode) {
+        const { session } = node;
+        removeFromWhitelist({ type: "session", value: session.id });
+        if (session.projectName) {
+          removeFromWhitelist({ type: "project", value: session.projectName });
+        }
+        removeFromWhitelist({ type: "pattern", value: session.path });
+        vscode.window.showInformationMessage(
+          vscode.l10n.t("Sweep: Removed \"{0}\" from whitelist.", session.title || session.id)
+        );
+        treeDataProvider.refresh();
+        return;
+      }
+
+      if (node instanceof PathNode) {
+        removeFromWhitelist({ type: "pattern", value: node.entry.path });
+        vscode.window.showInformationMessage(
+          vscode.l10n.t("Sweep: Removed \"{0}\" from whitelist.", node.entry.path)
+        );
+        treeDataProvider.refresh();
+        return;
+      }
+
+      const cfg = loadConfig();
+      const items = [
+        ...(cfg.whitelist.projects || []).map((p) => ({
+          label: `📁 Project: ${p}`,
+          type: "project" as const,
+          val: p,
+        })),
+        ...(cfg.whitelist.patterns || []).map((pat) => ({
+          label: `🧩 Pattern: ${pat}`,
+          type: "pattern" as const,
+          val: pat,
+        })),
+        ...(cfg.whitelist.sessionIds || []).map((s) => ({
+          label: `💬 Session: ${s}`,
+          type: "session" as const,
+          val: s,
+        })),
+      ];
+
+      if (items.length === 0) {
+        vscode.window.showInformationMessage(vscode.l10n.t("Sweep: Whitelist is currently empty."));
+        return;
+      }
+
+      const pick = await vscode.window.showQuickPick(items, {
+        placeHolder: vscode.l10n.t("Select item to remove from whitelist"),
+      });
+      if (!pick) return;
+
+      removeFromWhitelist({ type: pick.type, value: pick.val });
+      vscode.window.showInformationMessage(
+        vscode.l10n.t("Sweep: Removed \"{0}\" from whitelist.", pick.val)
+      );
+      treeDataProvider.refresh();
+    }
+  );
+
+  // sweep.openConfigFile
+  const openConfigFileCmd = vscode.commands.registerCommand("sweep.openConfigFile", async () => {
+    const cfgPath = getConfigPath();
+    // Ensure file exists on disk
+    loadConfig();
+    const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(cfgPath));
+    await vscode.window.showTextDocument(doc);
+  });
+
   context.subscriptions.push(
     treeView,
     scanCmd,
@@ -976,7 +1175,10 @@ export function activate(context: vscode.ExtensionContext) {
     listBackupsCmd,
     restoreBackupCmd,
     openBackupFolderCmd,
-    pruneBackupsCmd
+    pruneBackupsCmd,
+    addToWhitelistCmd,
+    removeFromWhitelistCmd,
+    openConfigFileCmd
   );
 }
 

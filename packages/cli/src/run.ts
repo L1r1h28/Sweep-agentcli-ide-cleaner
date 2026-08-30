@@ -21,10 +21,19 @@ import {
   pruneBackups,
   restoreBackup,
   getLatestBackup,
+  loadConfig,
+  saveConfig,
+  getConfigPath,
+  addToWhitelist,
+  removeFromWhitelist,
+  setCustomPath,
+  isPathWhitelisted,
+  isSessionWhitelisted,
   type CleanKind,
   type ToolId,
   type ConversationSession,
   type BackupSummary,
+  type SweepConfig,
 } from "@aicleaner/core";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,6 +104,8 @@ Usage:
   sweep sessions  [list|clean|export] [flags]
   sweep backups   [list|prune] [flags]
   sweep restore   [<id>|latest] [--tool <id>] [--force] [--dry-run]
+  sweep config    [path|list|get|set] [args]
+  sweep whitelist [list|add|remove] <value>
   sweep tools     [--verbose]
   sweep targets   [--tool <id>]
   sweep help
@@ -105,6 +116,8 @@ Commands:
   sessions    Granular inspection, filtering, cleaning, and export of chat sessions.
   backups     List and prune local sweep backup archives.
   restore     Restore previously backed up cache or conversation history.
+  config      Inspect and modify shared configuration (~/.sweep/config.json).
+  whitelist   Manage protection whitelist rules (projects, patterns, session IDs).
   tools       List supported AI tools with blurb and notes.
   targets     List every cleanable target with its kind, risk, and resolved paths.
 
@@ -117,6 +130,16 @@ Backups Subcommands:
   sweep backups list    [--json]
   sweep backups prune   [--older-than 14d] [--keep-latest 5] [--dry-run] [--force]
 
+Config Subcommands:
+  sweep config list
+  sweep config path
+  sweep config get <key>
+  sweep config set <key> <value>
+
+Whitelist Subcommands:
+  sweep whitelist list
+  sweep whitelist add <pattern|project|sessionId>
+  sweep whitelist remove <item>
 
 Kinds:
   cache           Electron/GPU/index caches — safe, history is kept.
@@ -155,8 +178,8 @@ Examples:
   sweep scan --verbose
   sweep clean --kind cache --force
   sweep sessions list --older-than 30d
-  sweep sessions clean --older-than 30d --force
-  sweep sessions export 07681be0-a7d2-461e --format md --out ./exports
+  sweep whitelist add "**/keep-*/**"
+  sweep whitelist list
 `);
 }
 
@@ -225,7 +248,8 @@ function printScanTable(
         for (const e of group) {
           const marker = e.exists && e.bytes > 0 ? "✓" : e.exists ? "·" : "✗";
           const pathNote = e.exists ? "" : "  (not found)";
-          console.log(`       ${marker} ${e.path}${pathNote}`);
+          const whitelistNote = e.isWhitelisted ? " [🛡️ Whitelisted]" : "";
+          console.log(`       ${marker} ${e.path}${pathNote}${whitelistNote}`);
         }
       }
       console.log("");
@@ -255,7 +279,8 @@ function printSessionsTable(sessions: ConversationSession[]) {
     const age = `${s.ageDays}d`.padStart(6);
     const size = formatBytes(s.bytes).padStart(9);
     const title = s.title ? `${s.title} (${s.id.slice(0, 8)})` : s.id;
-    console.log(`  ${tool} ${proj} ${age} ${size}  ${title}`);
+    const badge = s.isWhitelisted ? " 🛡️" : "";
+    console.log(`  ${tool} ${proj} ${age} ${size}  ${title}${badge}`);
   }
 }
 
@@ -567,6 +592,151 @@ export async function runCli(argv: string[]) {
     }
   }
 
+  // ── config ─────────────────────────────────────────────────────────────────
+  if (cmd === "config") {
+    const subCmd = (args._ as string[])[1] ?? "list";
+    const cfgPath = getConfigPath(home);
+
+    if (subCmd === "path") {
+      console.log(`Config file path: ${cfgPath}`);
+      return 0;
+    }
+
+    if (subCmd === "list" || subCmd === "show") {
+      const cfg = loadConfig(undefined, home);
+      if (args.json) {
+        console.log(JSON.stringify(cfg, null, 2));
+      } else {
+        console.log(`\n⚙️  Sweep Configuration (${cfgPath}):\n`);
+        console.log(JSON.stringify(cfg, null, 2));
+      }
+      return 0;
+    }
+
+    if (subCmd === "get") {
+      const key = (args._ as string[])[2];
+      if (!key) {
+        console.error("Error: Key required. Example: sweep config get customPaths");
+        return 1;
+      }
+      const cfg = loadConfig(undefined, home) as Record<string, any>;
+      const keys = key.split(".");
+      let val: any = cfg;
+      for (const k of keys) {
+        val = val?.[k];
+      }
+      if (val === undefined) {
+        console.log(`(undefined)`);
+      } else if (typeof val === "object") {
+        console.log(JSON.stringify(val, null, 2));
+      } else {
+        console.log(String(val));
+      }
+      return 0;
+    }
+
+    if (subCmd === "set") {
+      const key = (args._ as string[])[2];
+      const valStr = (args._ as string[])[3];
+      if (!key || valStr === undefined) {
+        console.error("Error: Key and value required. Example: sweep config set defaults.olderThanDays 14");
+        return 1;
+      }
+      const cfg = loadConfig(undefined, home) as Record<string, any>;
+      let parsedVal: any = valStr;
+      try {
+        parsedVal = JSON.parse(valStr);
+      } catch {
+        parsedVal = valStr;
+      }
+
+      const keys = key.split(".");
+      let cur: any = cfg;
+      for (let i = 0; i < keys.length - 1; i++) {
+        const k = keys[i]!;
+        if (!cur[k] || typeof cur[k] !== "object") cur[k] = {};
+        cur = cur[k];
+      }
+      cur[keys[keys.length - 1]!] = parsedVal;
+
+      saveConfig(cfg as SweepConfig, undefined, home);
+      console.log(`✓ Updated config "${key}" = ${JSON.stringify(parsedVal)} in ${cfgPath}`);
+      return 0;
+    }
+
+    console.error(`Unknown config subcommand: "${subCmd}". Available: list, path, get, set.`);
+    return 1;
+  }
+
+  // ── whitelist ──────────────────────────────────────────────────────────────
+  if (cmd === "whitelist") {
+    const subCmd = (args._ as string[])[1] ?? "list";
+
+    if (subCmd === "list") {
+      const cfg = loadConfig(undefined, home);
+      if (args.json) {
+        console.log(JSON.stringify(cfg.whitelist, null, 2));
+        return 0;
+      }
+      console.log(`\n🛡️  Sweep Whitelist Rules:\n`);
+      console.log(`  📁 Projects (${cfg.whitelist.projects?.length || 0}):`);
+      if (!cfg.whitelist.projects || cfg.whitelist.projects.length === 0) {
+        console.log(`     (none)`);
+      } else {
+        for (const p of cfg.whitelist.projects) console.log(`     • ${p}`);
+      }
+
+      console.log(`\n  🧩 Glob Patterns (${cfg.whitelist.patterns?.length || 0}):`);
+      if (!cfg.whitelist.patterns || cfg.whitelist.patterns.length === 0) {
+        console.log(`     (none)`);
+      } else {
+        for (const pat of cfg.whitelist.patterns) console.log(`     • ${pat}`);
+      }
+
+      console.log(`\n  💬 Session IDs (${cfg.whitelist.sessionIds?.length || 0}):`);
+      if (!cfg.whitelist.sessionIds || cfg.whitelist.sessionIds.length === 0) {
+        console.log(`     (none)`);
+      } else {
+        for (const sid of cfg.whitelist.sessionIds) console.log(`     • ${sid}`);
+      }
+      return 0;
+    }
+
+    if (subCmd === "add") {
+      const val = (args._ as string[])[2];
+      if (!val) {
+        console.error("Error: Value required. Example: sweep whitelist add '**/keep-*/**'");
+        return 1;
+      }
+      let type: "project" | "pattern" | "session" = "project";
+      if (args.type === "pattern" || val.includes("*") || val.includes("/") || val.includes("\\")) {
+        type = "pattern";
+      } else if (args.type === "session" || /^[0-9a-f-]{16,}$/i.test(val)) {
+        type = "session";
+      }
+
+      addToWhitelist({ type, value: val }, undefined, home);
+      console.log(`🛡️  Added ${type} "${val}" to whitelist.`);
+      return 0;
+    }
+
+    if (subCmd === "remove" || subCmd === "rm") {
+      const val = (args._ as string[])[2];
+      if (!val) {
+        console.error("Error: Value required. Example: sweep whitelist remove '**/keep-*/**'");
+        return 1;
+      }
+      removeFromWhitelist({ type: "project", value: val }, undefined, home);
+      removeFromWhitelist({ type: "pattern", value: val }, undefined, home);
+      removeFromWhitelist({ type: "session", value: val }, undefined, home);
+      console.log(`✓ Removed "${val}" from whitelist.`);
+      return 0;
+    }
+
+    console.error(`Unknown whitelist subcommand: "${subCmd}". Available: list, add, remove.`);
+    return 1;
+  }
+
   // ── clean ──────────────────────────────────────────────────────────────────
   if (cmd === "clean") {
     const kind = String(args.kind ?? "cache");
@@ -620,10 +790,16 @@ export async function runCli(argv: string[]) {
       }
 
       for (const item of result.items) {
+        const whitelistedTag = item.action === "skipped" && item.error?.includes("Whitelisted") ? " [🛡️ Whitelisted]" : "";
         console.log(
           `  ${item.action.padEnd(12)}  💬 ${item.session.toolName.padEnd(14)}  ` +
-            `${formatBytes(item.bytes).padStart(9)}  ${item.session.path}`
+            `${formatBytes(item.bytes).padStart(9)}  ${item.session.path}${whitelistedTag}`
         );
+      }
+
+      const skippedWhitelist = result.items.filter((i) => i.action === "skipped" && i.error?.includes("Whitelisted"));
+      if (skippedWhitelist.length > 0) {
+        console.log(`\n🛡️  ${skippedWhitelist.length} session(s) protected and skipped due to whitelist.`);
       }
 
       console.log(`\n${dryRun ? "Would free" : "Freed"} ${formatBytes(result.freedBytes)}`);

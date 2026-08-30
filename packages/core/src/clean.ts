@@ -36,6 +36,7 @@ export function planClean(report: ScanReport, options: CleanOptions): CleanItem[
     .filter((e) => kinds.has(e.kind))
     .filter((e) => (tools ? tools.has(e.toolId) : true))
     .filter((e) => (targets ? targets.has(e.targetId) : true))
+    .filter((e) => !e.isWhitelisted)
     .filter((e) => !isProtected(e.path))
     .map((e) => ({
       path: e.path,

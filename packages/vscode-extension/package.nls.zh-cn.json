@@ -16,5 +16,8 @@
   "command.restoreBackup.title": "从备份还原...",
   "command.openBackupFolder.title": "打开备份文件夹",
   "command.pruneBackups.title": "清理过期备份...",
+  "command.addToWhitelist.title": "加入白名单 (永久保护)",
+  "command.removeFromWhitelist.title": "从白名单移除",
+  "command.openConfigFile.title": "打开配置文件 (~/.sweep/config.json)",
   "views.tools.name": "AI 工具存储"
 }

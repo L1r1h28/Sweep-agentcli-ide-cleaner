@@ -2,7 +2,7 @@
   "name": "sweep-aicleaner",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "publisher": "sweep",
   "repository": {
     "type": "git",
@@ -110,8 +110,57 @@
         "title": "%command.pruneBackups.title%",
         "category": "Sweep",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "sweep.addToWhitelist",
+        "title": "%command.addToWhitelist.title%",
+        "category": "Sweep",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "sweep.removeFromWhitelist",
+        "title": "%command.removeFromWhitelist.title%",
+        "category": "Sweep",
+        "icon": "$(shield-x)"
+      },
+      {
+        "command": "sweep.openConfigFile",
+        "title": "%command.openConfigFile.title%",
+        "category": "Sweep",
+        "icon": "$(gear)"
       }
     ],
+    "configuration": {
+      "title": "Sweep AI Cleaner",
+      "properties": {
+        "sweep.customPaths": {
+          "type": "object",
+          "default": {},
+          "description": "Custom storage paths for AI tools (e.g. { \"claude-code\": [\"D:\\\\custom\\\\.claude\"] })."
+        },
+        "sweep.excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Glob patterns of session files or directories to protect from deletion (e.g. [\"**/keep-*/**\"])."
+        },
+        "sweep.whitelistProjects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "List of workspace/project names permanently protected from conversation cleanup."
+        },
+        "sweep.backupBeforeClean": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically backup conversation sessions to ~/.sweep/backups/ before deletion."
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -175,6 +224,11 @@
           "command": "sweep.pruneBackups",
           "when": "view == sweep.tools",
           "group": "2_backups@3"
+        },
+        {
+          "command": "sweep.openConfigFile",
+          "when": "view == sweep.tools",
+          "group": "3_config@1"
         }
       ],
       "view/item/context": [
@@ -190,13 +244,23 @@
         },
         {
           "command": "sweep.exportSession",
-          "when": "view == sweep.tools && viewItem == sessionEntry",
+          "when": "view == sweep.tools && viewItem =~ /^sessionEntry/",
           "group": "inline@1"
         },
         {
           "command": "sweep.cleanSingleSession",
           "when": "view == sweep.tools && viewItem == sessionEntry",
           "group": "inline@2"
+        },
+        {
+          "command": "sweep.addToWhitelist",
+          "when": "view == sweep.tools && (viewItem == sessionEntry || viewItem == pathEntry)",
+          "group": "whitelist@1"
+        },
+        {
+          "command": "sweep.removeFromWhitelist",
+          "when": "view == sweep.tools && (viewItem == sessionEntry:whitelisted || viewItem == pathEntry:whitelisted)",
+          "group": "whitelist@1"
         }
       ]
     }

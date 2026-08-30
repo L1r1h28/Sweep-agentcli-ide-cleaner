@@ -7,6 +7,55 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### Custom Settings & Whitelist Protection (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Shared Configuration Engine (`~/.sweep/config.json`)**:
+  - Implemented centralized configuration management (`loadConfig()`, `saveConfig()`) supporting `~/.sweep/config.json` with backward-compatible `~/.sweeprc` fallback.
+  - Added support for custom tool storage paths (`customPaths`) across non-standard drive letters, portable directories, and custom environments.
+  - Environment variable resolution in `expandPath()` supporting arbitrary `%VAR%` (Windows) and `$VAR` / `${VAR}` (POSIX) expansion.
+- **Whitelist Protection & Filter Engine**:
+  - Implemented multi-tier whitelist filtering (`isPathWhitelisted()`, `isProjectWhitelisted()`, `isSessionIdWhitelisted()`, `isSessionWhitelisted()`).
+  - Supports Glob patterns (`**/keep-*/**`, `**/*.keep.jsonl`), project/workspace names, and explicit session IDs.
+  - Integrated into `scanDisk()`, `scanSessions()`, `planClean()`, and `cleanSessions()` ensuring whitelisted items are permanently immune from deletion across batch clean, time-based clean, and single-item cleanup.
+- **CLI Commands**:
+  - `sweep config [path | list | get <key> | set <key> <value>]`: Inspect and manage configuration values directly from the terminal.
+  - `sweep whitelist [list | add <item> | remove <item>]`: Manage protected projects, patterns, and session IDs.
+  - Tabular outputs and clean reports now display `[🛡️ Whitelisted]` indicators and skip summaries.
+- **VS Code Extension Integration**:
+  - Contributed configuration settings: `sweep.customPaths`, `sweep.excludePatterns`, `sweep.whitelistProjects`, and `sweep.backupBeforeClean`.
+  - Visual shield indicators (`$(shield)`) with green badge for protected items in the Activity Bar Tree View.
+  - Right-click context actions: `Sweep: Add to Whitelist (Protect)` and `Sweep: Remove from Whitelist`.
+  - `Sweep: Open config file` (`sweep.openConfigFile`) for quick JSON configuration editing.
+  - Synchronized full 18-command documentation and settings guide in extension READMEs.
+
+---
+
+## [1.1.1] - 2026-08-30
+
+### ✨ Features & Enhancements
+
+#### Backup Management & One-Click Restore (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Backup Manifest Engine (`manifest.json`)**:
+  - Implemented atomic `manifest.json` generation tracking tool IDs, target identifiers, original absolute paths, backup relative paths, timestamps, and platform metadata.
+  - Path traversal and security protections on restore destinations.
+- **Backup & Restore Operations**:
+  - `listBackups()`: Sorted backup archives with total sizes, timestamps, and tool breakdown.
+  - `pruneBackups()`: Expired archive cleanup supporting `--older-than <dur>` (e.g. `14d`) and `--keep-latest <n>`.
+  - `restoreBackup()`: One-click full or selective (`--tool <id>`) restore to original system paths.
+- **CLI Commands**:
+  - `sweep backups list`: Tabular list of local backup archives.
+  - `sweep backups prune`: Prune expired or excessive backup archives.
+  - `sweep restore [<id>|latest]`: One-click restore previous backup archives.
+- **VS Code Extension Integration**:
+  - `Sweep: View backup history` (`sweep.listBackups`).
+  - `Sweep: Restore from backup...` (`sweep.restoreBackup`) with safety confirmation modals.
+  - `Sweep: Open backup folder` (`sweep.openBackupFolder`) and `Sweep: Prune expired backups...` (`sweep.pruneBackups`).
+
+---
+
 ## [1.1.0] - 2026-08-30
 
 ### ✨ Features & Enhancements
@@ -33,22 +82,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Sweep: Clean large conversations (>50MB)...`.
   - `Sweep: Pick conversations to delete...` (interactive multi-select checklist).
   - `Sweep: Export conversation (Markdown / JSON)`.
-#### Backup Management & One-Click Restore (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
-- **Backup Manifest Engine (`manifest.json`)**:
-  - Implemented atomic `manifest.json` generation tracking tool IDs, target identifiers, original absolute paths, backup relative paths, timestamps, and platform metadata.
-  - Path traversal and security protections on restore destinations.
-- **Backup & Restore Operations**:
-  - `listBackups()`: Sorted backup archives with total sizes, timestamps, and tool breakdown.
-  - `pruneBackups()`: Expired archive cleanup supporting `--older-than <dur>` (e.g. `14d`) and `--keep-latest <n>`.
-  - `restoreBackup()`: One-click full or selective (`--tool <id>`) restore to original system paths.
-- **CLI Commands**:
-  - `sweep backups list`: Tabular list of local backup archives.
-  - `sweep backups prune`: Prune expired or excessive backup archives.
-  - `sweep restore [<id>|latest]`: One-click restore previous backup archives.
-- **VS Code Extension Integration**:
-  - `Sweep: View backup history` (`sweep.listBackups`).
-  - `Sweep: Restore from backup...` (`sweep.restoreBackup`) with safety confirmation modals.
-  - `Sweep: Open backup folder` (`sweep.openBackupFolder`) and `Sweep: Prune expired backups...` (`sweep.pruneBackups`).
 
 ---
 

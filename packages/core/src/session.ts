@@ -2,8 +2,10 @@ import { existsSync, lstatSync, readdirSync, readFileSync, rmSync, statSync } fr
 import { basename, dirname, join } from "node:path";
 import { backupRoot, copyToBackup } from "./backup.ts";
 import { NEVER_DELETE_GLOBS, TOOLS } from "./catalog.ts";
+import { loadConfig } from "./config.ts";
+import { isSessionWhitelisted } from "./filter.ts";
 import { defaultHome, detectPlatform, resolveTargets, type EnvMap } from "./paths.ts";
-import type { CleanKind, Platform, ToolDef, ToolId } from "./types.ts";
+import type { CleanKind, Platform, SweepConfig, ToolDef, ToolId } from "./types.ts";
 
 export interface ConversationSession {
   id: string;
@@ -18,6 +20,7 @@ export interface ConversationSession {
   bytes: number;
   fileCount: number;
   isDirectory: boolean;
+  isWhitelisted?: boolean;
 }
 
 export interface SessionFilterOptions {
@@ -271,16 +274,18 @@ export function scanSessions(options?: {
   env?: EnvMap;
   toolIds?: ToolId[];
   tools?: ToolDef[];
+  config?: SweepConfig;
 }): ConversationSession[] {
   const platform = options?.platform ?? detectPlatform();
   const env = options?.env ?? (typeof process !== "undefined" ? process.env : {});
   const home = options?.home ?? defaultHome(platform, env);
+  const config = options?.config ?? loadConfig(undefined, home, env);
   const tools = options?.tools ?? TOOLS;
   const filteredTools = options?.toolIds
     ? tools.filter((t) => options.toolIds!.includes(t.id))
     : tools;
 
-  const resolved = resolveTargets(platform, home, env, filteredTools);
+  const resolved = resolveTargets(platform, home, env, filteredTools, config.customPaths);
   const convTargets = resolved.filter((r) => r.target.kind === "conversations");
   const sessions: ConversationSession[] = [];
   const nowMs = Date.now();
@@ -299,7 +304,10 @@ export function scanSessions(options?: {
       if (!st.isDirectory()) {
         // Individual file target
         const s = inspectSessionItem(targetPath, r.toolId, r.toolName, r.target.id, nowMs);
-        if (s) sessions.push(s);
+        if (s) {
+          s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+          sessions.push(s);
+        }
         continue;
       }
 
@@ -315,7 +323,10 @@ export function scanSessions(options?: {
               for (const sf of sessionFiles) {
                 const sPath = join(projDir, sf);
                 const s = inspectSessionItem(sPath, r.toolId, r.toolName, r.target.id, nowMs, proj);
-                if (s) sessions.push(s);
+                if (s) {
+                  s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+                  sessions.push(s);
+                }
               }
             } catch {
               continue;
@@ -333,7 +344,10 @@ export function scanSessions(options?: {
         for (const child of children) {
           const childPath = join(targetPath, child);
           const s = inspectSessionItem(childPath, r.toolId, r.toolName, r.target.id, nowMs);
-          if (s) sessions.push(s);
+          if (s) {
+            s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+            sessions.push(s);
+          }
         }
       } catch {
         // ignore
@@ -536,6 +550,7 @@ export function cleanSessions(
     home?: string;
     platform?: Platform;
     env?: EnvMap;
+    config?: SweepConfig;
   }
 ): SessionCleanResult {
   const dryRun = options?.dryRun ?? false;
@@ -543,11 +558,22 @@ export function cleanSessions(
   const platform = options?.platform ?? detectPlatform();
   const env = options?.env ?? (typeof process !== "undefined" ? process.env : {});
   const home = options?.home ?? defaultHome(platform, env);
+  const config = options?.config ?? loadConfig(undefined, home, env);
   const backupDir = backup ? options?.backupDir ?? backupRoot(home) : undefined;
   const items: SessionCleanItem[] = [];
   let freed = 0;
 
   for (const session of sessions) {
+    if (session.isWhitelisted || isSessionWhitelisted(session, config.whitelist)) {
+      items.push({
+        session,
+        action: "skipped",
+        bytes: 0,
+        error: "Whitelisted (Protected)",
+      });
+      continue;
+    }
+
     if (isSessionProtected(session.path)) {
       items.push({
         session,

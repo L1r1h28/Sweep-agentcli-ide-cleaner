@@ -44,6 +44,22 @@ export type ResolvedTarget = {
   resolvedPaths: string[];
 };
 
+export type WhitelistRules = {
+  projects?: string[];
+  patterns?: string[];
+  sessionIds?: string[];
+};
+
+export type SweepConfig = {
+  version: string;
+  customPaths?: Partial<Record<ToolId, string[]>>;
+  whitelist: WhitelistRules;
+  defaults?: {
+    backupBeforeClean?: boolean;
+    olderThanDays?: number;
+  };
+};
+
 export type ScanEntry = {
   toolId: ToolId;
   toolName: string;
@@ -55,6 +71,7 @@ export type ScanEntry = {
   exists: boolean;
   bytes: number;
   fileCount: number;
+  isWhitelisted?: boolean;
   error?: string;
 };
 
@@ -83,6 +100,7 @@ export type CleanItem = {
   toolId: ToolId;
   targetId: string;
   action: "would-delete" | "deleted" | "backed-up" | "skipped" | "failed";
+  isWhitelisted?: boolean;
   error?: string;
 };
 

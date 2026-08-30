@@ -1,4 +1,4 @@
-import type { Platform, ResolvedTarget, ToolDef } from "./types.ts";
+import type { Platform, ResolvedTarget, ToolDef, ToolId } from "./types.ts";
 import { TOOLS } from "./catalog.ts";
 
 export type EnvMap = Record<string, string | undefined>;
@@ -34,6 +34,8 @@ export function expandPath(
   home: string,
   env: EnvMap = {},
 ): string {
+  const processEnv: EnvMap = typeof process !== "undefined" ? process.env : {};
+
   const appData =
     env.APPDATA ??
     (platform === "win" ? joinHome(home, platform, "AppData", "Roaming") : home);
@@ -45,6 +47,26 @@ export function expandPath(
   out = out.replaceAll("%USERPROFILE%", home);
   out = out.replaceAll("%APPDATA%", appData);
   out = out.replaceAll("%LOCALAPPDATA%", localAppData);
+
+  // Replace other Windows %VAR% patterns
+  out = out.replace(/%([a-zA-Z0-9_]+)%/g, (match, varName) => {
+    if (varName === "USERPROFILE" || varName === "APPDATA" || varName === "LOCALAPPDATA") return match;
+    const val = env[varName] ?? processEnv[varName];
+    return val !== undefined ? val : match;
+  });
+
+  // Replace POSIX ${VAR} and $VAR patterns
+  out = out.replace(/\$\{([a-zA-Z0-9_]+)\}/g, (match, varName) => {
+    if (varName === "HOME") return home;
+    const val = env[varName] ?? processEnv[varName];
+    return val !== undefined ? val : match;
+  });
+  out = out.replace(/\$([a-zA-Z0-9_]+)/g, (match, varName) => {
+    if (varName === "HOME") return home;
+    const val = env[varName] ?? processEnv[varName];
+    return val !== undefined ? val : match;
+  });
+
   if (out.startsWith("~/") || out === "~") {
     out = home + out.slice(1);
   }
@@ -57,6 +79,7 @@ export function resolveTargets(
   home: string,
   env: EnvMap = {},
   tools: ToolDef[] = TOOLS,
+  customPaths?: Partial<Record<ToolId, string[]>>,
 ): ResolvedTarget[] {
   const list: ResolvedTarget[] = [];
   for (const tool of tools) {
@@ -70,6 +93,27 @@ export function resolveTargets(
         ),
       });
     }
+
+    // If custom paths configured for this tool, inject them as additional targets
+    if (customPaths && customPaths[tool.id] && customPaths[tool.id]!.length > 0) {
+      for (const [idx, customP] of customPaths[tool.id]!.entries()) {
+        const resolved = expandPath(customP, platform, home, env);
+        list.push({
+          toolId: tool.id,
+          toolName: tool.name,
+          target: {
+            id: `custom-path-${idx + 1}`,
+            label: `Custom Path (${customP})`,
+            kind: "conversations",
+            risk: "high",
+            description: `User-defined custom storage path: ${customP}`,
+            paths: { win: [customP], mac: [customP], linux: [customP] },
+          },
+          resolvedPaths: [resolved],
+        });
+      }
+    }
   }
   return list;
 }
+

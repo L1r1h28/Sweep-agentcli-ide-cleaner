@@ -1,9 +1,10 @@
 import { lstatSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { TOOLS } from "./catalog.ts";
-import type { ToolDef } from "./types.ts";
+import { loadConfig } from "./config.ts";
+import { isPathWhitelisted } from "./filter.ts";
 import { defaultHome, detectPlatform, resolveTargets, type EnvMap } from "./paths.ts";
-import type { Platform, ScanEntry, ScanReport, ToolId } from "./types.ts";
+import type { Platform, ScanEntry, ScanReport, SweepConfig, ToolDef, ToolId } from "./types.ts";
 
 function dirSize(root: string): { bytes: number; files: number } {
   let bytes = 0;
@@ -41,19 +42,22 @@ export function scanDisk(options?: {
   env?: EnvMap;
   toolIds?: ToolId[];
   tools?: ToolDef[];
+  config?: SweepConfig;
 }): ScanReport {
   const platform = options?.platform ?? detectPlatform();
   const env = options?.env ?? (typeof process !== "undefined" ? process.env : {});
   const home = options?.home ?? defaultHome(platform, env);
+  const config = options?.config ?? loadConfig(undefined, home, env);
   const tools = options?.tools ?? TOOLS;
   const filteredTools = options?.toolIds
     ? tools.filter((t) => options.toolIds!.includes(t.id))
     : tools;
-  const resolved = resolveTargets(platform, home, env, filteredTools);
+  const resolved = resolveTargets(platform, home, env, filteredTools, config.customPaths);
   const entries: ScanEntry[] = [];
 
   for (const r of resolved) {
     for (const path of r.resolvedPaths) {
+      const whitelisted = isPathWhitelisted(path, config.whitelist);
       try {
         const st = statSync(path);
         const size = st.isDirectory()
@@ -70,6 +74,7 @@ export function scanDisk(options?: {
           exists: true,
           bytes: size.bytes,
           fileCount: size.files,
+          isWhitelisted: whitelisted,
         });
       } catch (err) {
         const code = (err as NodeJS.ErrnoException).code;
@@ -84,6 +89,7 @@ export function scanDisk(options?: {
           exists: false,
           bytes: 0,
           fileCount: 0,
+          isWhitelisted: whitelisted,
           error: code === "ENOENT" ? undefined : String(err),
         });
       }

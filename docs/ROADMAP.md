@@ -114,7 +114,7 @@
 - [x] 撰寫單元測試覆蓋細緻化篩選與對話封存邏輯
 - [x] Push 到 GitHub
 
-## ✅ Commit 9 [v1.1.0] — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
+## ✅ Commit 9 [v1.1.1] — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
 
 - [x] **備份管理與一鍵還原機制 (Backup Management & One-Click Restore)**：
   - [x] Core 還原引擎（`packages/core/src/restore.ts`）：建立 `manifest.json` 記錄原始路徑、時間與工具對應
@@ -131,17 +131,18 @@
 - [x] 撰寫單元測試覆蓋備份清單、過期清理與還原機制
 - [x] Push 到 GitHub
 
-## Commit 10 [v1.1.0] — 使用者自訂設定與排除名單 (Custom Settings & Whitelist) `[Push]`
+## ✅ Commit 10 [v1.1.2] — 使用者自訂設定與排除名單 (Custom Settings & Whitelist) `[Push]`
 
-- [ ] **使用者自訂設定與排除名單 (Custom Settings & Whitelist)**：
-  - [ ] 自訂工具儲存路徑記憶（支援非標準路徑、便攜版、自訂磁碟代號、自訂環境變數路徑）
-  - [ ] 白名單與永久排除規則（支援指定絕不刪除之專案、Session 或路徑 pattern）
-  - [ ] VS Code 設定整合（`sweep.customPaths`、`sweep.excludePatterns` 與樹狀右鍵「加入/移除白名單」）
-  - [ ] CLI 與 Extension 共用設定檔（`~/.sweeprc` / `config.json` 同步共享規則）
-- [ ] 撰寫單元測試覆蓋自訂路徑與白名單過濾規則
-- [ ] Push 到 GitHub
+- [x] **使用者自訂設定與排除名單 (Custom Settings & Whitelist)**：
+  - [x] 自訂工具儲存路徑記憶（支援非標準路徑、便攜版、自訂磁碟代號、自訂環境變數路徑）
+  - [x] 白名單與永久排除規則（支援指定絕不刪除之專案、Session 或路徑 pattern）
+  - [x] VS Code 設定整合（`sweep.customPaths`、`sweep.excludePatterns` 與樹狀右鍵「加入/移除白名單」）
+  - [x] CLI 與 Extension 共用設定檔（`~/.sweeprc` / `config.json` 同步共享規則）
+  - [x] VS Code Extension README 完整指令列與白名單排除標記文件同步更新
+- [x] 撰寫單元測試覆蓋自訂路徑與白名單過濾規則
+- [x] Push 到 GitHub
 
-## Commit 11 [v1.1.0] — CI / Release 工作流擴充與商店發布配置 `[Push]`
+## Commit 11 [v1.1.3] — CI / Release 工作流擴充與商店發布配置 `[Push]`
 
 - [ ] CI 在 Windows / macOS / Linux 執行完整 build 與 test
 - [x] 升級 CI / Release workflows 之 Node.js 版本至 Node.js 24 (與本機環境統一)
@@ -160,7 +161,7 @@
 - [ ] 確認 GitHub repository 的 description、license、README 與版本號一致
 - [ ] Push 到 GitHub
 
-## Commit 12 [v1.1.0] — 官方商店發布 (Marketplace & npm) 與 v1.1.0 正式發行 `[Push]` `[Release]`
+## Commit 12 [v1.2.0] — 官方商店發布 (Marketplace & npm) 與 v1.2.0 正式發行 `[Push]` `[Release]`
 
 - [ ] **商店帳號與發行者身分設定 (Publishers & Tokens Setup)**：
   - [ ] 註冊微軟發行者（Publisher ID: `L1r1h28`）並在 Azure DevOps 產出 PAT（Marketplace Manage 權限）

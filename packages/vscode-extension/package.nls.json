@@ -16,5 +16,8 @@
   "command.restoreBackup.title": "Restore from backup...",
   "command.openBackupFolder.title": "Open backup folder",
   "command.pruneBackups.title": "Prune expired backups...",
+  "command.addToWhitelist.title": "Add to Whitelist (Protect)",
+  "command.removeFromWhitelist.title": "Remove from Whitelist",
+  "command.openConfigFile.title": "Open config file (~/.sweep/config.json)",
   "views.tools.name": "AI tool storage"
 }
