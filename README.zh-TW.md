@@ -77,9 +77,11 @@ npm install -g aicleaner-cli-1.0.0.tgz
 
 ## 🚀 快速開始
 
-### 1. 使用 CLI 終端工具
+### 1. CLI 終端機工具使用
 
-Sweep CLI 同時註冊了 `sweep` 與 `aicleaner` 指令：
+![Sweep CLI 終端機操作展示](assets/cli.png)
+
+Sweep CLI 註冊 `sweep` 與 `aicleaner` 兩個指令名稱：
 
 ```bash
 # 掃描全部 AI 工具的磁碟佔用狀況
@@ -131,6 +133,12 @@ sweep clean --tool codex --kind cache --no-backup --force
 2. 點擊頂部 **Scan storage** 掃描本地儲存佔用。
 3. 可針對個別工具執行 **Clean cache** 或 **Clean conversations**。
 4. 支援快速查看自動備份目錄。
+
+![VS Code 擴充套件面板總覽](assets/fullscreen.png)
+
+*安全操作確認與模擬預檢視窗：*
+
+![快取清理確認彈窗](assets/notify.png)
 
 ---
 

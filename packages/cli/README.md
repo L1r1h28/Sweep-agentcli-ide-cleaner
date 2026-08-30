@@ -6,6 +6,8 @@
 
 `@aicleaner/cli` provides the `sweep` and `aicleaner` commands. It leverages `@aicleaner/core` to give developers fast, scriptable access to storage inspection and cleanup operations.
 
+![Sweep CLI Demo](../../assets/cli.png)
+
 ---
 
 ## ⚡ Installation & Execution

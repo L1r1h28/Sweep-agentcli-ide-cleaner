@@ -1,0 +1,11 @@
+{
+  "displayName": "Sweep — AI 工具清理专家",
+  "description": "扫描并清理 Antigravity、Codex、Claude Code、Windsurf、Kiro 和 Trae 的缓存与对话记录。",
+  "command.scan.title": "扫描存储空间",
+  "command.cleanCache.title": "清理所有缓存 (安全)",
+  "command.cleanConversations.title": "清理所有对话记录 (破坏性)",
+  "command.cleanCacheForTool.title": "清理该工具的缓存",
+  "command.cleanConversationsForTool.title": "清理该工具的对话记录",
+  "command.dryRun.title": "模拟预检全部 (Dry-run)",
+  "views.tools.name": "AI 工具存储空间"
+}

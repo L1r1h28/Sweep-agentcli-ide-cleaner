@@ -81,15 +81,21 @@
 
 ## Commit 7 — VS Code Extension UI 按鈕優化與多語系 (i18n) `[Push]`
 
-- [ ] **VS Code Extension UI 按鈕優化與行為修復**：
-  - [ ] 移除重複的摺疊按鈕（移除 `package.json` 自訂 collapse，保留 VS Code 原生 `showCollapseAll`）
-  - [ ] 修復「展開所有節點 (Expand All)」功能（使用 `treeView.reveal()` 或 DataProvider 狀態控制）
-  - [ ] 簡化標題列按鈕配置（保留：🔍 掃描、🗑️ 清理快取、⚠️ 清理對話、➖ 原生摺疊）
-- [ ] **VS Code Extension 多語系 i18n 支援（繁中 / 英文 / 簡中）**：
-  - [ ] 選單與指令本地化：`package.nls.json` (EN)、`package.nls.zh-tw.json` (繁中)、`package.nls.zh-cn.json` (簡中)
-  - [ ] 程式碼內部字串本地化：使用 `vscode.l10n.t()` 封裝通知訊息、確認視窗（Modal）、進度提示與 Tooltip
-  - [ ] Extension 專屬多語系文件：`README.md`、`README.zh-TW.md`、`README.zh-CN.md`
-- [ ] 驗證多語系切換與 UI 操作正常
+- [x] **VS Code Extension UI 按鈕優化與行為修復**：
+  - [x] 移除重複且無效的自訂開合按鈕（移除 `package.json` 自訂 `expandAll` 與 `collapseAll`）
+  - [x] 保留 VS Code 原生 `showCollapseAll: true`（採用官方原生高效摺疊機制）
+  - [x] 標題列按鈕配置（依序保留 4 顆按鈕：🔄 掃描/重新整理、🗑️ 清理快取、⚠️ 清理對話、➖ 原生摺疊）
+- [x] **VS Code Extension 多語系 i18n 支援（繁中 / 英文 / 簡中）**：
+  - [x] 選單與指令本地化：`package.nls.json` (EN)、`package.nls.zh-tw.json` (繁中)、`package.nls.zh-cn.json` (簡中)
+  - [x] 程式碼內部字串本地化：使用 `vscode.l10n.t()` 封裝通知訊息、確認視窗（Modal）、進度提示與 Tooltip
+  - [x] Extension 專屬多語系文件：`README.md`、`README.zh-TW.md`、`README.zh-CN.md`
+- [x] **專案視覺展示與截圖素材 (Visual Assets & Screenshots)**：
+  - [x] 建立 `assets/` 目錄維護專案視覺圖片與展示檔案
+  - [x] 錄製/截取 CLI 終端機展示圖（`sweep scan` 彩色輸出、`sweep clean --dry-run` 預覽與自動備份）
+  - [x] 截取 VS Code Extension 側邊欄面板與操作截圖（樹狀視圖、清理快取/對話確認彈窗）
+  - [x] 在根目錄多語系 README（`README.md`、`README.zh-TW.md`、`README.zh-CN.md`）與 Extension README 嵌入展示截圖
+  - [x] 準備 VS Code Marketplace / Open VSX 預覽展示圖（供後續 Commit 11 / 12 上架使用）
+- [x] 驗證多語系切換與 UI 操作正常
 - [ ] Push 到 GitHub
 
 ## Commit 8 — 細緻化對話清理機制 (Granular Conversation Cleaning) `[Push]`

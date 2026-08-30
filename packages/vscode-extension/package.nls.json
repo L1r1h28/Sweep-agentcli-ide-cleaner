@@ -1,0 +1,11 @@
+{
+  "displayName": "Sweep — AI Tools Cleaner",
+  "description": "Scan and clean Antigravity, Codex, Claude Code, Windsurf, Kiro, and Trae caches vs conversations.",
+  "command.scan.title": "Scan storage",
+  "command.cleanCache.title": "Clean all cache (safe)",
+  "command.cleanConversations.title": "Clean all conversations (destructive)",
+  "command.cleanCacheForTool.title": "Clean cache for this tool",
+  "command.cleanConversationsForTool.title": "Clean conversations for this tool",
+  "command.dryRun.title": "Dry-run all",
+  "views.tools.name": "AI tool storage"
+}

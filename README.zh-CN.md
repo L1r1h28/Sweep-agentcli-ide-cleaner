@@ -79,6 +79,8 @@ npm install -g aicleaner-cli-1.0.0.tgz
 
 ### 1. 使用 CLI 终端工具
 
+![Sweep CLI 终端操作展示](assets/cli.png)
+
 Sweep CLI 同时注册了 `sweep` 与 `aicleaner` 命令：
 
 ```bash
@@ -131,6 +133,12 @@ sweep clean --tool codex --kind cache --no-backup --force
 2. 点击顶部 **Scan storage** 扫描本地存储占用。
 3. 可针对单独工具执行 **Clean cache** 或 **Clean conversations**。
 4. 支持快速查看并打开自动备份目录。
+
+![VS Code 插件面板总览](assets/fullscreen.png)
+
+*安全操作确认与模拟预检弹窗：*
+
+![缓存清理确认弹窗](assets/notify.png)
 
 ---
 

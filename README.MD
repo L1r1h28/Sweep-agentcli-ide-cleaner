@@ -81,6 +81,8 @@ npm install -g aicleaner-cli-1.0.0.tgz
 
 ### 1. Using the CLI Tool
 
+![Sweep CLI Demo](assets/cli.png)
+
 Sweep CLI registers both `sweep` and `aicleaner` commands:
 
 ```bash
@@ -133,6 +135,12 @@ Install `sweep-aicleaner` in VS Code or compatible IDEs (Cursor / Trae / Windsur
 2. Click **Scan storage** at the top to check local usage.
 3. Trigger **Clean cache** or **Clean conversations** for specific tools.
 4. Quickly navigate and open the automatic backup directory.
+
+![VS Code Extension Overview](assets/fullscreen.png)
+
+*Interactive Confirmation & Dry-run Modal:*
+
+![Clean Cache Confirmation Dialog](assets/notify.png)
 
 ---
 

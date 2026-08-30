@@ -1,5 +1,7 @@
 # Sweep — AI Tools Cleaner (VS Code Extension) 🧹
 
+[English](README.md) | [繁體中文](README.zh-TW.md) | [简体中文](README.zh-CN.md)
+
 > Visual Studio Code & Cursor extension for inspecting storage footprint and cleaning caches vs. conversation history for modern AI coding tools.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/blob/main/LICENSE)
@@ -17,6 +19,12 @@
 - 🛡️ **Dry-Run & Backup Support**: Preview estimated space recovery and safely backup conversations to `~/.sweep/backups/`.
 - 🤖 **Comprehensive Tool Support**: Works across Antigravity, OpenAI Codex, Claude Code, Windsurf, Kiro, and Trae IDE.
 
+![Sweep Extension Overview](https://raw.githubusercontent.com/L1r1h28/Sweep-agentcli-ide-cleaner/main/assets/fullscreen.png)
+
+*Safe Cleanup & Confirmation Modal:*
+
+![Clean Cache Confirmation Dialog](https://raw.githubusercontent.com/L1r1h28/Sweep-agentcli-ide-cleaner/main/assets/notify.png)
+
 ---
 
 ## 🛠️ Contributed Commands
@@ -29,8 +37,6 @@
 | `sweep.cleanCacheForTool` | **Sweep: Clean cache for this tool** | Cleans cache for the selected AI tool. |
 | `sweep.cleanConversationsForTool` | **Sweep: Clean conversations for this tool** | Cleans conversations for the selected AI tool. |
 | `sweep.dryRun` | **Sweep: Dry-run all** | Runs a non-destructive simulation to estimate recoverable space. |
-| `sweep.expandAll` | **Sweep: Expand all** | Expands all tool tree items in the storage view. |
-| `sweep.collapseAll` | **Sweep: Collapse all** | Collapses all tool tree items in the storage view. |
 
 ---
 

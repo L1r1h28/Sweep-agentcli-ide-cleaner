@@ -1,64 +1,59 @@
 {
   "name": "sweep-aicleaner",
-  "displayName": "Sweep — AI Tools Cleaner",
-  "description": "Scan and clean Antigravity, Codex, Claude Code, Windsurf, Kiro, and Trae caches vs conversations.",
+  "displayName": "%displayName%",
+  "description": "%description%",
   "version": "1.0.1",
   "publisher": "sweep",
   "repository": {
     "type": "git",
     "url": "https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner"
   },
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Other"],
-  "activationEvents": ["onStartupFinished"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "l10n": "./l10n",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "sweep.scan",
-        "title": "Scan storage",
+        "title": "%command.scan.title%",
         "category": "Sweep",
-        "icon": "$(search)"
-      },
-      {
-        "command": "sweep.expandAll",
-        "title": "Expand all",
-        "category": "Sweep",
-        "icon": "$(expand-all)"
-      },
-      {
-        "command": "sweep.collapseAll",
-        "title": "Collapse all",
-        "category": "Sweep",
-        "icon": "$(collapse-all)"
+        "icon": "$(refresh)"
       },
       {
         "command": "sweep.cleanCacheForTool",
-        "title": "Clean cache for this tool",
+        "title": "%command.cleanCacheForTool.title%",
         "category": "Sweep",
         "icon": "$(trash)"
       },
       {
         "command": "sweep.cleanConversationsForTool",
-        "title": "Clean conversations for this tool",
+        "title": "%command.cleanConversationsForTool.title%",
         "category": "Sweep",
         "icon": "$(warning)"
       },
       {
         "command": "sweep.cleanCache",
-        "title": "Clean all cache (safe)",
+        "title": "%command.cleanCache.title%",
         "category": "Sweep",
         "icon": "$(trash)"
       },
       {
         "command": "sweep.cleanConversations",
-        "title": "Clean all conversations (destructive)",
+        "title": "%command.cleanConversations.title%",
         "category": "Sweep",
         "icon": "$(warning)"
       },
       {
         "command": "sweep.dryRun",
-        "title": "Dry-run all",
+        "title": "%command.dryRun.title%",
         "category": "Sweep",
         "icon": "$(eye)"
       }
@@ -76,7 +71,7 @@
       "sweep": [
         {
           "id": "sweep.tools",
-          "name": "AI tool storage"
+          "name": "%views.tools.name%"
         }
       ]
     },
@@ -88,24 +83,14 @@
           "group": "navigation@1"
         },
         {
-          "command": "sweep.expandAll",
+          "command": "sweep.cleanCache",
           "when": "view == sweep.tools",
           "group": "navigation@2"
         },
         {
-          "command": "sweep.collapseAll",
-          "when": "view == sweep.tools",
-          "group": "navigation@3"
-        },
-        {
-          "command": "sweep.cleanCache",
-          "when": "view == sweep.tools",
-          "group": "navigation@4"
-        },
-        {
           "command": "sweep.cleanConversations",
           "when": "view == sweep.tools",
-          "group": "navigation@5"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
@@ -129,9 +114,12 @@
   },
   "scripts": {
     "build": "node esbuild.mjs",
-    "pack": "npm run build && npx @vscode/vsce package --no-dependencies --allow-missing-repository"
+    "pack": "npm run build && npx @vscode/vsce package --no-dependencies --allow-missing-repository",
+    "l10n:export": "npx @vscode/l10n-dev export --outDir ./l10n ./src"
   },
   "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@vscode/l10n-dev": "^0.0.35",
     "esbuild": "^0.25.0"
   }
 }
