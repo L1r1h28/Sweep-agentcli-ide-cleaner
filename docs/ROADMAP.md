@@ -104,6 +104,18 @@
 - [ ] **對話封存與匯出 (Export & Archive to Markdown/JSON)**：
   - 在執行清理前提供將對話匯出成一般 Markdown 或 JSON 格式歸檔的功能，兼顧釋放空間與知識留存。
 
+### 4. 使用者自訂設定與排除名單 (Custom Settings & Whitelist/Ignore List)
+- [ ] **自訂工具儲存路徑記憶 (Custom Tool Paths Override & Persistence)**：
+  - 支援使用者自訂非標準路徑（例如便攜版 IDE、自訂磁碟代號 `D:\...`、自訂 `CLAUDE_CONFIG_DIR` 或自訂 AppData 路徑），自動記憶並納入掃描。
+- [ ] **白名單與永久排除規則 (User Whitelist / Ignore Patterns)**：
+  - 允許使用者指定「絕不刪除」的特定專案、對話 Session 或指定子資料夾（例如特定專案的 brain 或重要 session）。
+  - 在執行「一鍵清理」或批次清理時，自動比對並完全保護白名單路徑。
+- [ ] **VS Code 設定整合 (`sweep.*`)**：
+  - 於 `settings.json` 提供 `sweep.customPaths`、`sweep.excludePatterns` 等設定項。
+  - 在側邊欄樹狀項目的右鍵選單提供快捷動作：「加入排除名單 (Add to Whitelist/Ignore)」與「移除排除」。
+- [ ] **CLI 設定檔共用 (`~/.sweeprc` / `config.json`)**：
+  - 建立共用設定檔格式，使 CLI 工具（`sweep scan` / `sweep clean`）與 VS Code 延伸模組共享同一份自訂路徑與排除規則。
+
 ## Commit 7 — CI / Release 收尾 `[Push]`
 
 - [ ] CI 在 Windows / macOS / Linux 執行 build 與 test
