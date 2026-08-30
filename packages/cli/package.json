@@ -16,6 +16,9 @@
   "dependencies": {
     "@l1r1h28/sweep-core": "*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node build.mjs",
     "start": "node src/cli.mjs",
