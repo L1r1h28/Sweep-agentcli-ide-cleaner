@@ -137,6 +137,7 @@ jobs:
       # --- Store Publishing Pipeline ---
       - name: Publish to VS Code Marketplace
         if: ${{ inputs.publish_stores && !inputs.draft }}
+        continue-on-error: true
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
@@ -144,11 +145,12 @@ jobs:
             echo "::warning title=VSCE_PAT Missing::VSCE_PAT secret not found, skipping VS Code Marketplace publishing."
           else
             echo "Publishing VSIX to VS Code Marketplace..."
-            npx --yes @vscode/vsce publish --packagePath dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$VSCE_PAT"
+            npx --yes @vscode/vsce publish --packagePath dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$VSCE_PAT" || echo "::warning title=VSCE Publish Failed::Failed to publish to VS Code Marketplace (check PAT token permissions)."
           fi
 
       - name: Publish to Open VSX Registry
         if: ${{ inputs.publish_stores && !inputs.draft }}
+        continue-on-error: true
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
@@ -156,11 +158,12 @@ jobs:
             echo "::warning title=OVSX_PAT Missing::OVSX_PAT secret not found, skipping Open VSX publishing."
           else
             echo "Publishing VSIX to Open VSX Registry..."
-            npx --yes ovsx publish dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$OVSX_PAT"
+            npx --yes ovsx publish dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$OVSX_PAT" || echo "::warning title=OVSX Publish Failed::Failed to publish to Open VSX (check PAT token permissions)."
           fi
 
       - name: Publish packages to npm Registry
         if: ${{ inputs.publish_stores && !inputs.draft }}
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -170,7 +173,7 @@ jobs:
             echo "Setting up npm authentication..."
             echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
             echo "Publishing @l1r1h28/sweep-core to npm..."
-            npm publish --workspace=@l1r1h28/sweep-core --access public
+            npm publish --workspace=@l1r1h28/sweep-core --access public || echo "::warning title=npm publish core failed::Failed to publish @l1r1h28/sweep-core to npm."
             echo "Publishing @l1r1h28/sweep-cli to npm..."
-            npm publish --workspace=@l1r1h28/sweep-cli --access public
+            npm publish --workspace=@l1r1h28/sweep-cli --access public || echo "::warning title=npm publish cli failed::Failed to publish @l1r1h28/sweep-cli to npm."
           fi
