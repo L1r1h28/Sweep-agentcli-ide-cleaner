@@ -182,4 +182,44 @@ describe("CLI Smoke & End-to-End Tests", () => {
     // codex file was cleaned
     expect(existsSync(codexFile)).toBe(false);
   });
+
+  it("7. backups list and prune work via CLI", async () => {
+    // 1. Trigger a clean with backup to generate a backup entry
+    await runCli(["clean", "--kind", "conversations", "--force", "--backup"]);
+
+    // 2. Test backups list
+    let logs: string[] = [];
+    const origLog = console.log;
+    console.log = (...args) => logs.push(args.join(" "));
+
+    try {
+      const code = await runCli(["backups", "list"]);
+      expect(code).toBe(0);
+      expect(logs.some((l) => l.includes("Found") && l.includes("backup"))).toBe(true);
+    } finally {
+      console.log = origLog;
+    }
+
+    // 3. Test backups prune with --keep-latest 0 --force
+    const pruneCode = await runCli(["backups", "prune", "--keep-latest", "0", "--force"]);
+    expect(pruneCode).toBe(0);
+  });
+
+  it("8. restore command recovers deleted files seamlessly", async () => {
+    const claudeProjectDir = join(fakeHome, ".claude", "projects");
+    const testFile = join(claudeProjectDir, "project1.json");
+    mkdirSync(claudeProjectDir, { recursive: true });
+    writeFileSync(testFile, '{"project":"sweep-cli-test"}', "utf-8");
+
+    // Clean with backup
+    await runCli(["clean", "--kind", "conversations", "--tool", "claude-code", "--force", "--backup"]);
+    expect(existsSync(testFile)).toBe(false);
+
+    // Restore latest
+    const restoreCode = await runCli(["restore", "latest", "--force"]);
+    expect(restoreCode).toBe(0);
+    expect(existsSync(testFile)).toBe(true);
+    expect(readFileSync(testFile, "utf-8")).toBe('{"project":"sweep-cli-test"}');
+  });
 });
+

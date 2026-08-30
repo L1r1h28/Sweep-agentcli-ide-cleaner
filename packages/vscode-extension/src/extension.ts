@@ -11,12 +11,17 @@ import {
   cleanSessions,
   exportSessionToMarkdown,
   exportSessionToJson,
+  listBackups,
+  pruneBackups,
+  restoreBackup,
+  getLatestBackup,
   type ToolDef,
   type ScanReport,
   type ScanEntry,
   type CleanKind,
   type ToolId,
   type ConversationSession,
+  type BackupSummary,
 } from "@aicleaner/core";
 
 export class ToolNode {
@@ -778,6 +783,183 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
+  // sweep.listBackups
+  const listBackupsCmd = vscode.commands.registerCommand("sweep.listBackups", async () => {
+    const backups = listBackups();
+    if (backups.length === 0) {
+      vscode.window.showInformationMessage(vscode.l10n.t("Sweep: No backup archives found in ~/.sweep/backups."));
+      return;
+    }
+
+    const items = backups.map((b) => ({
+      label: `$(archive) ${b.backupId}`,
+      description: formatBytes(b.totalBytes),
+      detail: `${b.toolIds.join(", ") || "all"} · ${b.itemCount} items · ${b.isoDate}`,
+      backup: b,
+    }));
+
+    const picked = await vscode.window.showQuickPick(items, {
+      placeHolder: vscode.l10n.t("Select a backup archive to manage or restore"),
+      matchOnDescription: true,
+      matchOnDetail: true,
+    });
+
+    if (!picked) return;
+
+    const action = await vscode.window.showQuickPick(
+      [
+        { label: "$(history) " + vscode.l10n.t("Restore from this backup"), id: "restore" },
+        { label: "$(folder-opened) " + vscode.l10n.t("Open backup folder"), id: "open" },
+      ],
+      { placeHolder: vscode.l10n.t("Choose action for backup {0}", picked.backup.backupId) }
+    );
+
+    if (!action) return;
+
+    if (action.id === "restore") {
+      vscode.commands.executeCommand("sweep.restoreBackup", picked.backup.backupId);
+    } else if (action.id === "open") {
+      vscode.commands.executeCommand("sweep.openBackupFolder", picked.backup.backupDir);
+    }
+  });
+
+  // sweep.restoreBackup
+  const restoreBackupCmd = vscode.commands.registerCommand(
+    "sweep.restoreBackup",
+    async (backupId?: string) => {
+      let targetId = backupId;
+      if (!targetId) {
+        const backups = listBackups();
+        if (backups.length === 0) {
+          vscode.window.showInformationMessage(vscode.l10n.t("Sweep: No backup archives found to restore."));
+          return;
+        }
+        const picked = await vscode.window.showQuickPick(
+          backups.map((b) => ({
+            label: `$(archive) ${b.backupId}`,
+            description: formatBytes(b.totalBytes),
+            detail: `${b.toolIds.join(", ") || "all"} · ${b.itemCount} items · ${b.isoDate}`,
+            id: b.backupId,
+          })),
+          { placeHolder: vscode.l10n.t("Select backup archive to restore from") }
+        );
+        if (!picked) return;
+        targetId = picked.id;
+      }
+
+      const btnRestore = vscode.l10n.t("Confirm Restore");
+      const btnCancel = vscode.l10n.t("Cancel");
+
+      const confirm = await vscode.window.showWarningMessage(
+        vscode.l10n.t(
+          "⚠️ Are you sure you want to restore from backup \"{0}\"? This will overwrite existing AI conversation records and caches.",
+          targetId
+        ),
+        { modal: true },
+        btnRestore,
+        btnCancel
+      );
+
+      if (confirm !== btnRestore) return;
+
+      try {
+        const res = restoreBackup(targetId, { overwrite: true, dryRun: false });
+        treeDataProvider.refresh();
+        vscode.window.showInformationMessage(
+          vscode.l10n.t(
+            "Sweep: Successfully restored {0} items ({1}) from backup {2}.",
+            res.restoredCount,
+            formatBytes(res.restoredBytes),
+            targetId
+          )
+        );
+      } catch (err) {
+        vscode.window.showErrorMessage(
+          vscode.l10n.t("Sweep Restore Failed: {0}", (err as Error).message)
+        );
+      }
+    }
+  );
+
+  // sweep.openBackupFolder
+  const openBackupFolderCmd = vscode.commands.registerCommand(
+    "sweep.openBackupFolder",
+    async (targetPath?: string) => {
+      let folderPath = targetPath;
+      if (!folderPath) {
+        const backups = listBackups();
+        if (backups.length > 0) {
+          folderPath = backups[0].backupDir;
+        } else {
+          vscode.window.showInformationMessage(vscode.l10n.t("Sweep: No backup folder found."));
+          return;
+        }
+      }
+      vscode.env.openExternal(vscode.Uri.file(folderPath));
+    }
+  );
+
+  // sweep.pruneBackups
+  const pruneBackupsCmd = vscode.commands.registerCommand("sweep.pruneBackups", async () => {
+    const backups = listBackups();
+    if (backups.length === 0) {
+      vscode.window.showInformationMessage(vscode.l10n.t("Sweep: No backups found to prune."));
+      return;
+    }
+
+    const options = [
+      { label: vscode.l10n.t("Older than 7 days"), days: 7 },
+      { label: vscode.l10n.t("Older than 14 days (Recommended)"), days: 14 },
+      { label: vscode.l10n.t("Older than 30 days"), days: 30 },
+      { label: vscode.l10n.t("Keep only latest 5 backups"), keepLatest: 5 },
+    ];
+
+    const pick = await vscode.window.showQuickPick(options, {
+      placeHolder: vscode.l10n.t("Select backup retention policy to prune expired archives"),
+    });
+    if (!pick) return;
+
+    const dryResult = pruneBackups(undefined, {
+      olderThanDays: pick.days,
+      keepLatest: pick.keepLatest,
+      dryRun: true,
+    });
+
+    if (dryResult.prunedBackups.length === 0) {
+      vscode.window.showInformationMessage(vscode.l10n.t("Sweep: No backups matched the selected prune criteria."));
+      return;
+    }
+
+    const btnPrune = vscode.l10n.t("Prune {0} backups ({1})", dryResult.prunedBackups.length, formatBytes(dryResult.freedBytes));
+    const btnCancel = vscode.l10n.t("Cancel");
+
+    const confirm = await vscode.window.showWarningMessage(
+      vscode.l10n.t(
+        "Pruning will permanently delete {0} backup archives, freeing {1}. Proceed?",
+        dryResult.prunedBackups.length,
+        formatBytes(dryResult.freedBytes)
+      ),
+      { modal: true },
+      btnPrune,
+      btnCancel
+    );
+
+    if (confirm === btnPrune) {
+      const realResult = pruneBackups(undefined, {
+        olderThanDays: pick.days,
+        keepLatest: pick.keepLatest,
+        dryRun: false,
+      });
+      vscode.window.showInformationMessage(
+        vscode.l10n.t(
+          "Sweep: Successfully pruned {0} backups, freeing {1}.",
+          realResult.prunedBackups.length,
+          formatBytes(realResult.freedBytes)
+        )
+      );
+    }
+  });
+
   context.subscriptions.push(
     treeView,
     scanCmd,
@@ -790,8 +972,13 @@ export function activate(context: vscode.ExtensionContext) {
     cleanSingleSessionCmd,
     cleanCacheForToolCmd,
     cleanConvForToolCmd,
-    dryRunCmd
+    dryRunCmd,
+    listBackupsCmd,
+    restoreBackupCmd,
+    openBackupFolderCmd,
+    pruneBackupsCmd
   );
 }
 
 export function deactivate() {}
+

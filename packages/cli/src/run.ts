@@ -17,9 +17,14 @@ import {
   exportSessionToJson,
   parseDurationToDays,
   parseSizeToBytes,
+  listBackups,
+  pruneBackups,
+  restoreBackup,
+  getLatestBackup,
   type CleanKind,
   type ToolId,
   type ConversationSession,
+  type BackupSummary,
 } from "@aicleaner/core";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -88,6 +93,8 @@ Usage:
   sweep clean     --kind cache|conversations|all [--tool <id>] [--dry-run] [--force] [--no-backup]
                   [--older-than <dur>] [--min-size <size>] [--project <name>]
   sweep sessions  [list|clean|export] [flags]
+  sweep backups   [list|prune] [flags]
+  sweep restore   [<id>|latest] [--tool <id>] [--force] [--dry-run]
   sweep tools     [--verbose]
   sweep targets   [--tool <id>]
   sweep help
@@ -96,6 +103,8 @@ Commands:
   scan        Measure disk usage for all (or a specific) tool's storage paths.
   clean       Delete cache and/or conversations (dry-run by default; add --force to delete).
   sessions    Granular inspection, filtering, cleaning, and export of chat sessions.
+  backups     List and prune local sweep backup archives.
+  restore     Restore previously backed up cache or conversation history.
   tools       List supported AI tools with blurb and notes.
   targets     List every cleanable target with its kind, risk, and resolved paths.
 
@@ -103,6 +112,11 @@ Sessions Subcommands:
   sweep sessions list   [--tool <id>] [--older-than 30d] [--min-size 50mb] [--project <name>] [--json]
   sweep sessions clean  [--older-than 30d] [--min-size 50mb] [--project <name>] [--dry-run] [--force]
   sweep sessions export <sessionId> [--format md|json] [--out <dir>]
+
+Backups Subcommands:
+  sweep backups list    [--json]
+  sweep backups prune   [--older-than 14d] [--keep-latest 5] [--dry-run] [--force]
+
 
 Kinds:
   cache           Electron/GPU/index caches — safe, history is kept.
@@ -242,6 +256,43 @@ function printSessionsTable(sessions: ConversationSession[]) {
     const size = formatBytes(s.bytes).padStart(9);
     const title = s.title ? `${s.title} (${s.id.slice(0, 8)})` : s.id;
     console.log(`  ${tool} ${proj} ${age} ${size}  ${title}`);
+  }
+}
+
+function formatTimeAgo(timestamp: number): string {
+  const diffMs = Date.now() - timestamp;
+  if (diffMs < 0) return "just now";
+  const mins = Math.floor(diffMs / (60 * 1000));
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / (60 * 60 * 1000));
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+function printBackupsTable(backups: BackupSummary[]) {
+  if (backups.length === 0) {
+    console.log("No backups found in ~/.sweep/backups.");
+    return;
+  }
+
+  const totalBytes = backups.reduce((s, x) => s + x.totalBytes, 0);
+  console.log(`📦 Found ${backups.length} backup archive(s) (Total: ${formatBytes(totalBytes)})\n`);
+
+  console.log(
+    `  ${"Backup ID / Timestamp".padEnd(24)} ${"Age".padStart(8)} ${"Size".padStart(9)} ${"Items".padStart(7)}  ${"Tools"}`
+  );
+  console.log(
+    `  ${"─".repeat(24)} ${"─".repeat(8)} ${"─".repeat(9)} ${"─".repeat(7)}  ${"─".repeat(25)}`
+  );
+
+  for (const b of backups) {
+    const id = b.backupId.slice(0, 24).padEnd(24);
+    const age = formatTimeAgo(b.timestamp).padStart(8);
+    const size = formatBytes(b.totalBytes).padStart(9);
+    const items = String(b.itemCount).padStart(7);
+    const tools = b.toolIds.length > 0 ? b.toolIds.join(", ") : "(legacy/all)";
+    console.log(`  ${id} ${age} ${size} ${items}  ${tools}`);
   }
 }
 
@@ -427,6 +478,93 @@ export async function runCli(argv: string[]) {
 
     console.error(`Unknown sessions subcommand: "${subCmd}". Available: list, clean, export.`);
     return 1;
+  }
+
+  // ── backups ────────────────────────────────────────────────────────────────
+  if (cmd === "backups" || cmd === "backup") {
+    const subCmd = (args._ as string[])[1] ?? "list";
+
+    if (subCmd === "list") {
+      const backups = listBackups(home);
+      if (args.json) {
+        console.log(JSON.stringify(backups, null, 2));
+        return 0;
+      }
+      printBackupsTable(backups);
+      return 0;
+    }
+
+    if (subCmd === "prune") {
+      const olderThanDays = args.olderThan ? parseDurationToDays(String(args.olderThan)) : undefined;
+      const keepLatest = args.keepLatest !== undefined ? Number(args.keepLatest) : undefined;
+      const dryRun = Boolean(args.dryRun) || !args.force;
+
+      if (!args.force && !args.dryRun) {
+        console.warn(
+          "⚠  Pruning backups is DESTRUCTIVE. Pass --force to confirm deletion (--dry-run to preview)."
+        );
+      }
+
+      const res = pruneBackups(home, { olderThanDays, keepLatest, dryRun });
+
+      if (res.prunedBackups.length === 0) {
+        console.log("No backups matched prune criteria.");
+        return 0;
+      }
+
+      console.log(
+        `${dryRun ? "Would prune" : "Pruned"} ${res.prunedBackups.length} backup(s), freeing ${formatBytes(res.freedBytes)}:`
+      );
+      for (const id of res.prunedBackups) {
+        console.log(`  ✓ ${id}`);
+      }
+      return 0;
+    }
+
+    console.error(`Unknown backups subcommand: "${subCmd}". Available: list, prune.`);
+    return 1;
+  }
+
+  // ── restore ────────────────────────────────────────────────────────────────
+  if (cmd === "restore") {
+    const target = (args._ as string[])[1] ?? "latest";
+    const dryRun = Boolean(args.dryRun) || !args.force;
+
+    if (!args.force && !args.dryRun) {
+      console.warn(
+        "⚠  Restoring will overwrite existing tool session/cache files with backed-up versions.\n" +
+          "   Pass --force to execute restore (--dry-run to preview first)."
+      );
+    }
+
+    try {
+      const res = restoreBackup(target, {
+        home,
+        toolIds,
+        dryRun,
+      });
+
+      if (args.json) {
+        console.log(JSON.stringify(res, null, 2));
+        return 0;
+      }
+
+      console.log(`\n⏪ Restore summary for backup [${res.backupId}]:`);
+      for (const item of res.items) {
+        console.log(
+          `  ${item.status.padEnd(14)}  💬 ${item.toolId.padEnd(14)}  ` +
+            `${formatBytes(item.bytes).padStart(9)}  ${item.originalPath}`
+        );
+      }
+
+      console.log(
+        `\n${dryRun ? "Would restore" : "Successfully restored"} ${res.restoredCount} item(s) (${formatBytes(res.restoredBytes)})`
+      );
+      return 0;
+    } catch (err) {
+      console.error(`Restore error: ${(err as Error).message}`);
+      return 1;
+    }
   }
 
   // ── clean ──────────────────────────────────────────────────────────────────

@@ -115,6 +115,18 @@ sweep sessions export <sessionId> --format md --out ./exports
 
 # 删除特定筛选条件之对话 Session（默认自动创建备份）
 sweep sessions clean --older-than 30d --force
+
+# 查看所有本地备份存档
+sweep backups list
+
+# 清理 14 天前的过期备份以节省空间
+sweep backups prune --older-than 14d --force
+
+# 从最新备份一键还原
+sweep restore latest --force
+
+# 从指定备份时间戳还原指定工具 (例如仅还原 Claude Code)
+sweep restore 2026-08-30T10-00-00 --tool claude-code --force
 ```
 
 #### CLI 命令参数表
@@ -124,19 +136,22 @@ sweep sessions clean --older-than 30d --force
 | `scan` | 扫描并统计全体存储占用（缓存与对话历史） |
 | `clean` | 执行清理流程（需指定 `--kind` 或细部过滤参数） |
 | `sessions [list\|clean\|export]` | 细致化对话 Session 查看、筛选、清理与导出归档 |
+| `backups [list\|prune]` | 查看本地备份存档与过期清理 |
+| `restore [<id>\|latest]` | 从备份文件一键还原对话历史或缓存 |
 | `tools` | 列出支持的 AI 工具、简介与清理注意事项 |
 | `targets` | 列出所有受纳管的目录路径与风险等级 |
 | `--kind <k>` | 目标类别：`cache` (缓存)、`conversations` (对话历史)、`all` (全部) |
 | `--tool <id>` | 限定单一工具：`antigravity`、`codex`、`claude-code`、`windsurf`、`kiro`、`trae` |
-| `--older-than <dur>` | 筛选超过指定时间之 Session（例如 `7d`, `30d`, `2w`, `1m`, `90d`） |
+| `--older-than <dur>` | 筛选超过指定时间之 Session 或过期备份（例如 `7d`, `14d`, `30d`, `90d`） |
 | `--newer-than <dur>` | 筛选小于指定时间之 Session |
 | `--min-size <size>` | 筛选大于指定容量之 Session（例如 `50mb`, `100kb`, `1gb`） |
 | `--max-size <size>` | 筛选小于指定容量之 Session |
+| `--keep-latest <n>` | 保留最新 N 个备份，其余清理 |
 | `--project <name>` | 依项目或工作区关键字筛选 Session |
 | `--format <md\|json>` | 指定 Session 导出格式（Markdown 或 JSON） |
 | `--out <dir>` | 指定 Session 导出保存目标目录 |
-| `--dry-run` | 仅列出待清理文件清单与大小，不实际删除 |
-| `--force` | 确认执行删除（防止误触之安全防护） |
+| `--dry-run` | 仅列出待清理或还原文件清单与容量，不实际写入 |
+| `--force` | 确认执行删除或还原覆盖（防止误触之安全防护） |
 | `--no-backup` | 删除对话时跳过自动归档备份 |
 | `--json` | 以标准 JSON 格式输出（适用于 `scan` 与 `sessions list`） |
 

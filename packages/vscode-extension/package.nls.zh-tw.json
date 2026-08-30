@@ -12,5 +12,9 @@
   "command.pickSessionsToClean.title": "挑選欲刪除的對話紀錄...",
   "command.exportSession.title": "匯出對話紀錄 (Markdown / JSON)",
   "command.cleanSingleSession.title": "刪除此對話 Session",
-  "views.tools.name": "AI 工具儲存空間"
+  "command.listBackups.title": "檢視備份歷史",
+  "command.restoreBackup.title": "從備份還原...",
+  "command.openBackupFolder.title": "開啟備份資料夾",
+  "command.pruneBackups.title": "清理過期備份...",
+  "views.tools.name": "AI 工具儲存"
 }

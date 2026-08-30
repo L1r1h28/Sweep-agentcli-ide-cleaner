@@ -48,10 +48,10 @@
 
 ```bash
 # 在 VS Code 中安裝:
-code --install-extension sweep-aicleaner-1.0.1.vsix
+code --install-extension sweep-aicleaner-1.1.0.vsix
 
 # 在 Cursor 中安裝:
-cursor --install-extension sweep-aicleaner-1.0.1.vsix
+cursor --install-extension sweep-aicleaner-1.1.0.vsix
 ```
 
 或開啟編輯器，切換至 **Extensions** 擴充套件面板 (`Ctrl+Shift+X` / `Cmd+Shift+X`)，點擊右上角 `...` 選單並選擇 **Install from VSIX...**。

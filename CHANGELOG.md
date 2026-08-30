@@ -33,8 +33,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Sweep: Clean large conversations (>50MB)...`.
   - `Sweep: Pick conversations to delete...` (interactive multi-select checklist).
   - `Sweep: Export conversation (Markdown / JSON)`.
-  - Individual session context menu actions for instant deletion and export.
-- **Full Localization (l10n)**: Added English, Traditional Chinese (`zh-TW`), and Simplified Chinese (`zh-CN`) translations for all new session commands and dialogs.
+#### Backup Management & One-Click Restore (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Backup Manifest Engine (`manifest.json`)**:
+  - Implemented atomic `manifest.json` generation tracking tool IDs, target identifiers, original absolute paths, backup relative paths, timestamps, and platform metadata.
+  - Path traversal and security protections on restore destinations.
+- **Backup & Restore Operations**:
+  - `listBackups()`: Sorted backup archives with total sizes, timestamps, and tool breakdown.
+  - `pruneBackups()`: Expired archive cleanup supporting `--older-than <dur>` (e.g. `14d`) and `--keep-latest <n>`.
+  - `restoreBackup()`: One-click full or selective (`--tool <id>`) restore to original system paths.
+- **CLI Commands**:
+  - `sweep backups list`: Tabular list of local backup archives.
+  - `sweep backups prune`: Prune expired or excessive backup archives.
+  - `sweep restore [<id>|latest]`: One-click restore previous backup archives.
+- **VS Code Extension Integration**:
+  - `Sweep: View backup history` (`sweep.listBackups`).
+  - `Sweep: Restore from backup...` (`sweep.restoreBackup`) with safety confirmation modals.
+  - `Sweep: Open backup folder` (`sweep.openBackupFolder`) and `Sweep: Prune expired backups...` (`sweep.pruneBackups`).
 
 ---
 

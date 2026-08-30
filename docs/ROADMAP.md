@@ -114,21 +114,22 @@
 - [x] 撰寫單元測試覆蓋細緻化篩選與對話封存邏輯
 - [x] Push 到 GitHub
 
-## Commit 9 [v1.1.0] — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
+## ✅ Commit 9 [v1.1.0] — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
 
-- [ ] **備份管理與一鍵還原機制 (Backup Management & One-Click Restore)**：
-  - [ ] Core 還原引擎（`packages/core/src/restore.ts`）：建立 `manifest.json` 記錄原始路徑、時間與工具對應
-  - [ ] 支援指定還原（全量還原、指定工具如僅還原 Claude/Kiro、或指定時間點還原）
-  - [ ] CLI 還原指令：
-    - `sweep restore`（互動式選單或指定時間戳記一鍵還原）
+- [x] **備份管理與一鍵還原機制 (Backup Management & One-Click Restore)**：
+  - [x] Core 還原引擎（`packages/core/src/restore.ts`）：建立 `manifest.json` 記錄原始路徑、時間與工具對應
+  - [x] 支援指定還原（全量還原、指定工具如僅還原 Claude/Kiro、或指定時間點還原）
+  - [x] CLI 還原指令：
+    - `sweep restore`（指定備份 ID 或 latest 一鍵還原，支援 `--tool` 篩選）
     - `sweep backups list`（列出所有本機備份時間、容量與工具項目）
     - `sweep backups prune --older-than 14d`（過期備份清理，避免備份本身過度佔用硬碟）
-  - [ ] VS Code Extension 備份與還原 UI：
-    - 側邊欄或 QuickPick 整合「📦 備份歷史」檢視
-    - 提供「⏪ 一鍵還原 (Restore from Backup)」按鈕與安全性確認
-    - 提供「📁 開啟備份資料夾 (Open Backup Folder)」捷徑
-- [ ] 撰寫單元測試覆蓋備份清單、過期清理與還原機制
-- [ ] Push 到 GitHub
+  - [x] VS Code Extension 備份與還原 UI：
+    - QuickPick 整合「📦 備份歷史 (`sweep.listBackups`)」檢視
+    - 提供「⏪ 一鍵還原 (`sweep.restoreBackup`)」按鈕與安全性確認
+    - 提供「📁 開啟備份資料夾 (`sweep.openBackupFolder`)」捷徑
+    - 提供「🧹 清理過期備份 (`sweep.pruneBackups`)」操作
+- [x] 撰寫單元測試覆蓋備份清單、過期清理與還原機制
+- [x] Push 到 GitHub
 
 ## Commit 10 [v1.1.0] — 使用者自訂設定與排除名單 (Custom Settings & Whitelist) `[Push]`
 

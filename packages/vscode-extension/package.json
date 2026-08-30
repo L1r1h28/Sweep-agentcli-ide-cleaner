@@ -2,7 +2,7 @@
   "name": "sweep-aicleaner",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "publisher": "sweep",
   "repository": {
     "type": "git",
@@ -86,6 +86,30 @@
         "title": "%command.cleanSingleSession.title%",
         "category": "Sweep",
         "icon": "$(trash)"
+      },
+      {
+        "command": "sweep.listBackups",
+        "title": "%command.listBackups.title%",
+        "category": "Sweep",
+        "icon": "$(archive)"
+      },
+      {
+        "command": "sweep.restoreBackup",
+        "title": "%command.restoreBackup.title%",
+        "category": "Sweep",
+        "icon": "$(history)"
+      },
+      {
+        "command": "sweep.openBackupFolder",
+        "title": "%command.openBackupFolder.title%",
+        "category": "Sweep",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "sweep.pruneBackups",
+        "title": "%command.pruneBackups.title%",
+        "category": "Sweep",
+        "icon": "$(clear-all)"
       }
     ],
     "viewsContainers": {
@@ -136,6 +160,21 @@
           "command": "sweep.pickSessionsToClean",
           "when": "view == sweep.tools",
           "group": "1_actions@3"
+        },
+        {
+          "command": "sweep.listBackups",
+          "when": "view == sweep.tools",
+          "group": "2_backups@1"
+        },
+        {
+          "command": "sweep.restoreBackup",
+          "when": "view == sweep.tools",
+          "group": "2_backups@2"
+        },
+        {
+          "command": "sweep.pruneBackups",
+          "when": "view == sweep.tools",
+          "group": "2_backups@3"
         }
       ],
       "view/item/context": [

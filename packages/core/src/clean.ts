@@ -1,8 +1,8 @@
 import { rmSync, statSync } from "node:fs";
-import { join } from "node:path";
-import { backupRoot, copyToBackup } from "./backup.ts";
+import { basename, join } from "node:path";
+import { backupRoot, copyToBackup, writeBackupManifest } from "./backup.ts";
 import { NEVER_DELETE_GLOBS } from "./catalog.ts";
-import type { CleanItem, CleanOptions, CleanResult, ScanReport } from "./types.ts";
+import type { BackupItemManifest, CleanItem, CleanOptions, CleanResult, ScanReport, ToolId } from "./types.ts";
 
 /**
  * Convert a single glob pattern (only ** and * are supported) to a RegExp.
@@ -59,14 +59,26 @@ export function runClean(report: ScanReport, options: CleanOptions): CleanResult
 
   const backupDir = options.backup ? backupRoot(report.home) : undefined;
   const items: CleanItem[] = [];
+  const manifestItems: BackupItemManifest[] = [];
   let freed = 0;
 
   for (const item of planned) {
     try {
       if (backupDir) {
         try {
-          statSync(item.path);
-          copyToBackup(item.path, backupDir);
+          const st = statSync(item.path);
+          const relBackupPath = basename(item.path);
+          copyToBackup(item.path, backupDir, relBackupPath);
+          manifestItems.push({
+            id: `${item.toolId}-${item.targetId}-${manifestItems.length}`,
+            toolId: item.toolId,
+            targetId: item.targetId,
+            kind: item.kind,
+            originalPath: item.path,
+            backupRelativePath: relBackupPath,
+            bytes: item.bytes,
+            isDirectory: st.isDirectory(),
+          });
         } catch {
           /* skip missing */
         }
@@ -82,5 +94,20 @@ export function runClean(report: ScanReport, options: CleanOptions): CleanResult
     }
   }
 
+  if (backupDir && manifestItems.length > 0) {
+    const uniqueToolIds = Array.from(new Set(manifestItems.map((m) => m.toolId))) as ToolId[];
+    writeBackupManifest(backupDir, {
+      backupId: basename(backupDir),
+      timestamp: Date.now(),
+      isoDate: new Date().toISOString(),
+      home: report.home,
+      platform: report.platform,
+      totalBytes: manifestItems.reduce((s, i) => s + i.bytes, 0),
+      toolIds: uniqueToolIds,
+      items: manifestItems,
+    });
+  }
+
   return { dryRun: false, backupDir, items, freedBytes: freed };
 }
+

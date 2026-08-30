@@ -92,3 +92,75 @@ export type CleanResult = {
   items: CleanItem[];
   freedBytes: number;
 };
+
+export type BackupItemManifest = {
+  id: string;
+  toolId: ToolId;
+  targetId: string;
+  kind: CleanKind;
+  originalPath: string;
+  backupRelativePath: string;
+  bytes: number;
+  isDirectory?: boolean;
+};
+
+export type BackupManifest = {
+  version: "1.0.0";
+  backupId: string;
+  timestamp: number;
+  isoDate: string;
+  home: string;
+  platform: Platform;
+  totalBytes: number;
+  toolIds: ToolId[];
+  items: BackupItemManifest[];
+};
+
+export type BackupSummary = {
+  backupId: string;
+  backupDir: string;
+  timestamp: number;
+  isoDate: string;
+  totalBytes: number;
+  toolIds: ToolId[];
+  itemCount: number;
+  hasManifest: boolean;
+};
+
+export type RestoreOptions = {
+  toolIds?: ToolId[];
+  targetIds?: string[];
+  dryRun?: boolean;
+  overwrite?: boolean;
+};
+
+export type RestoredItem = {
+  originalPath: string;
+  backupPath: string;
+  toolId: ToolId;
+  targetId: string;
+  bytes: number;
+  status: "restored" | "skipped" | "would-restore" | "failed";
+  error?: string;
+};
+
+export type RestoreResult = {
+  backupId: string;
+  dryRun: boolean;
+  items: RestoredItem[];
+  restoredBytes: number;
+  restoredCount: number;
+};
+
+export type PruneOptions = {
+  olderThanDays?: number;
+  keepLatest?: number;
+  dryRun?: boolean;
+};
+
+export type PruneResult = {
+  dryRun: boolean;
+  prunedBackups: string[];
+  freedBytes: number;
+};
+

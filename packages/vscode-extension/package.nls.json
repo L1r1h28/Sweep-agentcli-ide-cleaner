@@ -12,5 +12,9 @@
   "command.pickSessionsToClean.title": "Pick conversations to delete...",
   "command.exportSession.title": "Export conversation (Markdown / JSON)",
   "command.cleanSingleSession.title": "Delete this conversation session",
+  "command.listBackups.title": "View backup history",
+  "command.restoreBackup.title": "Restore from backup...",
+  "command.openBackupFolder.title": "Open backup folder",
+  "command.pruneBackups.title": "Prune expired backups...",
   "views.tools.name": "AI tool storage"
 }

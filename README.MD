@@ -117,6 +117,18 @@ sweep sessions export <sessionId> --format md --out ./exports
 
 # Clean specific filtered sessions
 sweep sessions clean --older-than 30d --force
+
+# Inspect all local backup archives
+sweep backups list
+
+# Prune expired backups older than 14 days
+sweep backups prune --older-than 14d --force
+
+# One-click restore from latest backup
+sweep restore latest --force
+
+# Restore specific tool from a targeted backup timestamp
+sweep restore 2026-08-30T10-00-00 --tool claude-code --force
 ```
 
 #### CLI Command Flags
@@ -126,19 +138,22 @@ sweep sessions clean --older-than 30d --force
 | `scan` | Scan and summarize total disk footprint (caches vs. conversations) |
 | `clean` | Run cleanup process (requires `--kind` or granular filter flags) |
 | `sessions [list\|clean\|export]` | Granular inspection, filtering, deletion, and export of chat sessions |
+| `backups [list\|prune]` | List and prune local sweep backup archives |
+| `restore [<id>\|latest]` | One-click restore previous cache or conversation archives |
 | `tools` | List all supported AI tools and cleanup caveats |
 | `targets` | List all managed directory paths and risk levels |
 | `--kind <k>` | Target category: `cache`, `conversations`, `all` |
 | `--tool <id>` | Limit to specific tool: `antigravity`, `codex`, `claude-code`, `windsurf`, `kiro`, `trae` |
-| `--older-than <dur>` | Filter sessions older than duration (e.g. `7d`, `30d`, `2w`, `1m`, `90d`) |
+| `--older-than <dur>` | Filter sessions or backups older than duration (e.g. `7d`, `14d`, `30d`, `90d`) |
 | `--newer-than <dur>` | Filter sessions newer than duration |
 | `--min-size <size>` | Filter sessions larger than size (e.g. `50mb`, `100kb`, `1gb`) |
 | `--max-size <size>` | Filter sessions smaller than size |
+| `--keep-latest <n>` | Retain the most recent N backups and prune the rest |
 | `--project <name>` | Filter sessions by project or workspace keyword |
 | `--format <md\|json>` | Export session format (Markdown or JSON) |
 | `--out <dir>` | Destination directory for exported sessions |
-| `--dry-run` | List candidate files and sizes without deleting anything |
-| `--force` | Confirm actual deletion (failsafe protection) |
+| `--dry-run` | List candidate files and sizes without modifying anything |
+| `--force` | Confirm actual deletion or restoration overwrite (failsafe protection) |
 | `--no-backup` | Skip automatic backup archiving before deletion |
 | `--json` | Output in standard JSON format (usable with `scan` and `sessions list`) |
 
