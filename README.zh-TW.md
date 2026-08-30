@@ -97,31 +97,48 @@ sweep scan --tool antigravity --json
 sweep clean --kind cache --dry-run
 sweep clean --kind conversations --dry-run
 
-# 安全清理所有工具的快取 (Cache)
+# 一鍵安全清理所有工具快取
 sweep clean --kind cache --force
 
-# 清理對話歷程（預設會自動備份至 ~/.sweep/backups/）
-sweep clean --kind conversations --force
+# 細緻化對話清理：清理 30 天前的舊對話（保留近期活躍 Session）
+sweep clean --kind conversations --older-than 30d --force
 
-# 清理特定工具的快取且不備份
-sweep clean --tool codex --kind cache --no-backup --force
+# 細緻化對話清理：清理膨脹的大型 Session (>50MB)
+sweep clean --kind conversations --min-size 50mb --force
 
+# 檢視個別 Session 列表（顯示所屬工具、專案、建立天數與容量大小）
+sweep sessions list
+sweep sessions list --older-than 30d --min-size 10mb --project my-project
+
+# 對話封存與匯出：將指定 Session 匯出為好讀的 Markdown 或結構化 JSON
+sweep sessions export <sessionId> --format md --out ./exports
+
+# 刪除特定篩選條件之對話 Session（預設自動建立備份）
+sweep sessions clean --older-than 30d --force
 ```
 
-#### CLI 指令參數說明
+#### CLI 指令參數表
 
 | 指令 / 參數 | 說明 |
 | --- | --- |
-| `scan` | 掃描並統計磁碟佔用總量、快取與對話大小 |
-| `clean` | 執行清理流程（需搭配 `--kind`） |
-| `tools` | 列出目前支援的所有 AI 工具與注意事項 |
-| `targets` | 列出所有受管理的目標路徑與風險等級 |
-| `--kind <k>` | 清理類別：`cache`（快取）、`conversations`（對話）、`all`（兩者皆清） |
-| `--tool <id>` | 限定特定工具：`antigravity`、`codex`、`claude-code`、`windsurf`、`kiro`、`trae` |
-| `--dry-run` | 僅列出預計刪除的檔案與大小，不實際刪除 |
-| `--force` | 確認執行實際刪除（防呆保護） |
-| `--no-backup` | 略過刪除前的自動封存備份 |
-| `--json` | 輸出標準 JSON 格式（適用於 `scan`） |
+| `scan` | 掃描並統計全體儲存佔用（快取與對話歷史） |
+| `clean` | 執行清理流程（需指定 `--kind` 或細部過濾參數） |
+| `sessions [list\|clean\|export]` | 細緻化對話 Session 檢視、篩選、清理與匯出封存 |
+| `tools` | 列出支援的 AI 工具、簡介與清理注意事項 |
+| `targets` | 列出所有受納管的目錄路徑與風險等級 |
+| `--kind <k>` | 目標類別：`cache` (快取)、`conversations` (對話歷史)、`all` (全部) |
+| `--tool <id>` | 限定單一工具：`antigravity`、`codex`、`claude-code`、`windsurf`、`kiro`、`trae` |
+| `--older-than <dur>` | 篩選超過指定時間之 Session（例如 `7d`, `30d`, `2w`, `1m`, `90d`） |
+| `--newer-than <dur>` | 篩選小於指定時間之 Session |
+| `--min-size <size>` | 篩選大於指定容量之 Session（例如 `50mb`, `100kb`, `1gb`） |
+| `--max-size <size>` | 篩選小於指定容量之 Session |
+| `--project <name>` | 依專案或工作區關鍵字篩選 Session |
+| `--format <md\|json>` | 指定 Session 匯出格式（Markdown 或 JSON） |
+| `--out <dir>` | 指定 Session 匯出儲存目標目錄 |
+| `--dry-run` | 僅列出待清理檔案清單與容量，不實際刪除 |
+| `--force` | 確認執行刪除（防止誤觸之安全防護） |
+| `--no-backup` | 刪除對話時跳過自動封存備份 |
+| `--json` | 以標準 JSON 格式輸出（適用於 `scan` 與 `sessions list`） |
 
 ---
 

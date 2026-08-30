@@ -102,12 +102,21 @@ sweep clean --kind conversations --dry-run
 # Safely clean cache across all tools
 sweep clean --kind cache --force
 
-# Clean conversation logs (auto-backups to ~/.sweep/backups/ by default)
-sweep clean --kind conversations --force
+# Granular conversation cleaning: filter older than 30 days
+sweep clean --kind conversations --older-than 30d --force
 
-# Clean cache for a specific tool without backing up
-sweep clean --tool codex --kind cache --no-backup --force
+# Granular conversation cleaning: remove bloated sessions (>50MB)
+sweep clean --kind conversations --min-size 50mb --force
 
+# Inspect individual conversation sessions with age and size
+sweep sessions list
+sweep sessions list --older-than 30d --min-size 10mb --project my-project
+
+# Export conversation session to readable Markdown or structured JSON
+sweep sessions export <sessionId> --format md --out ./exports
+
+# Clean specific filtered sessions
+sweep sessions clean --older-than 30d --force
 ```
 
 #### CLI Command Flags
@@ -115,15 +124,23 @@ sweep clean --tool codex --kind cache --no-backup --force
 | Command / Option | Description |
 | --- | --- |
 | `scan` | Scan and summarize total disk footprint (caches vs. conversations) |
-| `clean` | Run cleanup process (requires `--kind`) |
+| `clean` | Run cleanup process (requires `--kind` or granular filter flags) |
+| `sessions [list\|clean\|export]` | Granular inspection, filtering, deletion, and export of chat sessions |
 | `tools` | List all supported AI tools and cleanup caveats |
 | `targets` | List all managed directory paths and risk levels |
 | `--kind <k>` | Target category: `cache`, `conversations`, `all` |
 | `--tool <id>` | Limit to specific tool: `antigravity`, `codex`, `claude-code`, `windsurf`, `kiro`, `trae` |
+| `--older-than <dur>` | Filter sessions older than duration (e.g. `7d`, `30d`, `2w`, `1m`, `90d`) |
+| `--newer-than <dur>` | Filter sessions newer than duration |
+| `--min-size <size>` | Filter sessions larger than size (e.g. `50mb`, `100kb`, `1gb`) |
+| `--max-size <size>` | Filter sessions smaller than size |
+| `--project <name>` | Filter sessions by project or workspace keyword |
+| `--format <md\|json>` | Export session format (Markdown or JSON) |
+| `--out <dir>` | Destination directory for exported sessions |
 | `--dry-run` | List candidate files and sizes without deleting anything |
 | `--force` | Confirm actual deletion (failsafe protection) |
 | `--no-backup` | Skip automatic backup archiving before deletion |
-| `--json` | Output in standard JSON format (usable with `scan`) |
+| `--json` | Output in standard JSON format (usable with `scan` and `sessions list`) |
 
 ---
 

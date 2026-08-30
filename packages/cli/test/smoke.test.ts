@@ -148,4 +148,38 @@ describe("CLI Smoke & End-to-End Tests", () => {
     expect(existsSync(join(fakeHome, ".kiro", "extensions", "my-plugin", "index.js"))).toBe(true);
     expect(existsSync(join(fakeHome, ".claude", "settings.json"))).toBe(true);
   });
+
+  it("5. sessions list and export work seamlessly", async () => {
+    // Test sessions list
+    let logs: string[] = [];
+    const origLog = console.log;
+    console.log = (...args) => logs.push(args.join(" "));
+
+    try {
+      const code = await runCli(["sessions", "list"]);
+      expect(code).toBe(0);
+      expect(logs.some((l) => l.includes("Found") && l.includes("sessions"))).toBe(true);
+    } finally {
+      console.log = origLog;
+    }
+
+    // Test sessions export
+    const exportDir = join(fakeHome, "my-exports");
+    const exportCode = await runCli(["sessions", "export", "chat1", "--format", "md", "--out", exportDir]);
+    expect(exportCode).toBe(0);
+    expect(existsSync(join(exportDir, "codex-chat1.md"))).toBe(true);
+    expect(readFileSync(join(exportDir, "codex-chat1.md"), "utf-8")).toContain("# Session");
+  });
+
+  it("6. granular session clean with --older-than or --project", async () => {
+    const codexFile = join(fakeHome, ".codex", "sessions", "chat1.jsonl");
+    expect(existsSync(codexFile)).toBe(true);
+
+    // Filter sessions with olderThan 0d and force clean
+    const code = await runCli(["sessions", "clean", "--older-than", "0d", "--force", "--no-backup"]);
+    expect(code).toBe(0);
+
+    // codex file was cleaned
+    expect(existsSync(codexFile)).toBe(false);
+  });
 });

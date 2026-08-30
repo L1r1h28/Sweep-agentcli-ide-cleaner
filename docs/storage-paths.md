@@ -167,39 +167,50 @@ C:\Users\<user>\.kiro\                  355 MB  ← CLI / 本地設定
 
 ## 5. Trae IDE（ByteDance）
 
-實際根目錄：`%APPDATA%\Trae\`
+實際根目錄：`%APPDATA%\Trae\` 與 `%USERPROFILE%\.trae\`
 
 ### 實際掃描到的資料夾樹
 
 ```
-C:\Users\<user>\AppData\Roaming\Trae\   392 MB
-├── CachedData\                        192 MB  🟡 VS Code 引擎快取（最大）
-├── logs\                               78 MB  🟡 應用程式日誌
-├── ModularData\                        62 MB
-│   ├── ai-agent\                       44 MB
-│   │   ├── database.db                38 MB  🔴 **完整對話資料庫（SQLite）**
-│   │   ├── database.db-shm             0 MB  🔴 共享記憶體（隨 db 一起刪）
-│   │   ├── database.db-wal             4 MB  🔴 WAL 日誌（隨 db 一起刪）
-│   │   ├── snapshot\                   2 MB  🔴 對話快照
-│   │   ├── command-execution\          0 MB  🟡 指令執行暫存
-│   │   ├── hooks_env\                  0 MB  🟡
-│   │   └── sandbox\                    0 MB  🟡
-│   └── ckg_server\                    18 MB  🟡 程式碼知識圖快取
-├── GPUCache\                            6 MB  🟡
-├── Cache\                              10 MB  🟡
-├── DawnWebGPUCache\                     1 MB  🟡
-├── DawnGraphiteCache\                   1 MB  🟡
-├── Partitions\                         30 MB  🟡 Chrome 分割區快取
-├── Local Storage\                       2 MB  🟡
-├── blob_storage\                        0 MB  🟡
-├── IndexedDB\                           0 MB  🟡
-└── ...（其他系統目錄）
+C:\Users\<user>\.trae\
+├── memory\                             🔴 SOLO agent 記憶與專案 session
+│   ├── projects\                       🔴 各專案 session_memory_*.md、project_memory.md
+│   └── user_profile.md                 🔴 使用者偏好記憶
+├── worktrees\                          🔴 SOLO agent 建立的 git worktrees
+├── toolhost\                           🟡 指令執行快照 (native-runcommand-snapshots)
+├── builtin\                            ⛔ 內建功能
+├── builtin_skills\                     ⛔ 內建技能
+├── extensions\                         ⛔ 擴充套件
+└── rules\                              ⛔ 專案/全域規則
+
+C:\Users\<user>\AppData\Roaming\Trae\
+├── Code Cache\                         🟡 V8/Chromium 位元碼快取
+├── Crashpad\                           🟡 崩潰日誌
+├── monitor\                            🟡 監控與效能追蹤日誌 (parfait)
+├── CachedConfigurations\               🟡 組態快取
+├── CachedProfilesData\                 🟡 設定檔快取
+├── CachedExtensionVSIXs\               🟡 擴充套件暫存
+├── Network\                            🟡 網路暫存
+├── Service Worker\                     🟡 Service Worker 快取
+├── Session Storage\                    🟡 Session Storage
+├── WebStorage\                         🟡 IndexedDB / Local Storage 快取
+├── aha\ / ahanet\                      🟡 ByteDance 網路與 TinyStorage 快取
+├── ModularData\
+│   ├── ai-agent\                       🔴 早期或部分版本對話 SQLite (database.db)
+│   └── ckg_server\                    🟡 程式碼知識圖快取
+├── User\
+│   ├── globalStorage\
+│   │   ├── .ckg\                       🟡 程式碼知識圖快取 (SQLite DB)
+│   │   └── .mcp_gallery_cache\        🟡 MCP 商店快取
+│   └── workspaceStorage\               🟡 工作區快照與圖片暫存
+└── ...
 ```
 
 **注意事項：**
-- 本機路徑是 `Trae`，**不是** `Trae CN`（用戶可能是全球版）
-- `database.db`（38 MB）是對話的核心 SQLite，刪除三個 `.db` / `.db-shm` / `.db-wal` 要一起清；**清除前務必關閉 Trae**
-- `CachedData`（192 MB）是最大的可安全清除項目
+- 本機路徑支援 `Trae`、`Trae CN` 以及使用者目錄 `~/.trae`
+- 新版 Trae SOLO Agent 對話與記憶主要儲存於 `~/.trae/memory`
+- `Code Cache`、`monitor`、`WebStorage` 與 `.ckg` 等為安全可清理快取
+- `~/.trae/skills/`、`builtin/`、`rules/`、`permission/` 等設定與規則為受保護項目，不會被刪除
 
 ---
 

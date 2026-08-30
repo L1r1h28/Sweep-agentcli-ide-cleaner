@@ -22,7 +22,8 @@ const NEVER_DELETE_REGEXES = NEVER_DELETE_GLOBS.map(globToRegex);
 /** Returns true when the path must never be deleted. */
 function isProtected(p: string): boolean {
   const normalised = p.replace(/\\/g, "/");
-  return NEVER_DELETE_REGEXES.some((re) => re.test(normalised));
+  const withTrailing = normalised.endsWith("/") ? normalised : `${normalised}/`;
+  return NEVER_DELETE_REGEXES.some((re) => re.test(normalised) || re.test(withTrailing));
 }
 
 export function planClean(report: ScanReport, options: CleanOptions): CleanItem[] {

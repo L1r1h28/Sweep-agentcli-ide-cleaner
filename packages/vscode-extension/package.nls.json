@@ -7,5 +7,10 @@
   "command.cleanCacheForTool.title": "Clean cache for this tool",
   "command.cleanConversationsForTool.title": "Clean conversations for this tool",
   "command.dryRun.title": "Dry-run all",
+  "command.cleanSessionsOlderThan.title": "Clean conversations older than...",
+  "command.cleanLargeSessions.title": "Clean large conversations (>50MB)...",
+  "command.pickSessionsToClean.title": "Pick conversations to delete...",
+  "command.exportSession.title": "Export conversation (Markdown / JSON)",
+  "command.cleanSingleSession.title": "Delete this conversation session",
   "views.tools.name": "AI tool storage"
 }

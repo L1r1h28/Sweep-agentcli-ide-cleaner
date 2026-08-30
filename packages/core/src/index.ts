@@ -6,3 +6,4 @@ export * from "./scan.ts";
 export * from "./clean.ts";
 export * from "./backup.ts";
 export * from "./demo.ts";
+export * from "./session.ts";

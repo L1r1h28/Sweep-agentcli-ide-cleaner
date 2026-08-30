@@ -96,18 +96,23 @@
   - [x] 在根目錄多語系 README（`README.md`、`README.zh-TW.md`、`README.zh-CN.md`）與 Extension README 嵌入展示截圖
   - [x] 準備 VS Code Marketplace / Open VSX 預覽展示圖（供後續 Commit 11 / 12 上架使用）
 - [x] 驗證多語系切換與 UI 操作正常
-- [ ] Push 到 GitHub
+- [x] Push 到 GitHub
 
 ## Commit 8 — 細緻化對話清理機制 (Granular Conversation Cleaning) `[Push]`
 
-- [ ] **細緻化對話清理機制 (Granular Conversation Cleaning)**：
-  - [ ] 依時間/年齡篩選清理（支援 `--older-than 30d` / 7 天前 / 90 天前，保留近期活躍 session）
-  - [ ] 依專案/工作區篩選（支援清理特定專案資料夾如 Claude Code `projects/`、Kiro sessions、Antigravity brain）
-  - [ ] 個別 Session 瀏覽與挑選刪除（側邊欄或 QuickPick 列出 session 標題、日期、容量並支援挑選刪除）
-  - [ ] 大型 Session 篩選與清理（篩選出 >50MB 或異常佔用的大型 session）
-  - [ ] 對話封存與匯出（清理前提供匯出為 Markdown/JSON 封存功能）
-- [ ] 撰寫單元測試覆蓋細緻化篩選與對話封存邏輯
-- [ ] Push 到 GitHub
+- [x] **修復 ByteDance Trae 掃描與記憶路徑支援 (Trae Scan & SOLO Memory Fix)**：
+  - [x] 補齊 Trae SOLO Agent 記憶路徑（`~/.trae/memory`、`~/.trae/worktrees`）與完整 Electron/IDE 快取路徑（`Code Cache`、`monitor`、`WebStorage`、`User/globalStorage/.ckg`、`aha`、`workspaceStorage` 等）
+  - [x] 細緻化安全保護規則（將全域 `**/.trae/**` 限縮為精確保護 rules、skills、settings、permission、jwt-token 等核心設定）
+  - [x] 修正保護路徑比對邏輯（`isProtected` 同步支援目錄路徑與尾隨斜線比對）
+  - [x] 更新 `storage-paths.md` 跨平台目錄結構並通過全數單元測試
+- [x] **細緻化對話清理機制 (Granular Conversation Cleaning)**：
+  - [x] 依時間/年齡篩選清理（支援 `--older-than 30d` / 7 天前 / 90 天前，保留近期活躍 session）
+  - [x] 依專案/工作區篩選（支援清理特定專案資料夾如 Claude Code `projects/`、Kiro sessions、Antigravity brain）
+  - [x] 個別 Session 瀏覽與挑選刪除（側邊欄或 QuickPick 列出 session 標題、日期、容量並支援挑選刪除）
+  - [x] 大型 Session 篩選與清理（篩選出 >50MB 或異常佔用的大型 session）
+  - [x] 對話封存與匯出（清理前提供匯出為 Markdown/JSON 封存功能）
+- [x] 撰寫單元測試覆蓋細緻化篩選與對話封存邏輯
+- [x] Push 到 GitHub
 
 ## Commit 9 — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
 

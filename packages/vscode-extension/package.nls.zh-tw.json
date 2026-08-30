@@ -7,5 +7,10 @@
   "command.cleanCacheForTool.title": "清理此工具的快取",
   "command.cleanConversationsForTool.title": "清理此工具的對話紀錄",
   "command.dryRun.title": "模擬預檢全部 (Dry-run)",
+  "command.cleanSessionsOlderThan.title": "清理指定天數前的舊對話...",
+  "command.cleanLargeSessions.title": "清理大型對話紀錄 (>50MB)...",
+  "command.pickSessionsToClean.title": "挑選欲刪除的對話紀錄...",
+  "command.exportSession.title": "匯出對話紀錄 (Markdown / JSON)",
+  "command.cleanSingleSession.title": "刪除此對話 Session",
   "views.tools.name": "AI 工具儲存空間"
 }
