@@ -8,10 +8,10 @@
 
 | 腳本檔案 | 對應 npm 指令 | 主要功能 | 適用情境 |
 | :--- | :--- | :--- | :--- |
-| [`bump-version.mjs`](file:///c:/Users/rayhu/Projects/Sweep-agentcli-ide-cleaner/scripts/bump-version.mjs) | `npm run bump [type]` | 同步升級 Monorepo 全套件版本號 | 發布前版本號遞增 (patch / minor / major) |
-| [`extract-release-notes.mjs`](file:///c:/Users/rayhu/Projects/Sweep-agentcli-ide-cleaner/scripts/extract-release-notes.mjs) | `node scripts/extract-release-notes.mjs [ver]` | 從 `CHANGELOG.md` 擷取該版本釋出紀錄 | GitHub Actions 產生 Release Notes Body |
-| [`fetch-ci-results.mjs`](file:///c:/Users/rayhu/Projects/Sweep-agentcli-ide-cleaner/scripts/fetch-ci-results.mjs) | `npm run ci:watch` / `npm run ci:fetch` | 即時監控 GitHub Actions 並下載 Artifacts/Logs | 本機等待 CI 完成並自動取得 VSIX 與二進位檔 |
-| [`project-to-md.js`](file:///c:/Users/rayhu/Projects/Sweep-agentcli-ide-cleaner/scripts/project-to-md.js) | `node scripts/project-to-md.js [output.md]` | 聚合專案結構與代碼至單一 Markdown | 提供 AI 大型 Prompt 代碼上下文分析 |
+| [`bump-version.mjs`](./bump-version.mjs) | `npm run bump [type]` | 同步升級 Monorepo 全套件版本號 | 發布前版本號遞增 (patch / minor / major) |
+| [`extract-release-notes.mjs`](./extract-release-notes.mjs) | `node scripts/extract-release-notes.mjs [ver]` | 從 `CHANGELOG.md` 擷取該版本釋出紀錄 | GitHub Actions 產生 Release Notes Body |
+| [`fetch-ci-results.mjs`](./fetch-ci-results.mjs) | `npm run ci:watch` / `npm run ci:fetch` | 即時監控 GitHub Actions 並下載 Artifacts/Logs | 本機等待 CI 完成並自動取得 VSIX 與二進位檔 |
+| [`project-to-md.js`](./project-to-md.js) | `node scripts/project-to-md.js [output.md]` | 聚合專案結構與代碼至單一 Markdown | 提供 AI 大型 Prompt 代碼上下文分析 |
 
 ---
 

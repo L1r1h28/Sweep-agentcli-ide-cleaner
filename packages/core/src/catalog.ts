@@ -842,7 +842,7 @@ export const TOOLS: ToolDef[] = [
         label: "Cascade conversations",
         kind: "conversations",
         risk: "high",
-        description: "Local Cascade chats and persistent memory. Typically 100–200 MB.",
+        description: "Local Cascade chats and multi-turn sessions. Typically 100–200 MB.",
         paths: {
           win: ["%USERPROFILE%\\.codeium\\windsurf\\cascade"],
           mac: ["~/.codeium/windsurf/cascade"],
@@ -850,11 +850,23 @@ export const TOOLS: ToolDef[] = [
         },
       },
       {
+        id: "ws-snapshots",
+        label: "Code tracker history",
+        kind: "cache",
+        risk: "low",
+        description: "Historical rewind snapshots in ~/.codeium/windsurf/code_tracker/history.",
+        paths: {
+          win: ["%USERPROFILE%\\.codeium\\windsurf\\code_tracker\\history"],
+          mac: ["~/.codeium/windsurf/code_tracker/history"],
+          linux: ["~/.codeium/windsurf/code_tracker/history"],
+        },
+      },
+      {
         id: "ws-cache",
         label: "IDE cache",
         kind: "cache",
         risk: "low",
-        description: "Cache, CachedData, GPUCache, Code Cache, Dawn caches in %APPDATA%\\Windsurf.",
+        description: "Cache, CachedData, GPUCache, Code Cache, Dawn caches, logs, and WebStorage in %APPDATA%\\Windsurf and variants.",
         paths: {
           win: [
             "%APPDATA%\\Windsurf\\Cache",
@@ -865,9 +877,32 @@ export const TOOLS: ToolDef[] = [
             "%APPDATA%\\Windsurf\\DawnGraphiteCache",
             "%APPDATA%\\Windsurf\\CachedExtensionVSIXs",
             "%APPDATA%\\Windsurf\\blob_storage",
+            "%APPDATA%\\Windsurf\\Crashpad",
+            "%APPDATA%\\Windsurf\\logs",
+            "%APPDATA%\\Windsurf\\WebStorage",
+            "%APPDATA%\\Windsurf\\User\\workspaceStorage",
             "%LOCALAPPDATA%\\Windsurf\\Cache",
+            "%LOCALAPPDATA%\\Windsurf\\Code Cache",
+            "%LOCALAPPDATA%\\Windsurf\\GPUCache",
             "%APPDATA%\\Windsurf - Next\\Cache",
             "%APPDATA%\\Windsurf - Next\\GPUCache",
+            "%APPDATA%\\Windsurf - Next\\Code Cache",
+            "%APPDATA%\\Windsurf - Next\\CachedData",
+            "%APPDATA%\\Windsurf - Nightly\\Cache",
+            "%APPDATA%\\Windsurf - Nightly\\GPUCache",
+            "%APPDATA%\\devin\\Cache",
+            "%APPDATA%\\devin\\CachedData",
+            "%APPDATA%\\devin\\GPUCache",
+            "%APPDATA%\\devin\\Code Cache",
+            "%APPDATA%\\devin\\DawnWebGPUCache",
+            "%APPDATA%\\devin\\DawnGraphiteCache",
+            "%APPDATA%\\devin\\CachedExtensionVSIXs",
+            "%APPDATA%\\devin\\blob_storage",
+            "%APPDATA%\\devin\\Crashpad",
+            "%APPDATA%\\devin\\logs",
+            "%APPDATA%\\devin\\WebStorage",
+            "%APPDATA%\\devin\\User\\workspaceStorage",
+            "%LOCALAPPDATA%\\devin\\Cache",
           ],
           mac: [
             "~/Library/Application Support/Windsurf/Cache",
@@ -875,8 +910,24 @@ export const TOOLS: ToolDef[] = [
             "~/Library/Application Support/Windsurf/GPUCache",
             "~/Library/Application Support/Windsurf/Code Cache",
             "~/Library/Application Support/Windsurf/DawnWebGPUCache",
+            "~/Library/Application Support/Windsurf/DawnGraphiteCache",
+            "~/Library/Application Support/Windsurf/CachedExtensionVSIXs",
+            "~/Library/Application Support/Windsurf/blob_storage",
+            "~/Library/Application Support/Windsurf/Crashpad",
+            "~/Library/Application Support/Windsurf/logs",
+            "~/Library/Application Support/Windsurf/WebStorage",
+            "~/Library/Application Support/Windsurf/User/workspaceStorage",
             "~/Library/Caches/Windsurf",
+            "~/Library/Caches/com.exafunction.windsurf",
+            "~/Library/Caches/com.exafunction.windsurf.ShipIt",
             "~/Library/Application Support/Windsurf - Next/Cache",
+            "~/Library/Application Support/Windsurf - Next/GPUCache",
+            "~/Library/Application Support/Windsurf - Next/Code Cache",
+            "~/Library/Application Support/devin/Cache",
+            "~/Library/Application Support/devin/CachedData",
+            "~/Library/Application Support/devin/GPUCache",
+            "~/Library/Application Support/devin/Code Cache",
+            "~/Library/Caches/devin",
           ],
           linux: [
             "~/.config/Windsurf/Cache",
@@ -884,7 +935,20 @@ export const TOOLS: ToolDef[] = [
             "~/.config/Windsurf/GPUCache",
             "~/.config/Windsurf/Code Cache",
             "~/.config/Windsurf/DawnWebGPUCache",
+            "~/.config/Windsurf/DawnGraphiteCache",
             "~/.config/Windsurf/CachedExtensionVSIXs",
+            "~/.config/Windsurf/blob_storage",
+            "~/.config/Windsurf/Crashpad",
+            "~/.config/Windsurf/logs",
+            "~/.config/Windsurf/WebStorage",
+            "~/.config/Windsurf/User/workspaceStorage",
+            "~/.cache/Windsurf",
+            "~/.config/Windsurf - Next/Cache",
+            "~/.config/devin/Cache",
+            "~/.config/devin/CachedData",
+            "~/.config/devin/GPUCache",
+            "~/.config/devin/Code Cache",
+            "~/.cache/devin",
           ],
         },
       },
@@ -892,7 +956,7 @@ export const TOOLS: ToolDef[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Kiro IDE (AWS / Amazon)
+  // 10. Kiro (AWS / Amazon — Unified)
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: "kiro",
@@ -979,7 +1043,131 @@ export const TOOLS: ToolDef[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Trae IDE (ByteDance)
+  // 11. Kiro IDE (AWS / Amazon)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "kiro-ide",
+    name: "Kiro IDE",
+    shortName: "KR-IDE",
+    products: ["IDE"],
+    blurb:
+      "AWS Kiro IDE chat store and Electron cache. Conversations live under kiro.kiroagent.",
+    notes: [
+      "IDE chats: kiro.kiroagent hash folders and .chat files.",
+      "Electron cache in %APPDATA%\\Kiro and %LOCALAPPDATA%\\Kiro.",
+    ],
+    targets: [
+      {
+        id: "kiro-ide-chats",
+        label: "IDE chat store",
+        kind: "conversations",
+        risk: "high",
+        description: "kiro.kiroagent session files (.chat and hash folders). Deleting removes all IDE conversation history.",
+        paths: {
+          win: ["%APPDATA%\\Kiro\\User\\globalStorage\\kiro.kiroagent"],
+          mac: [
+            "~/Library/Application Support/Kiro/User/globalStorage/kiro.kiroagent",
+          ],
+          linux: [
+            "~/.config/Kiro/User/globalStorage/kiro.kiroagent",
+            "~/.kiro-server/data/User/globalStorage/kiro.kiroagent",
+          ],
+        },
+      },
+      {
+        id: "kiro-ide-cache",
+        label: "IDE Cache & Logs",
+        kind: "cache",
+        risk: "low",
+        description: "Cache, CachedData, GPUCache, WebStorage, logs in %APPDATA%\\Kiro.",
+        paths: {
+          win: [
+            "%APPDATA%\\Kiro\\Cache",
+            "%APPDATA%\\Kiro\\CachedData",
+            "%APPDATA%\\Kiro\\CachedExtensionVSIXs",
+            "%APPDATA%\\Kiro\\GPUCache",
+            "%APPDATA%\\Kiro\\DawnWebGPUCache",
+            "%APPDATA%\\Kiro\\DawnGraphiteCache",
+            "%APPDATA%\\Kiro\\WebStorage",
+            "%APPDATA%\\Kiro\\logs",
+            "%APPDATA%\\Kiro\\blob_storage",
+            "%APPDATA%\\Kiro\\Code Cache",
+            "%LOCALAPPDATA%\\Kiro\\Cache",
+          ],
+          mac: [
+            "~/Library/Application Support/Kiro/Cache",
+            "~/Library/Application Support/Kiro/CachedData",
+            "~/Library/Application Support/Kiro/GPUCache",
+            "~/Library/Application Support/Kiro/logs",
+            "~/Library/Caches/Kiro",
+          ],
+          linux: [
+            "~/.config/Kiro/Cache",
+            "~/.config/Kiro/CachedData",
+            "~/.config/Kiro/GPUCache",
+            "~/.config/Kiro/logs",
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 12. Kiro CLI (AWS / Amazon)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "kiro-cli",
+    name: "Kiro CLI",
+    shortName: "KR-CLI",
+    products: ["CLI"],
+    blurb:
+      "AWS Kiro command line interface. Sessions in ~/.kiro/sessions. ~/.kiro/extensions/ is protected.",
+    notes: [
+      "CLI sessions: ~/.kiro/sessions/<hash>/ directories and JSONL stream files.",
+      "~/.kiro/extensions/ is the extension install directory — NEVER deleted.",
+    ],
+    targets: [
+      {
+        id: "kiro-cli-sessions",
+        label: "CLI Sessions",
+        kind: "conversations",
+        risk: "high",
+        description: "JSONL and sess_* directories under ~/.kiro/sessions.",
+        paths: {
+          win: ["%USERPROFILE%\\.kiro\\sessions"],
+          mac: ["~/.kiro/sessions"],
+          linux: ["~/.kiro/sessions"],
+        },
+      },
+      {
+        id: "kiro-cli-kb",
+        label: "CLI Knowledge Bases",
+        kind: "conversations",
+        risk: "high",
+        description: "CLI local knowledge bases cache.",
+        paths: {
+          win: ["%LOCALAPPDATA%\\kiro-cli\\knowledge_bases"],
+          mac: ["~/Library/Application Support/kiro-cli/knowledge_bases"],
+          linux: ["~/.local/share/kiro-cli/knowledge_bases"],
+        },
+      },
+      {
+        id: "kiro-cli-cache",
+        label: "CLI Logs & Temp Cache",
+        kind: "cache",
+        risk: "low",
+        description: "CLI runtime logs and temporary caches.",
+        paths: {
+          win: ["%LOCALAPPDATA%\\kiro-cli\\logs", "%TEMP%\\kiro-log"],
+          mac: ["~/Library/Caches/kiro-cli", "/tmp/kiro-log"],
+          linux: ["~/.cache/kiro-cli", "/tmp/kiro-log"],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 13. Trae (ByteDance — Unified)
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: "trae",
@@ -1134,6 +1322,152 @@ export const TOOLS: ToolDef[] = [
       },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 14. Trae IDE (ByteDance)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "trae-ide",
+    name: "Trae IDE",
+    shortName: "TR-IDE",
+    products: ["IDE"],
+    blurb:
+      "ByteDance Trae IDE editor. Chat database in ModularData\\ai-agent and IDE Electron caches.",
+    notes: [
+      "ModularData\\ai-agent contains database.db (+WAL/+shm SQLite trio).",
+      ".ckg and ckg_server are safe to delete.",
+    ],
+    targets: [
+      {
+        id: "trae-ide-conversations",
+        label: "IDE AI Database",
+        kind: "conversations",
+        risk: "high",
+        description: "database.db SQLite trio and snapshots in ModularData\\ai-agent.",
+        paths: {
+          win: [
+            "%APPDATA%\\Trae\\ModularData\\ai-agent",
+            "%APPDATA%\\Trae CN\\ModularData\\ai-agent",
+          ],
+          mac: [
+            "~/Library/Application Support/Trae/ModularData/ai-agent",
+            "~/Library/Application Support/Trae CN/ModularData/ai-agent",
+          ],
+          linux: [
+            "~/.config/Trae/ModularData/ai-agent",
+            "~/.config/Trae CN/ModularData/ai-agent",
+          ],
+        },
+      },
+      {
+        id: "trae-ide-cache",
+        label: "IDE Cache & CKG",
+        kind: "cache",
+        risk: "low",
+        description: "WebStorage, .ckg code knowledge graph, ckg_server, Code Cache, logs, and GPUCache.",
+        paths: {
+          win: [
+            "%APPDATA%\\Trae\\CachedData",
+            "%APPDATA%\\Trae\\logs",
+            "%APPDATA%\\Trae\\Partitions",
+            "%APPDATA%\\Trae\\ModularData\\ckg_server",
+            "%APPDATA%\\Trae\\GPUCache",
+            "%APPDATA%\\Trae\\Cache",
+            "%APPDATA%\\Trae\\WebStorage",
+            "%APPDATA%\\Trae\\Code Cache",
+            "%APPDATA%\\Trae\\User\\globalStorage\\.ckg",
+            "%APPDATA%\\Trae CN\\CachedData",
+            "%APPDATA%\\Trae CN\\logs",
+            "%APPDATA%\\Trae CN\\GPUCache",
+            "%APPDATA%\\Trae CN\\Cache",
+            "%APPDATA%\\Trae CN\\WebStorage",
+            "%APPDATA%\\Trae CN\\User\\globalStorage\\.ckg",
+            "%LOCALAPPDATA%\\Trae\\Cache",
+            "%LOCALAPPDATA%\\Trae CN\\Cache",
+          ],
+          mac: [
+            "~/Library/Application Support/Trae/CachedData",
+            "~/Library/Application Support/Trae/ModularData/ckg_server",
+            "~/Library/Application Support/Trae/GPUCache",
+            "~/Library/Application Support/Trae/WebStorage",
+            "~/Library/Application Support/Trae/Code Cache",
+            "~/Library/Application Support/Trae/User/globalStorage/.ckg",
+            "~/Library/Caches/Trae",
+            "~/Library/Application Support/Trae CN/WebStorage",
+            "~/Library/Application Support/Trae CN/User/globalStorage/.ckg",
+            "~/Library/Caches/Trae CN",
+          ],
+          linux: [
+            "~/.config/Trae/CachedData",
+            "~/.config/Trae/ModularData/ckg_server",
+            "~/.config/Trae/GPUCache",
+            "~/.config/Trae/WebStorage",
+            "~/.config/Trae/Code Cache",
+            "~/.config/Trae/User/globalStorage/.ckg",
+            "~/.cache/Trae",
+            "~/.config/Trae CN/WebStorage",
+            "~/.config/Trae CN/User/globalStorage/.ckg",
+            "~/.cache/Trae CN",
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 15. Trae CLI (ByteDance — SOLO Agent)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "trae-cli",
+    name: "Trae CLI (SOLO)",
+    shortName: "TR-CLI",
+    products: ["CLI", "SOLO"],
+    blurb:
+      "ByteDance Trae CLI / SOLO autonomous agent. Sessions and project memory stored in ~/.trae/memory.",
+    notes: [
+      "~/.trae/memory holds project-specific SOLO agent memories and reasoning sessions.",
+      "~/.trae/worktrees holds agent worktree task states.",
+      "Rules and skills in ~/.trae/ are protected.",
+    ],
+    targets: [
+      {
+        id: "trae-cli-memory",
+        label: "SOLO Memory & Worktrees",
+        kind: "conversations",
+        risk: "high",
+        description: "Agent project memory and worktree state in ~/.trae/memory and ~/.trae/worktrees.",
+        paths: {
+          win: [
+            "%USERPROFILE%\\.trae\\memory",
+            "%USERPROFILE%\\.trae\\worktrees",
+            "%USERPROFILE%\\.trae-cn\\memory",
+          ],
+          mac: [
+            "~/.trae/memory",
+            "~/.trae/worktrees",
+            "~/.trae-cn/memory",
+          ],
+          linux: [
+            "~/.trae/memory",
+            "~/.trae/worktrees",
+            "~/.trae-cn/memory",
+          ],
+        },
+      },
+      {
+        id: "trae-cli-cache",
+        label: "CLI Toolhost & Logs",
+        kind: "cache",
+        risk: "low",
+        description: "Temporary toolhost binary caches and logs in ~/.trae/toolhost.",
+        paths: {
+          win: ["%USERPROFILE%\\.trae\\toolhost", "%USERPROFILE%\\.trae-cn\\toolhost"],
+          mac: ["~/.trae/toolhost", "~/.trae-cn/toolhost"],
+          linux: ["~/.trae/toolhost", "~/.trae-cn/toolhost"],
+        },
+      },
+    ],
+  },
 ];
 
 export function getTool(id: string): ToolDef | undefined {
@@ -1180,5 +1514,14 @@ export const NEVER_DELETE_GLOBS = [
   "**/.claude/skills/**",
   "**/.claude/plugins/**",
   "**/.claude.json",
+  "**/.codeium/**/memories/**",
+  "**/.codeium/**/skills/**",
+  "**/.codeium/**/global_workflows/**",
+  "**/.codeium/**/workflows/**",
+  "**/.codeium/**/user_settings.pb",
+  "**/.codeium/**/installation_id",
+  "**/.windsurf/**/plans/**",
+  "**/.devin/**/argv.json",
+  "**/.devin-shared/**",
   "**/extensions/**",
 ];

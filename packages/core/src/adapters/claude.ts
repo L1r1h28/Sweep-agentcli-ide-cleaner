@@ -14,8 +14,8 @@ export { isEastAsianFullWidth, getDisplayWidth, truncateByDisplayWidth };
 /**
  * Decodes a Claude project slug into a clean project name.
  * Handles:
- * 1. POSIX format: "-Users-rayhu-Projects-my-web-app" -> "my-web-app"
- * 2. Windows format: "C__Users_rayhu_Projects_Sweep-agentcli-ide-cleaner" -> "Sweep-agentcli-ide-cleaner"
+ * 1. POSIX format: "-Users-username-Projects-my-web-app" -> "my-web-app"
+ * 2. Windows format: "C__Users_username_Projects_my-project" -> "my-project"
  * 3. URL encoded: "%2Fhome%2Fuser%2Fapp" -> "app"
  */
 export function decodeClaudeProjectSlug(slug: string): string {
@@ -46,7 +46,7 @@ export function decodeClaudeProjectSlug(slug: string): string {
     }
   }
 
-  // 2. POSIX format starting with "-": "-Users-rayhu-Projects-my-web-app"
+  // 2. POSIX format starting with "-": "-Users-username-Projects-my-web-app"
   if (decoded.startsWith("-")) {
     const afterLeadingDash = decoded.slice(1);
     // Check for common parent directory markers in slug (e.g. -Projects-, -code-, -workspace-, -repos-)

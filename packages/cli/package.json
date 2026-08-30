@@ -1,6 +1,6 @@
 {
-  "name": "@aicleaner/cli",
-  "version": "1.1.7",
+  "name": "@l1r1h28/sweep-cli",
+  "version": "1.2.0",
   "description": "Sweep CLI — scan and clean AI coding tool caches and conversations.",
   "type": "module",
   "bin": {
@@ -14,7 +14,7 @@
   "license": "MIT",
   "author": "L1r1h28",
   "dependencies": {
-    "@aicleaner/core": "*"
+    "@l1r1h28/sweep-core": "*"
   },
   "scripts": {
     "build": "node build.mjs",

@@ -13,12 +13,14 @@
 
 ## 🌟 Key Features
 
-- 📊 **Activity Bar Integration**: Dedicated **Sweep** icon in the Activity Bar for quick storage inspection.
+- 📊 **Activity Bar Integration**: Dedicated **Sweep** broom icon in the Activity Bar for storage inspection.
 - ⚡ **Safe Cache Clearing**: One-click cleanup for Electron cache, GPU cache, and knowledge graph indexes without losing chats.
-- 💬 **Conversation & Agent State Management**: Granular control over conversation records with high-risk warning confirmation.
+- 💬 **Conversation & Agent State Management**: Granular control over conversation records with high-risk warning confirmation and automatic backups.
+- 👁️ **Uninstalled Tools Filter**: Quick toggle to hide uninstalled or 0-byte AI tools (`$(eye)`).
+- 📁 **Custom Path Picker**: Configure custom AI tool storage folders directly through the native folder picker (`$(folder-library)`).
 - 🛡️ **Whitelist & Non-Deletion Protection**: Permanently protect important project workspaces, paths, or session IDs with visual shield indicators (`$(shield)`).
 - 📦 **Backup & Instant Restoration**: Automatic snapshots in `~/.sweep/backups/` and one-click rollback.
-- 🤖 **Comprehensive Tool Support**: Works across Antigravity, OpenAI Codex, Claude Code, Windsurf, Kiro, and Trae IDE.
+- 🤖 **Comprehensive Tool Support**: Works across 15 product lines including Antigravity, OpenAI Codex, Claude Code/Desktop, Windsurf & Cascade, AWS Kiro, and ByteDance Trae.
 
 ![Sweep Extension Overview](https://raw.githubusercontent.com/L1r1h28/Sweep-agentcli-ide-cleaner/main/assets/fullscreen.png)
 
@@ -50,6 +52,8 @@
 | `sweep.addToWhitelist` | **Sweep: Add to Whitelist (Protect)** | Whitelist | Protects selected project, path pattern, or session from deletion. |
 | `sweep.removeFromWhitelist` | **Sweep: Remove from Whitelist** | Whitelist | Unprotects item, restoring normal cleanup actions. |
 | `sweep.openConfigFile` | **Sweep: Open config file** | Config | Opens `~/.sweep/config.json` for manual editing. |
+| `sweep.toggleHideUninstalled` | **Sweep: Toggle Hide Uninstalled Tools** | View | Toggles whether uninstalled or empty tools are hidden in tree view. |
+| `sweep.addCustomPath` | **Sweep: Add Custom Path** | Config | Interactively select and configure a custom storage directory for any tool. |
 
 ---
 
@@ -71,6 +75,7 @@ Items marked with a **Shield (`$(shield)`)** badge are protected by whitelist ru
 | `sweep.excludePatterns` | `array` | `[]` | Glob patterns of session files or directories to protect from deletion (e.g. `["**/keep-*/**"]`). |
 | `sweep.whitelistProjects` | `array` | `[]` | List of project/workspace names permanently protected from conversation cleanup. |
 | `sweep.backupBeforeClean` | `boolean` | `true` | Automatically backup conversation sessions to `~/.sweep/backups/` before deletion. |
+| `sweep.hideUninstalledTools` | `boolean` | `true` | Hide AI tools that are not installed on this machine or have 0 bytes of data. |
 
 ---
 
@@ -78,14 +83,14 @@ Items marked with a **Shield (`$(shield)`)** badge are protected by whitelist ru
  
 ### Option 1: Direct Download (.vsix)
 
-Download `sweep-aicleaner-1.1.7.vsix` directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**, then install via command line or IDE UI:
+Download `sweep-aicleaner-1.2.0.vsix` directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**, then install via command line or IDE UI:
 
 ```bash
 # In VS Code:
-code --install-extension sweep-aicleaner-1.1.7.vsix
+code --install-extension sweep-aicleaner-1.2.0.vsix
 
 # In Cursor:
-cursor --install-extension sweep-aicleaner-1.1.7.vsix
+cursor --install-extension sweep-aicleaner-1.2.0.vsix
 ```
 
 Or open your editor, go to **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`), click `...` at the top right, and select **Install from VSIX...**.
@@ -99,16 +104,14 @@ Or open your editor, go to **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`), clic
 npm install
 
 # 2. Package the extension
-cd packages/vscode-extension
-npm run build
-npm run pack
+npm run pack --workspace=sweep-aicleaner
 ```
 
 ---
 
 ## 🏗️ Architecture
 
-The extension is bundled using `esbuild` into a single, self-contained CommonJS file (`dist/extension.js`), consuming `@aicleaner/core` while keeping Node.js built-ins external for maximum compatibility across VS Code versions.
+The extension is bundled using `esbuild` into a single, self-contained CommonJS file (`dist/extension.js`), consuming `@l1r1h28/sweep-core` while keeping Node.js built-ins external for maximum compatibility across VS Code versions.
 
 ---
 

@@ -51,13 +51,13 @@ jobs:
 
       - name: Bump version
         run: |
-          npm pkg set version=${{ inputs.version }} --workspace=@aicleaner/core --no-git-tag-version
-          npm pkg set version=${{ inputs.version }} --workspace=@aicleaner/cli --no-git-tag-version
+          npm pkg set version=${{ inputs.version }} --workspace=@l1r1h28/sweep-core --no-git-tag-version
+          npm pkg set version=${{ inputs.version }} --workspace=@l1r1h28/sweep-cli --no-git-tag-version
 
       - name: Build CLI bundle
         run: |
-          npm run build --workspace=@aicleaner/core
-          npm run build --workspace=@aicleaner/cli
+          npm run build --workspace=@l1r1h28/sweep-core
+          npm run build --workspace=@l1r1h28/sweep-cli
 
       - name: Run tests
         run: npm test --workspaces --if-present
@@ -169,8 +169,8 @@ jobs:
           else
             echo "Setting up npm authentication..."
             echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-            echo "Publishing @aicleaner/core to npm..."
-            npm publish --workspace=@aicleaner/core --access public
-            echo "Publishing @aicleaner/cli to npm..."
-            npm publish --workspace=@aicleaner/cli --access public
+            echo "Publishing @l1r1h28/sweep-core to npm..."
+            npm publish --workspace=@l1r1h28/sweep-core --access public
+            echo "Publishing @l1r1h28/sweep-cli to npm..."
+            npm publish --workspace=@l1r1h28/sweep-cli --access public
           fi

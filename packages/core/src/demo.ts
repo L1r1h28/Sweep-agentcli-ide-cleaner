@@ -17,9 +17,16 @@ const DEMO: Record<string, { bytes: number; files: number }> = {
   "ws-cascade": { bytes: 310_000_000, files: 55 },
   "ws-cache": { bytes: 1_800_000_000, files: 6400 },
   "kiro-ide-chats": { bytes: 2_900_000_000, files: 1800 },
+  "kiro-ide-cache": { bytes: 420_000_000, files: 220 },
   "kiro-cli-sessions": { bytes: 140_000_000, files: 40 },
+  "kiro-cli-kb": { bytes: 65_000_000, files: 15 },
+  "kiro-cli-cache": { bytes: 35_000_000, files: 8 },
   "kiro-cache": { bytes: 420_000_000, files: 220 },
   "trae-conversations": { bytes: 1_100_000_000, files: 12 },
+  "trae-ide-conversations": { bytes: 850_000_000, files: 8 },
+  "trae-ide-cache": { bytes: 3_100_000_000, files: 850 },
+  "trae-cli-memory": { bytes: 250_000_000, files: 24 },
+  "trae-cli-cache": { bytes: 120_000_000, files: 50 },
   "trae-cache": { bytes: 3_370_000_000, files: 900 },
 };
 

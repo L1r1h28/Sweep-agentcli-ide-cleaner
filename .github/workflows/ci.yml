@@ -57,7 +57,7 @@ jobs:
         run: npm ci
 
       - name: Build CLI bundle
-        run: npm run build --workspace=@aicleaner/core --workspace=@aicleaner/cli
+        run: npm run build --workspace=@l1r1h28/sweep-core --workspace=@l1r1h28/sweep-cli
 
       - name: Build SEA binary
         run: node scripts/build-binary.mjs

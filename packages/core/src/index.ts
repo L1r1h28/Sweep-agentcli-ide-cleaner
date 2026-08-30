@@ -13,5 +13,9 @@ export * from "./filter.ts";
 export * from "./adapters/antigravity.ts";
 export * from "./adapters/codex.ts";
 export * from "./adapters/claude.ts";
+export * from "./adapters/windsurf.ts";
+export * from "./adapters/kiro.ts";
+export * from "./adapters/trae.ts";
+
 
 

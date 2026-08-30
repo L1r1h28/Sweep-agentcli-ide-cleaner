@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { runCli } from "../src/run.ts";
-import { scanDisk } from "@aicleaner/core";
+import { scanDisk } from "@l1r1h28/sweep-core";
 
 describe("CLI Smoke & End-to-End Tests", () => {
   let fakeHome: string;
@@ -220,6 +220,124 @@ describe("CLI Smoke & End-to-End Tests", () => {
     expect(restoreCode).toBe(0);
     expect(existsSync(testFile)).toBe(true);
     expect(readFileSync(testFile, "utf-8")).toBe('{"project":"sweep-cli-test"}');
+  });
+
+  it("9. windsurf scan, session listing, and safe clean work seamlessly via CLI", async () => {
+    // 1. Setup mock Windsurf structure
+    const wsCascade = join(fakeHome, ".codeium", "windsurf", "cascade");
+    const wsTrackerHistory = join(fakeHome, ".codeium", "windsurf", "code_tracker", "history");
+    const wsMemories = join(fakeHome, ".codeium", "windsurf", "memories");
+    const wsSkills = join(fakeHome, ".codeium", "windsurf", "skills", "my-skill");
+    const wsMcp = join(fakeHome, ".codeium", "windsurf", "mcp_config.json");
+    const wsCache = join(fakeHome, "AppData", "Roaming", "Windsurf", "Cache");
+
+    mkdirSync(wsCascade, { recursive: true });
+    mkdirSync(wsTrackerHistory, { recursive: true });
+    mkdirSync(wsMemories, { recursive: true });
+    mkdirSync(wsSkills, { recursive: true });
+    mkdirSync(wsCache, { recursive: true });
+
+    // Conversations & Cache
+    writeFileSync(join(wsCascade, "session-ws-1.json"), JSON.stringify({ id: "ws-1", title: "CLI Windsurf Test", cwd: "/test/app" }));
+    writeFileSync(join(wsTrackerHistory, "snapshot.py"), "print('snapshot')");
+    writeFileSync(join(wsCache, "cache_0"), "cache data");
+
+    // Protected
+    writeFileSync(wsMcp, '{"mcpServers":{}}');
+    writeFileSync(join(wsMemories, "global_rules.md"), "# Protected Rules");
+    writeFileSync(join(wsSkills, "SKILL.md"), "skill docs");
+
+    // 2. Test CLI scan --tool windsurf
+    let logs: string[] = [];
+    const origLog = console.log;
+    console.log = (...args) => logs.push(args.join(" "));
+
+    try {
+      const scanCode = await runCli(["scan", "--tool", "windsurf"]);
+      expect(scanCode).toBe(0);
+      expect(logs.some((l) => l.includes("Windsurf"))).toBe(true);
+
+      // 3. Test CLI sessions list --tool windsurf
+      logs = [];
+      const sessCode = await runCli(["sessions", "list", "--tool", "windsurf"]);
+      expect(sessCode).toBe(0);
+      expect(logs.some((l) => l.includes("CLI Windsurf Test") || l.includes("session-ws-1"))).toBe(true);
+    } finally {
+      console.log = origLog;
+    }
+
+    // 4. Test CLI clean cache only
+    const cleanCacheCode = await runCli(["clean", "--tool", "windsurf", "--kind", "cache", "--force"]);
+    expect(cleanCacheCode).toBe(0);
+    expect(existsSync(join(wsTrackerHistory, "snapshot.py"))).toBe(false);
+    expect(existsSync(join(wsCache, "cache_0"))).toBe(false);
+
+    // Protected files & conversations must remain
+    expect(existsSync(wsMcp)).toBe(true);
+    expect(existsSync(join(wsMemories, "global_rules.md"))).toBe(true);
+    expect(existsSync(join(wsSkills, "SKILL.md"))).toBe(true);
+    expect(existsSync(join(wsCascade, "session-ws-1.json"))).toBe(true);
+  });
+
+  it("10. output folding: --limit and --all flags correctly truncate and fold output with remainder notice", async () => {
+    // Generate 25 mock sessions for Codex
+    const codexSessionsDir = join(fakeHome, ".codex", "sessions");
+    mkdirSync(codexSessionsDir, { recursive: true });
+    for (let i = 1; i <= 25; i++) {
+      writeFileSync(
+        join(codexSessionsDir, `chat_${String(i).padStart(2, "0")}.jsonl`),
+        JSON.stringify({ msg: `session ${i}` })
+      );
+    }
+
+    let logs: string[] = [];
+    const origLog = console.log;
+    console.log = (...args) => logs.push(args.join(" "));
+
+    try {
+      // Default folding (limit = 20)
+      const code1 = await runCli(["sessions", "list", "--tool", "codex"]);
+      expect(code1).toBe(0);
+      expect(logs.some((l) => l.includes("more session(s)") && l.includes("Use --all or --limit"))).toBe(true);
+
+      // Custom limit (--limit 5)
+      logs = [];
+      const code2 = await runCli(["sessions", "list", "--tool", "codex", "--limit", "5"]);
+      expect(code2).toBe(0);
+      expect(logs.some((l) => l.includes("more session(s)") && l.includes("Use --all or --limit"))).toBe(true);
+
+      // Explicit --all
+      logs = [];
+      const code3 = await runCli(["sessions", "list", "--tool", "codex", "--all"]);
+      expect(code3).toBe(0);
+      expect(logs.some((l) => l.includes("Use --all or --limit"))).toBe(false);
+    } finally {
+      console.log = origLog;
+    }
+  });
+
+  it("11. single-tool scoping and validation: validates tool id and applies tool-scoped header", async () => {
+    let errLogs: string[] = [];
+    let logs: string[] = [];
+    const origErr = console.error;
+    const origLog = console.log;
+    console.error = (...args) => errLogs.push(args.join(" "));
+    console.log = (...args) => logs.push(args.join(" "));
+
+    try {
+      // Invalid tool id rejected
+      const invalidCode = await runCli(["scan", "--tool", "non-existent-tool"]);
+      expect(invalidCode).toBe(1);
+      expect(errLogs.some((l) => l.includes('Unknown tool "non-existent-tool"'))).toBe(true);
+
+      // Valid tool id includes tool banner
+      const validCode = await runCli(["scan", "--tool", "antigravity"]);
+      expect(validCode).toBe(0);
+      expect(logs.some((l) => l.includes("[tool: Antigravity IDE]"))).toBe(true);
+    } finally {
+      console.error = origErr;
+      console.log = origLog;
+    }
   });
 });
 

@@ -19,5 +19,7 @@
   "command.addToWhitelist.title": "Add to Whitelist (Protect)",
   "command.removeFromWhitelist.title": "Remove from Whitelist",
   "command.openConfigFile.title": "Open config file (~/.sweep/config.json)",
+  "command.toggleHideUninstalled.title": "Toggle uninstalled tools visibility",
+  "command.addCustomPath.title": "Add custom storage path...",
   "views.tools.name": "AI tool storage"
 }

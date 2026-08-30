@@ -16,7 +16,11 @@ export type ToolId =
   | "claude-desktop"
   | "windsurf"
   | "kiro"
-  | "trae";
+  | "kiro-ide"
+  | "kiro-cli"
+  | "trae"
+  | "trae-ide"
+  | "trae-cli";
 
 export type PathSet = {
   win: string[];

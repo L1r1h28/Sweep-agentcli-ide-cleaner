@@ -1,13 +1,13 @@
 {
   "name": "sweep-agentcli-ide-cleaner-monorepo",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "private": true,
   "description": "Sweep cleaner for AI coding tool caches and conversation history.",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build:cli": "npm run build --workspace=@aicleaner/core && npm run build --workspace=@aicleaner/cli",
+    "build:cli": "npm run build --workspace=@l1r1h28/sweep-core && npm run build --workspace=@l1r1h28/sweep-cli",
     "build:extension": "npm run build --workspace=sweep-aicleaner",
     "build": "npm run build:cli && npm run build:extension",
     "test": "npm run test --workspaces --if-present",

@@ -147,23 +147,59 @@ C:\Users\<user>\AppData\Local\OpenAI\Codex\  814 MB
 
 ---
 
-## 3. Windsurf（Codeium / Devin 更名）
+## 3. Windsurf（Codeium / Devin 變體）
 
-實際根目錄：`%USERPROFILE%\.codeium\windsurf\`
+實際根目錄：
+- **Cascade 對話與記憶庫**：`%USERPROFILE%\.codeium\windsurf\`
+- **IDE 擴充套件與設定**：`%USERPROFILE%\.windsurf\`
+- **IDE Electron 快取**：`%APPDATA%\Windsurf\`、`%LOCALAPPDATA%\Windsurf\`（及 `%APPDATA%\Windsurf - Next`、`%APPDATA%\devin`）
 
-### 實際掃描到的資料夾樹
+### 實際掃描到的完整資料夾樹
 
 ```
-C:\Users\<user>\.codeium\
-└── windsurf\                       208 MB
-    └── cascade\                    156 MB  🔴 Cascade 對話歷史與記憶
-        └── (對話 DB 與索引檔)
+C:\Users\<user>\.codeium\windsurf\
+├── cascade\                        🔴 Cascade 對話歷史（目錄式 Session / SQLite WAL trio / JSONL）
+├── code_tracker\                   🟡 程式碼編輯追蹤快照
+│   ├── history\                    🟡 歷史修訂快照（可安全清理釋放空間）
+│   └── active\                     🔴 當前工作階段追蹤檔案
+├── database\                       🔴 本地數據庫與索引 (UUID 目錄)
+├── implicit\                       🔴 二進位隱性對話狀態 (*.pb)
+├── memories\                       ⛔ **長期記憶庫 (*.pb) 與全域規則 (global_rules.md，絕對不要刪除)**
+├── skills\                         ⛔ **Windsurf 自訂技能庫 (skills/，絕對不要刪除)**
+├── global_workflows\               ⛔ **全域工作流程 (gitpush.md 等，絕對不要刪除)**
+├── windsurf\workflows\             ⛔ **自訂工作流程 (review.md 等，絕對不要刪除)**
+├── codemaps\                       🟡 程式碼地圖快取 (codemapindex.json)
+├── context_state\                  🔴 上下文狀態暫存
+├── brain\                          🔴 Agent 暫存大腦
+├── mcp_config.json                 ⛔ **MCP 伺服器設定檔（絕對不要刪除）**
+├── user_settings.pb                ⛔ **使用者設定檔（絕對不要刪除）**
+└── installation_id                 ⛔ **安裝識別碼（絕對不要刪除）**
+
+C:\Users\<user>\.windsurf\
+├── extensions\                     ⛔ **VS Code / Windsurf 擴充套件（不要刪除）**
+├── plans\                          ⛔ **計畫與規格草稿（不要刪除）**
+└── argv.json                       ⛔ **執行引數組態（不要刪除）**
+
+C:\Users\<user>\AppData\Roaming\Windsurf\ (及 %APPDATA%\devin\)
+├── Cache\                          🟡 網路快取
+├── CachedData\                     🟡 V8 位元碼編譯快取
+├── GPUCache\                       🟡 GPU 渲染快取
+├── Code Cache\                     🟡 代碼快取
+├── DawnWebGPUCache\                🟡 WebGPU 快取
+├── DawnGraphiteCache\              🟡 Graphite 著色器快取
+├── CachedExtensionVSIXs\           🟡 擴充套件暫存
+├── blob_storage\                   🟡 Blob 暫存
+├── Crashpad\                       🟡 崩潰回報日誌
+├── logs\                           🟡 執行日誌
+├── WebStorage\                     🟡 IndexedDB / Local Storage 快取
+└── User\workspaceStorage\          🟡 工作區工作階段快照
 ```
 
 **注意事項：**
-- 本機未安裝 Windsurf 獨立 IDE（無 `%APPDATA%\Windsurf\`），只有 `.codeium` 的資料目錄
-- `cascade/` 是唯一需要管理的目錄，清除後本地 Cascade 歷史消失
-- `mcp_config.json`（若存在）**不要刪除**
+- `cascade/` 支援目錄式會話、JSON/JSONL 單檔以及 SQLite WAL 三合一檔案（`<id>.db`, `<id>.db-wal`, `<id>.db-shm`），Sweep 自動聚合檔案並提取標題。
+- `~/.codeium/windsurf/code_tracker/history` 為歷史修訂快照，可作為 `ws-snapshots` 標靶清理，保留 `active/` 進行中追蹤。
+- `memories/`、`skills/`、`global_workflows/`、`mcp_config.json` 等受 `NEVER_DELETE_GLOBS` 保護，快取清理與會話清理時均嚴格保留。
+- `%APPDATA%\devin` 與 `%APPDATA%\Windsurf - Next` 亦已納入 IDE 快取清理範圍。
 
 ---
 

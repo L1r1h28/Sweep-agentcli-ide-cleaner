@@ -19,5 +19,7 @@
   "command.addToWhitelist.title": "加入白名单 (永久保护)",
   "command.removeFromWhitelist.title": "从白名单移除",
   "command.openConfigFile.title": "打开配置文件 (~/.sweep/config.json)",
+  "command.toggleHideUninstalled.title": "切换显示/隐藏未安装工具",
+  "command.addCustomPath.title": "新增自定义扫描路径...",
   "views.tools.name": "AI 工具存储"
 }

@@ -7,6 +7,98 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-31
+
+### ✨ Official Store Release & Namespace Migration (`@l1r1h28/sweep-core`, `@l1r1h28/sweep-cli`, `sweep-aicleaner`)
+
+- **npm Scope Migration to `@l1r1h28/`**:
+  - Core engine officially migrated to `@l1r1h28/sweep-core`.
+  - CLI companion migrated to `@l1r1h28/sweep-cli`, providing global binary aliases `sweep` and `aicleaner` (invocable via `npx @l1r1h28/sweep-cli`).
+  - Extension maintained as `sweep-aicleaner` under publisher `L1r1h28`.
+  - Updated all workspace references, internal module imports, esbuild/packaging scripts, and CI/Release automation workflows.
+- **Store & Registry Publishing Pipeline**:
+  - Configured automated publishing pipeline to Visual Studio Marketplace, Open VSX Registry, and npm Registry.
+  - Automated release artifact distribution including SHA-256 checksums, VSIX package (`sweep-aicleaner-1.2.0.vsix`), and standalone executables for Linux x64, macOS Apple Silicon / Intel, and Windows x64.
+- **Documentation & README Comprehensive Refresh**:
+  - Synchronized documentation across English, Traditional Chinese (`zh-TW`), and Simplified Chinese (`zh-CN`).
+  - Added complete 15 AI coding tool product line matrix with directory paths and strict safety protection rules.
+  - Updated all CLI command references including output folding (`--limit`, `--all`), single-tool scoping (`--tool <id>`), granular filters (`--older-than`, `--min-size`, `--project`), backup/restore (`sweep restore`, `sweep backups`), and configuration management (`sweep config`, `sweep whitelist`).
+  - Documented new extension GUI features: `sweep.toggleHideUninstalled` and `sweep.addCustomPath`.
+- **Full Test Suite & Quality Assurance**:
+  - 100% test pass rate across all 16 test files (122 tests), verifying zero-PII compliance, multi-platform path expansion, backup/restore fidelity, and whitelist enforcement.
+
+---
+
+## [1.1.10] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### UI / UX Comprehensive Polish & Interactive Enhancements (`@aicleaner/cli`, `sweep-aicleaner`, `@aicleaner/core`)
+- **CLI Output Folding & Compression (`sweep sessions list` & `sweep scan`)**:
+  - Implemented automatic output folding for `sweep sessions list` (defaulting to Top 20 sessions) with clear pagination notices:
+    `... and X more session(s) (Total: Y across Z sessions). Use --all or --limit <n> to view all.`
+  - Added `--limit <n>` / `-n <n>` and `--all` / `-a` flags to control session pagination without terminal flooding.
+  - Streamlined `sweep scan` and `sweep clean` output formatting for clean visual hierarchy.
+- **Single-Tool Dedicated Scoping (`--tool <id>`)**:
+  - Unified `--tool <id>` filtering across all CLI subcommands (`scan`, `clean`, `sessions list`, `sessions clean`, `targets`, `restore`).
+  - Added strict tool ID validation with actionable error feedback and supported tool suggestions.
+  - Implemented tool-scoped visual banners (`Sweep scan  [tool: <Tool Name>]  [<platform>]  <home>`).
+- **VS Code Extension: Uninstalled Tools Toggle (`sweep.toggleHideUninstalled`)**:
+  - Added title bar command and view action (`$(eye)`) to toggle `sweep.hideUninstalledTools` between hiding and displaying uninstalled / empty tools.
+  - Immediate dynamic TreeView refresh with informative status notifications.
+- **VS Code Extension: Custom Paths GUI Picker (`sweep.addCustomPath`)**:
+  - Added interactive folder picker command (`$(folder-library)`) to configure custom AI tool storage directories directly via GUI.
+  - Synchronously updates both VS Code workspace settings and `~/.sweep/config.json`.
+- **Dynamic Capacity Calculation & Feedback**:
+  - Enhanced all clean operations with immediate post-clean capacity updates and detailed freed disk space notifications.
+- **Full Test Suite & Quality Assurance (122 Tests Passed)**:
+  - Added automated end-to-end tests for output folding, single-tool scoping, and tool validation. All 122 tests pass with 100% success rate.
+
+---
+
+## [1.1.9] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### AWS Kiro & ByteDance Trae Deep Optimization (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Full Product Line Separation for AWS Kiro & ByteDance Trae**:
+  - Implemented separated product lines matching Antigravity and Codex architectures:
+    - **AWS Kiro**: `kiro` (Unified), `kiro-ide` (Kiro IDE Chat Store & Electron Cache), and `kiro-cli` (Kiro CLI Sessions, Knowledge Bases, & Logs).
+    - **ByteDance Trae**: `trae` (Unified), `trae-ide` (Trae / Trae CN IDE SQLite DB, CKG, & Cache), and `trae-cli` (Trae CLI / SOLO Autonomous Agent Project Memory & Worktrees).
+- **AWS Kiro .chat & CLI Session Parsing Engine (`kiro.ts`)**:
+  - Implemented dedicated `kiro.ts` adapter supporting `.chat` files and Hash directory sessions under `%APPDATA%\Kiro\User\globalStorage\kiro.kiroagent` and `~/.kiro/sessions/`.
+  - Robust JSON / JSONL parser extracting user prompts, project names (`workspacePath`, `workspaceUri`, `cwd`), and timestamps with CJK 26-column display width truncation.
+  - Strict protection for `~/.kiro/extensions/` (CLI extension install directory, never deleted), `steering/`, `skills/`, and `settings/`.
+- **ByteDance Trae SQLite WAL Trio Aggregation & SOLO Memory (`trae.ts`)**:
+  - Implemented SQLite WAL trio aggregation for `ModularData\ai-agent\database.db`, linking `database.db-wal` and `database.db-shm` into a single consolidated session with aggregated file sizes and unified deletion/backup handling.
+  - Added SOLO agent project memory parser for `~/.trae/memory/` and task worktree state `~/.trae/worktrees/`.
+  - Precision cache targeting for `.ckg` (Code Knowledge Graph), `ckg_server`, `WebStorage`, `monitor`, `Partitions`, `Code Cache`, and `aha`/`ahanet`.
+  - Permanent security protection for `~/.trae/rules/**`, `skills/**`, `builtin_skills/**`, `permission/**`, `settings/**`, `trae-jwt-token`, `argv.json`, and `skill-config.json`.
+- **Zero-PII Sanitation & Full Test Suite (111 Tests, 15 Test Files)**:
+  - 100% test coverage across 15 test files with 111 unit & E2E tests, verifying complete platform independence and zero PII leaks.
+
+---
+
+## [1.1.8] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### Codeium Windsurf & Cascade Deep Optimization (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Cascade Multi-Format Session & SQLite WAL Parsing Engine**:
+  - Implemented dedicated `windsurf.ts` adapter module supporting both directory-based sessions (`~/.codeium/windsurf/cascade/<session-uuid>/`) and single-file sessions (`.json`, `.jsonl`, `.pb`).
+  - Added robust SQLite WAL trio aggregation: automatically links `<session-id>.db`, `<session-id>.db-wal`, and `<session-id>.db-shm` into a single consolidated conversation session with summed byte sizes and associated file paths.
+  - Implemented defensive JSON/JSONL stream parser (inspecting up to first 40 records) extracting user prompts, project names (`workspaceUri`, `workspacePath`, `cwd`, `repoPath`), and timestamps.
+  - Applied East Asian CJK display width truncation (26 visual columns) with friendly fallback timestamps (`Session (MM-DD HH:mm)`).
+- **Code Tracker History & Snapshot Separation**:
+  - Added `ws-snapshots` target mapping `~/.codeium/windsurf/code_tracker/history` (historical rewind snapshots) under low-risk cache targets, enabling significant disk space reclamation while preserving active tracking state (`active/`).
+- **Comprehensive Cross-Platform IDE Cache Topology**:
+  - Expanded Windsurf cache definitions across Windows (`%APPDATA%\Windsurf`, `%LOCALAPPDATA%\Windsurf`, `Windsurf - Next`, `Windsurf - Nightly`, and `%APPDATA%\devin` historical/variant folders), macOS (`~/Library/Application Support/Windsurf`, `~/Library/Caches/Windsurf`, `com.exafunction.windsurf`), and Linux (`~/.config/Windsurf`, `~/.cache/Windsurf`).
+  - Precise targeting of `Cache`, `CachedData`, `GPUCache`, `Code Cache`, `DawnWebGPUCache`, `DawnGraphiteCache`, `CachedExtensionVSIXs`, `blob_storage`, `Crashpad`, `logs`, `WebStorage`, and `User\workspaceStorage`.
+- **Permanent Memory & MCP Configuration Protection**:
+  - Enforced permanent `NEVER_DELETE_GLOBS` protection for `~/.codeium/windsurf/mcp_config.json` (MCP server definitions), `~/.codeium/windsurf/memories/**` (`*.pb` memories and `global_rules.md`), `~/.codeium/windsurf/skills/**`, `global_workflows/`, `workflows/`, `user_settings.pb`, `installation_id`, `~/.windsurf/plans/**`, and `.devin-shared/**`.
+
+---
+
 ## [1.1.7] - 2026-08-31
 
 ### ✨ Features & Enhancements

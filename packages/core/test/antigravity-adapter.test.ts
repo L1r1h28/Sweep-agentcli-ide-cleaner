@@ -49,13 +49,13 @@ describe("Antigravity Adapter & CJK Visual Width Tests", () => {
 
   describe("Antigravity Prompt Sanitization Pipeline", () => {
     it("strips IDE tags, file mentions, and metadata", () => {
-      const rawPrompt = `<USER_REQUEST>\n@[c:\\Users\\rayhu\\Projects\\app\\README.md:L1-L20] @[c:\\Users\\rayhu\\Projects\\app\\ROADMAP.md] 請幫我修復這個嚴重的 bug\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nLocal time: 2026-08-31\n</ADDITIONAL_METADATA>`;
+      const rawPrompt = `<USER_REQUEST>\n@[c:\\Users\\testuser\\Projects\\app\\README.md:L1-L20] @[c:\\Users\\testuser\\Projects\\app\\ROADMAP.md] 請幫我修復這個嚴重的 bug\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nLocal time: 2026-08-31\n</ADDITIONAL_METADATA>`;
       const clean = sanitizeAntigravityPrompt(rawPrompt, 26);
       expect(clean).toBe("請幫我修復這個嚴重的 bug");
     });
 
     it("falls back to file mention if user submitted only files", () => {
-      const rawPrompt = `<USER_REQUEST>\n@[c:\\Users\\rayhu\\Projects\\app\\package.json]\n</USER_REQUEST>`;
+      const rawPrompt = `<USER_REQUEST>\n@[c:\\Users\\testuser\\Projects\\app\\package.json]\n</USER_REQUEST>`;
       const clean = sanitizeAntigravityPrompt(rawPrompt, 26);
       expect(clean).toBe("@package.json");
     });

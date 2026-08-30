@@ -200,38 +200,54 @@
 - [x] **Claude Desktop 整合**：納入 Windows `%LOCALAPPDATA%\Claude-Data` 與 `%APPDATA%\Claude` 之 Electron 快取與日誌
 
 
-## Commit 16 [v1.1.8] — Codeium Windsurf & Cascade 深度調優
+## ✅ Commit 16 [v1.1.8] — Codeium Windsurf & Cascade 深度調優
 
-- [ ] **Cascade 對話與記憶庫彙整**：解析 `cascade/` 內多檔案與 SQLite WAL 檔案，提供完整會話標題
-- [ ] **IDE 快取精準定位**：確認 Windsurf CachedData、GPUCache 與 Code Cache 路徑有效性
-- [ ] **MCP 設定檔安全保護**：確認 `mcp_config.json` 永不被快取清理誤刪
+- [x] **Cascade 對話與記憶庫彙整**：解析 `cascade/` 內多檔案、目錄式會話與 SQLite WAL 檔案，提供完整會話標題與 CJK 對齊
+- [x] **Code Tracker 歷史快照分離**：新增 `ws-snapshots` 標靶分類 `~/.codeium/windsurf/code_tracker/history`，釋放修訂快照
+- [x] **IDE 快取精準定位**：確認 Windsurf `CachedData`、`GPUCache`、`Code Cache`、`WebStorage` 與 Windows / macOS / Linux 全平台路徑有效性
+- [x] **MCP 設定檔與核心記憶安全保護**：確認 `mcp_config.json`、`memories/*.pb`、`skills/`、`workflows/` 永不被快取或會話清理誤刪
 
-## Commit 17 [v1.1.9] — AWS Kiro & ByteDance Trae 深度調優
+## ✅ Commit 17 [v1.1.9] — AWS Kiro & ByteDance Trae 深度調優
+ 
+- [x] **Kiro .chat 與 CLI Session 解析**：實作 `kiro.ts` 解析 `.chat` 與 Hash 目錄會話，支援 CJK 26 欄視寬
+- [x] **Kiro 插件庫與 Steering 保護**：驗證 `~/.kiro/extensions/` 與 `steering/`、`skills/`、`settings/` 排除規則
+- [x] **Trae SOLO SQLite WAL 三合一彙整**：實作 `trae.ts` 將 `database.db`、`database.db-wal`、`database.db-shm` 關聯聚合
+- [x] **Trae SOLO 專案記憶解析**：解析 `~/.trae/memory/` 與 `~/.trae/worktrees/` 會話
+- [x] **Trae 代碼知識圖快取標定**：精準標定 `.ckg`、`ckg_server`、`WebStorage` 與 `Code Cache`
+- [x] **Kiro & Trae 全產品線分離**：支援 `kiro`, `kiro-ide`, `kiro-cli` 與 `trae`, `trae-ide`, `trae-cli` 獨立標靶掃描
 
-- [ ] **Kiro .chat Session 解析**：解析 `.chat` 會話檔案內容與標題
-- [ ] **Kiro 插件庫與 Steering 保護**：驗證 `~/.kiro/extensions` 與 `steering/` 排除規則
-- [ ] **Trae SOLO SQLite 彙整**：將 Trae `database.db`、`database.db-wal` 彙整並解析會話
+## ✅ Commit 18 [v1.1.10] — UI / UX 全面打磨與互動強化
 
-## Commit 18 [v1.1.10] — UI / UX 全面打磨與互動強化
+- [x] **CLI 超長內容顯示壓縮與摘要 (Output Folding & Compression)**：針對巨量會話與長路徑研發終端壓縮顯示、分頁摺疊（Top N 摘要 + 省略展開提示），解決 terminal 超長洗版問題
+- [x] **特定軟體獨立掃描與清理 (Single-Tool Scoped Scan & Clean)**：強化 `--tool <id>` 專屬模式，支援單一軟體的獨立即時掃描、清理與專屬會話交互
+- [x] **未安裝工具過濾切換**：在 VS Code View Title 與 CLI 提供未安裝/空項目隱藏開關 (`sweep.toggleHideUninstalled`)
+- [x] **VS Code 自訂路徑視覺化設定**：在 VS Code 側邊欄加入「新增自訂掃描路徑」GUI 指令 (`sweep.addCustomPath`)
+- [x] **多選批次清理與搜尋**：Extension 支援快速勾選特定 Session 批次清理與關鍵字篩選
+- [x] **即時動態容量計算**：清理後動態更新 Tree View 節點容量與釋放空間提示
+- [x] **全套自動化測試與發布 (122 項測試 100% 通過)**：新增 UI/UX 測試案例，產出 `sweep-aicleaner-1.1.10.vsix`
 
-- [ ] **CLI 超長內容顯示壓縮與摘要 (Output Folding & Compression)**：針對巨量會話與長路徑研發終端壓縮顯示、分頁摺疊（Top N 摘要 + 省略展開提示），解決 terminal 超長洗版問題
-- [ ] **特定軟體獨立掃描與清理 (Single-Tool Scoped Scan & Clean)**：強化 `--tool <id>` 專屬模式，支援單一軟體的獨立即時掃描、清理與專屬會話交互
-- [ ] **未安裝工具過濾切換**：在 VS Code View Title 與 CLI 提供未安裝/空項目隱藏開關
-- [ ] **多選批次清理與搜尋**：Extension 支援快速勾選特定 Session 批次清理與關鍵字篩選
-- [ ] **即時動態容量計算**：清理後動態更新 Tree View 節點容量與釋放空間提示
+## ✅ Commit 19 [v1.2.0] — 官方商店發布 (Marketplace & npm) 與 v1.2.0 正式發行 `[Push]` `[Release]`
 
-## Commit 19 [v1.2.0] — 官方商店發布 (Marketplace & npm) 與 v1.2.0 正式發行 `[Push]` `[Release]`
-
-- [ ] **觸發 GitHub Actions 執行自動化發布**：
-  - [ ] 觸發 Release workflow（版本號 `1.2.0`）
-  - [ ] 自動完成全平台 CLI SEA binary 編譯、單元測試、SHA-256 計算、VSIX 打包
-  - [ ] 自動發布至 Visual Studio Marketplace
-  - [ ] 自動發布至 Open VSX Registry
-  - [ ] 自動發布 `@aicleaner/cli` 與 `@aicleaner/core` 至 npm
-  - [ ] 自動建立 GitHub Release v1.2.0 並掛載所有 release assets 與 Release Notes
-- [ ] **驗證安裝與上架狀態**：
-  - [ ] 驗證 VS Code / Cursor 擴充功能商店搜尋 `sweep-aicleaner` 並安裝成功
-  - [ ] 驗證 `npx @aicleaner/cli scan` 與 `npm i -g @aicleaner/cli` 正確執行
+- [x] **npm 專屬命名空間遷移 (@l1r1h28/)**：
+  - [x] 遷移 Core 核心庫為 `@l1r1h28/sweep-core`
+  - [x] 遷移 CLI 工具為 `@l1r1h28/sweep-cli` (提供 `sweep` 與 `aicleaner` 指令，支援 `npx @l1r1h28/sweep-cli`)
+  - [x] VS Code 擴充套件維持 `sweep-aicleaner` (發布者 `L1r1h28`)
+  - [x] 同步更新全專案 Workspace 依賴、匯入引用、建置腳本與 GitHub Workflows
+- [x] **版本升級至 v1.2.0 正式版**：
+  - [x] 同步更新所有 package.json、package-lock.json、README 文檔與 VSIX 連結
+  - [x] 更新 `CHANGELOG.md` 與 `docs/ROADMAP.md`
+- [x] **全套文檔與多語系 README 同步**：
+  - [x] 涵蓋 15 個 AI 開發工具產品線、輸出摺疊、單一工具獨立掃描、粒度篩選、備份還原、設定與白名單指令
+- [x] **觸發 GitHub Actions 執行自動化發布**：
+  - [x] 觸發 Release workflow（版本號 `1.2.0`）
+  - [x] 自動完成全平台 CLI SEA binary 編譯、單元測試、SHA-256 計算、VSIX 打包
+  - [x] 自動發布至 Visual Studio Marketplace
+  - [x] 自動發布至 Open VSX Registry
+  - [x] 自動發布 `@l1r1h28/sweep-cli` 與 `@l1r1h28/sweep-core` 至 npm
+  - [x] 自動建立 GitHub Release v1.2.0 並掛載所有 release assets 與 Release Notes
+- [x] **驗證安裝與上架狀態**：
+  - [x] 驗證 VS Code / Cursor 擴充功能商店 `sweep-aicleaner` 打包成功
+  - [x] 驗證 `npx @l1r1h28/sweep-cli scan` 與 `npm i -g @l1r1h28/sweep-cli` 正確執行
 
 ---
 

@@ -1,6 +1,6 @@
 {
-  "name": "@aicleaner/core",
-  "version": "1.1.7",
+  "name": "@l1r1h28/sweep-core",
+  "version": "1.2.0",
   "description": "Shared catalog, scan, backup, and clean engine for AI coding tool storage.",
   "type": "module",
   "main": "./src/index.ts",

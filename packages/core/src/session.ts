@@ -16,6 +16,18 @@ import {
   extractClaudeSessionMeta,
   scanClaudeSessions,
 } from "./adapters/claude.ts";
+import {
+  extractWindsurfSessionMeta,
+  scanWindsurfSessions,
+} from "./adapters/windsurf.ts";
+import {
+  extractKiroSessionMeta,
+  scanKiroSessions,
+} from "./adapters/kiro.ts";
+import {
+  extractTraeSessionMeta,
+  scanTraeSessions,
+} from "./adapters/trae.ts";
 import { backupRoot, copyToBackup } from "./backup.ts";
 import { NEVER_DELETE_GLOBS, TOOLS } from "./catalog.ts";
 import { loadConfig } from "./config.ts";
@@ -502,9 +514,123 @@ export function scanSessions(options?: {
     }
   }
 
-  // 4. Process all other tools (or targets not Antigravity, Codex, or Claude conversations)
+  // 4. Check if Windsurf (Codeium Cascade) is among targets
+  const windsurfVariantIds: ToolId[] = ["windsurf"];
+  const windsurfTargets = convTargets.filter((r) => windsurfVariantIds.includes(r.toolId));
+
+  for (const wsToolId of windsurfVariantIds) {
+    const specificTargets = windsurfTargets.filter((r) => r.toolId === wsToolId);
+    if (specificTargets.length === 0) continue;
+
+    const toolDef = tools.find((t) => t.id === wsToolId) || { name: "Windsurf", id: wsToolId };
+    const cascadeDirs: string[] = [];
+
+    for (const r of specificTargets) {
+      for (const p of r.resolvedPaths) {
+        if (!existsSync(p)) continue;
+        cascadeDirs.push(p);
+      }
+    }
+
+    if (cascadeDirs.length > 0) {
+      const defaultTargetId = specificTargets[0]!.target.id;
+      const found = scanWindsurfSessions({
+        cascadeDirs,
+        toolId: wsToolId,
+        toolName: toolDef.name,
+        defaultTargetId,
+        nowMs,
+      });
+
+      for (const s of found) {
+        s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+        sessions.push(s);
+      }
+    }
+  }
+
+  // 5. Check if Kiro variants (Unified, IDE, CLI) are among targets
+  const kiroVariantIds: ToolId[] = ["kiro", "kiro-ide", "kiro-cli"];
+  const kiroTargets = convTargets.filter((r) => kiroVariantIds.includes(r.toolId));
+
+  for (const krToolId of kiroVariantIds) {
+    const specificTargets = kiroTargets.filter((r) => r.toolId === krToolId);
+    if (specificTargets.length === 0) continue;
+
+    const toolDef = tools.find((t) => t.id === krToolId) || { name: "Kiro", id: krToolId };
+    const kiroRootDirs: string[] = [];
+
+    for (const r of specificTargets) {
+      for (const p of r.resolvedPaths) {
+        if (!existsSync(p)) continue;
+        kiroRootDirs.push(p);
+      }
+    }
+
+    if (kiroRootDirs.length > 0) {
+      const defaultTargetId = specificTargets[0]!.target.id;
+      const found = scanKiroSessions({
+        kiroRootDirs,
+        toolId: krToolId,
+        toolName: toolDef.name,
+        defaultTargetId,
+        nowMs,
+      });
+
+      for (const s of found) {
+        s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+        sessions.push(s);
+      }
+    }
+  }
+
+  // 6. Check if Trae variants (Unified, IDE, CLI) are among targets
+  const traeVariantIds: ToolId[] = ["trae", "trae-ide", "trae-cli"];
+  const traeTargets = convTargets.filter((r) => traeVariantIds.includes(r.toolId));
+
+  for (const trToolId of traeVariantIds) {
+    const specificTargets = traeTargets.filter((r) => r.toolId === trToolId);
+    if (specificTargets.length === 0) continue;
+
+    const toolDef = tools.find((t) => t.id === trToolId) || { name: "Trae", id: trToolId };
+    const traeRootDirs: string[] = [];
+
+    for (const r of specificTargets) {
+      for (const p of r.resolvedPaths) {
+        if (!existsSync(p)) continue;
+        traeRootDirs.push(p);
+      }
+    }
+
+    if (traeRootDirs.length > 0) {
+      const defaultTargetId = specificTargets[0]!.target.id;
+      const found = scanTraeSessions({
+        traeRootDirs,
+        toolId: trToolId,
+        toolName: toolDef.name,
+        defaultTargetId,
+        nowMs,
+      });
+
+      for (const s of found) {
+        s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+        sessions.push(s);
+      }
+    }
+  }
+
+  // 7. Process all other tools (or targets not Antigravity, Codex, Claude, Windsurf, Kiro, or Trae conversations)
   for (const r of convTargets) {
-    if (agVariantIds.includes(r.toolId) || codexVariantIds.includes(r.toolId) || claudeVariantIds.includes(r.toolId)) continue;
+    if (
+      agVariantIds.includes(r.toolId) ||
+      codexVariantIds.includes(r.toolId) ||
+      claudeVariantIds.includes(r.toolId) ||
+      windsurfVariantIds.includes(r.toolId) ||
+      kiroVariantIds.includes(r.toolId) ||
+      traeVariantIds.includes(r.toolId)
+    ) {
+      continue;
+    }
 
     for (const targetPath of r.resolvedPaths) {
       if (!existsSync(targetPath)) continue;

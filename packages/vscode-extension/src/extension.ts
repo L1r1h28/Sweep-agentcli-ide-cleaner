@@ -20,6 +20,7 @@ import {
   getConfigPath,
   addToWhitelist,
   removeFromWhitelist,
+  setCustomPath,
   type ToolDef,
   type ScanReport,
   type ScanEntry,
@@ -28,7 +29,7 @@ import {
   type ConversationSession,
   type BackupSummary,
   type SweepConfig,
-} from "@aicleaner/core";
+} from "@l1r1h28/sweep-core";
 
 export class ToolNode {
   readonly type = "tool" as const;
@@ -1184,6 +1185,68 @@ export function activate(context: vscode.ExtensionContext) {
     await vscode.window.showTextDocument(doc);
   });
 
+  // sweep.toggleHideUninstalled
+  const toggleHideUninstalledCmd = vscode.commands.registerCommand(
+    "sweep.toggleHideUninstalled",
+    async () => {
+      const vsConfig = vscode.workspace.getConfiguration("sweep");
+      const current = vsConfig.get<boolean>("hideUninstalledTools", true);
+      const next = !current;
+      await vsConfig.update("hideUninstalledTools", next, vscode.ConfigurationTarget.Global);
+      treeDataProvider.refresh();
+      const msg = next
+        ? vscode.l10n.t("Sweep: Uninstalled / empty tools are now hidden.")
+        : vscode.l10n.t("Sweep: Showing all supported tools (including uninstalled).");
+      vscode.window.showInformationMessage(msg);
+    }
+  );
+
+  // sweep.addCustomPath
+  const addCustomPathCmd = vscode.commands.registerCommand("sweep.addCustomPath", async () => {
+    const pick = await vscode.window.showQuickPick(
+      TOOLS.map((t) => ({
+        label: t.name,
+        description: t.id,
+        detail: vscode.l10n.t(t.blurb),
+        id: t.id,
+      })),
+      { placeHolder: vscode.l10n.t("Select the AI tool to configure custom storage path for") }
+    );
+    if (!pick) return;
+
+    const uri = await vscode.window.showOpenDialog({
+      canSelectFiles: false,
+      canSelectFolders: true,
+      canSelectMany: false,
+      openLabel: vscode.l10n.t("Select Folder"),
+      title: vscode.l10n.t("Select custom storage directory for {0}", pick.label),
+    });
+    if (!uri || uri.length === 0) return;
+
+    const selectedPath = uri[0].fsPath;
+
+    // Save to disk config
+    setCustomPath(pick.id as ToolId, selectedPath);
+
+    // Also update VS Code workspace settings
+    const vsConfig = vscode.workspace.getConfiguration("sweep");
+    const currentCustom = vsConfig.get<Record<string, string[]>>("customPaths") || {};
+    const existingList = currentCustom[pick.id] || [];
+    if (!existingList.includes(selectedPath)) {
+      const updatedList = [...existingList, selectedPath];
+      await vsConfig.update(
+        "customPaths",
+        { ...currentCustom, [pick.id]: updatedList },
+        vscode.ConfigurationTarget.Global
+      );
+    }
+
+    treeDataProvider.refresh();
+    vscode.window.showInformationMessage(
+      vscode.l10n.t("Sweep: Added custom path for {0}: {1}", pick.label, selectedPath)
+    );
+  });
+
   context.subscriptions.push(
     treeView,
     scanCmd,
@@ -1203,7 +1266,9 @@ export function activate(context: vscode.ExtensionContext) {
     pruneBackupsCmd,
     addToWhitelistCmd,
     removeFromWhitelistCmd,
-    openConfigFileCmd
+    openConfigFileCmd,
+    toggleHideUninstalledCmd,
+    addCustomPathCmd
   );
 }
 

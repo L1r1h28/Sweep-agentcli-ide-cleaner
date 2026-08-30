@@ -70,8 +70,8 @@ describe("Codex Adapter & Deep Session Tests", () => {
           type: "turn_context",
           payload: {
             turn_id: "t1",
-            cwd: "C:\\Users\\rayhu\\Projects\\agent_code",
-            workspace_roots: ["C:\\Users\\rayhu\\Projects\\agent_code"],
+            cwd: "C:\\Users\\testuser\\Projects\\agent_code",
+            workspace_roots: ["C:\\Users\\testuser\\Projects\\agent_code"],
           },
         }),
         JSON.stringify({
@@ -79,7 +79,7 @@ describe("Codex Adapter & Deep Session Tests", () => {
           payload: {
             type: "message",
             role: "user",
-            content: [{ type: "input_text", text: "<environment_context>\n  <cwd>C:\\Users\\rayhu\\Projects\\agent_code</cwd>\n</environment_context>" }],
+            content: [{ type: "input_text", text: "<environment_context>\n  <cwd>C:\\Users\\testuser\\Projects\\agent_code</cwd>\n</environment_context>" }],
           },
         }),
         JSON.stringify({

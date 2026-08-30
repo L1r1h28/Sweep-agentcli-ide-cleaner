@@ -5,4 +5,4 @@ execFileSync(process.execPath, [fileURLToPath(new URL('../../node_modules/typesc
   stdio: 'inherit'
 });
 
-console.log('[@aicleaner/core] Typecheck successful (bundled by CLI and extension)');
+console.log('[@l1r1h28/sweep-core] Typecheck successful (bundled by CLI and extension)');

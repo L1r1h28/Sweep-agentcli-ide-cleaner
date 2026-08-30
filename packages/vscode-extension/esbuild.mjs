@@ -1,5 +1,5 @@
 // esbuild.mjs — VS Code extension bundler
-// Bundles src/extension.ts + @aicleaner/core into dist/extension.js (CommonJS)
+// Bundles src/extension.ts + @l1r1h28/sweep-core into dist/extension.js (CommonJS)
 // so the extension host can require() it without strip-types or ESM shims.
 import { build } from "esbuild";
 import { fileURLToPath } from "node:url";

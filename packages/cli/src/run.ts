@@ -34,7 +34,7 @@ import {
   type ConversationSession,
   type BackupSummary,
   type SweepConfig,
-} from "@aicleaner/core";
+} from "@l1r1h28/sweep-core";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Version
@@ -82,6 +82,10 @@ function parseArgs(argv: string[]) {
     else if (a.startsWith("--archive-to=")) args.out = a.slice(13);
     else if (a.startsWith("--search=")) args.search = a.slice(9);
     else if (a === "--search") args.search = argv[++i];
+    else if (a.startsWith("--limit=")) args.limit = Number(a.slice(8));
+    else if (a === "--limit" || a === "-n") args.limit = Number(argv[++i]);
+    else if (a.startsWith("-n=")) args.limit = Number(a.slice(3));
+    else if (a === "--all" || a === "-a") args.all = true;
     else if (a.startsWith("--")) args[a.slice(2)] = true;
     else (args._ as string[]).push(a);
   }
@@ -122,7 +126,7 @@ Commands:
   targets     List every cleanable target with its kind, risk, and resolved paths.
 
 Sessions Subcommands:
-  sweep sessions list   [--tool <id>] [--older-than 30d] [--min-size 50mb] [--project <name>] [--json]
+  sweep sessions list   [--tool <id>] [--older-than 30d] [--min-size 50mb] [--project <name>] [--limit <n>] [--all] [--json]
   sweep sessions clean  [--older-than 30d] [--min-size 50mb] [--project <name>] [--dry-run] [--force]
   sweep sessions export <sessionId> [--format md|json] [--out <dir>]
 
@@ -159,6 +163,8 @@ Granular Filters & Options:
   --newer-than <dur>   Filter sessions newer than duration.
   --min-size <size>    Filter sessions larger than size (e.g. 50mb, 100kb, 1gb).
   --max-size <size>    Filter sessions smaller than size.
+  --limit <n> / -n <n> Limit number of sessions displayed (default: 20 in list).
+  --all / -a           Display all sessions without folding.
   --project <name>     Filter sessions matching project/workspace name.
   --format <md|json>   Export format for sessions (default: md).
   --out <dir>          Target directory for exported sessions.
@@ -178,6 +184,7 @@ Examples:
   sweep scan --verbose
   sweep clean --kind cache --force
   sweep sessions list --older-than 30d
+  sweep sessions list --limit 10
   sweep whitelist add "**/keep-*/**"
   sweep whitelist list
 `);
@@ -192,10 +199,13 @@ const KIND_ICON = { cache: "💾", conversations: "💬" } as const;
 
 function printScanTable(
   report: ReturnType<typeof scanDisk>,
-  verbose: boolean
+  verbose: boolean,
+  toolId?: ToolId
 ) {
   const { platform, home, entries } = report;
-  console.log(`Sweep scan  [${platform}]  ${home}`);
+  const toolName = toolId ? TOOLS.find((t) => t.id === toolId)?.name : undefined;
+  const banner = toolName ? `Sweep scan  [tool: ${toolName}]` : `Sweep scan`;
+  console.log(`${banner}  [${platform}]  ${home}`);
   console.log(
     `Total ${formatBytes(report.totalBytes)}` +
       `  ·  💾 cache ${formatBytes(report.cacheBytes)}` +
@@ -257,7 +267,10 @@ function printScanTable(
   }
 }
 
-function printSessionsTable(sessions: ConversationSession[]) {
+function printSessionsTable(
+  sessions: ConversationSession[],
+  options?: { limit?: number; all?: boolean }
+) {
   if (sessions.length === 0) {
     console.log("No matching conversation sessions found.");
     return;
@@ -273,7 +286,14 @@ function printSessionsTable(sessions: ConversationSession[]) {
     `  ${"─".repeat(14)} ${"─".repeat(18)} ${"─".repeat(6)} ${"─".repeat(9)}  ${"─".repeat(35)}`
   );
 
-  for (const s of sessions) {
+  const isAll = Boolean(options?.all);
+  const limit = options?.limit !== undefined && !isNaN(options.limit)
+    ? options.limit
+    : (isAll ? Infinity : 20);
+
+  const displayed = limit > 0 && limit < sessions.length ? sessions.slice(0, limit) : sessions;
+
+  for (const s of displayed) {
     const tool = s.toolName.slice(0, 14).padEnd(14);
     const proj = (s.projectName || "—").slice(0, 18).padEnd(18);
     const age = `${s.ageDays}d`.padStart(6);
@@ -281,6 +301,14 @@ function printSessionsTable(sessions: ConversationSession[]) {
     const title = s.title ? `${s.title} (${s.id.slice(0, 8)})` : s.id;
     const badge = s.isWhitelisted ? " 🛡️" : "";
     console.log(`  ${tool} ${proj} ${age} ${size}  ${title}${badge}`);
+  }
+
+  if (displayed.length < sessions.length) {
+    const remainder = sessions.length - displayed.length;
+    const remainderBytes = sessions.slice(displayed.length).reduce((s, x) => s + x.bytes, 0);
+    console.log(
+      `\n  ... and ${remainder} more session(s) (${formatBytes(remainderBytes)}). Use --all or --limit <n> to view all.`
+    );
   }
 }
 
@@ -382,6 +410,17 @@ export async function runCli(argv: string[]) {
   const verbose = Boolean(args.verbose);
   const toolIds = args.tool ? ([args.tool] as ToolId[]) : undefined;
 
+  // Validate tool ID if supplied
+  if (args.tool) {
+    const validIds = TOOLS.map((t) => t.id);
+    if (!validIds.includes(args.tool as ToolId)) {
+      console.error(
+        `Error: Unknown tool "${args.tool}". Supported tools: ${validIds.join(", ")}`
+      );
+      return 1;
+    }
+  }
+
   // ── tools ──────────────────────────────────────────────────────────────────
   if (cmd === "tools") {
     printToolsList(verbose);
@@ -404,7 +443,7 @@ export async function runCli(argv: string[]) {
       console.log(JSON.stringify(report, null, 2));
       return 0;
     }
-    printScanTable(report, verbose);
+    printScanTable(report, verbose, toolIds?.[0]);
     return 0;
   }
 
@@ -435,7 +474,10 @@ export async function runCli(argv: string[]) {
         console.log(JSON.stringify(matched, null, 2));
         return 0;
       }
-      printSessionsTable(matched);
+      printSessionsTable(matched, {
+        limit: args.limit !== undefined ? Number(args.limit) : undefined,
+        all: Boolean(args.all),
+      });
       return 0;
     }
 

@@ -28,12 +28,12 @@ describe("Claude Adapter & Session Tests", () => {
 
   describe("Project Slug Decoding", () => {
     it("decodes Windows path slug to project name", () => {
-      const slug = "C__Users_rayhu_Projects_Sweep-agentcli-ide-cleaner";
+      const slug = "C__Users_testuser_Projects_Sweep-agentcli-ide-cleaner";
       expect(decodeClaudeProjectSlug(slug)).toBe("Sweep-agentcli-ide-cleaner");
     });
 
     it("decodes POSIX path slug to project name", () => {
-      const slug = "-Users-rayhu-Projects-my-web-app";
+      const slug = "-Users-testuser-Projects-my-web-app";
       expect(decodeClaudeProjectSlug(slug)).toBe("my-web-app");
     });
 
@@ -94,7 +94,7 @@ describe("Claude Adapter & Session Tests", () => {
       ];
 
       writeFileSync(sessionFile, lines.join("\n"), "utf-8");
-      const meta = extractClaudeSessionMeta(sessionFile, "C__Users_rayhu_Projects_backend-service", 26);
+      const meta = extractClaudeSessionMeta(sessionFile, "C__Users_testuser_Projects_backend-service", 26);
 
       expect(meta.id).toBe("cc-session-002");
       expect(meta.projectName).toBe("backend-service");
@@ -105,7 +105,7 @@ describe("Claude Adapter & Session Tests", () => {
   describe("Directory & Project Hierarchy Session Scanning", () => {
     it("scans ~/.claude/projects/<slug>/*.jsonl and links associated subagent folders", () => {
       const projectsDir = join(mockHome, ".claude", "projects");
-      const projSlugDir = join(projectsDir, "C__Users_rayhu_Projects_agent-tools");
+      const projSlugDir = join(projectsDir, "C__Users_testuser_Projects_agent-tools");
       const sessionDir = join(projSlugDir, "session-123");
       mkdirSync(projSlugDir, { recursive: true });
       mkdirSync(sessionDir, { recursive: true });
@@ -115,7 +115,7 @@ describe("Claude Adapter & Session Tests", () => {
         JSON.stringify({
           type: "user",
           sessionId: "session-123",
-          cwd: "C:\\Users\\rayhu\\Projects\\agent-tools",
+          cwd: "C:\\Users\\testuser\\Projects\\agent-tools",
           message: { content: "掃描專案所有相依套件" },
         }),
       ];

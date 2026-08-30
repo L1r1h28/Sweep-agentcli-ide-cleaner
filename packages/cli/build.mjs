@@ -13,7 +13,7 @@ await build({
   outfile: join(dir, 'dist/run.cjs'),
   platform: 'node',
   format: 'cjs',
-  // No `packages: 'external'` — bundle @aicleaner/core inline so the
+  // No `packages: 'external'` — bundle @l1r1h28/sweep-core inline so the
   // produced single-file bundle can be embedded into a SEA binary
   // (Single Executable Application) without node_modules.
   sourcemap: true,
@@ -26,4 +26,4 @@ await build({
   },
 });
 
-console.log('[@aicleaner/cli] Build successful -> dist/');
+console.log('[@l1r1h28/sweep-cli] Build successful -> dist/');
