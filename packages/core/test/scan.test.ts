@@ -1,14 +1,35 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   mkdtempSync,
   writeFileSync,
   mkdirSync,
   symlinkSync,
   rmSync,
-  chmodSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+// Mock node:fs so we can deterministically simulate permission errors
+// regardless of OS or whether CI runs as root (root bypasses permission bits).
+const mocks = vi.hoisted(() => ({
+  throwStat: false,
+}));
+
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = (await importOriginal()) as typeof import("node:fs");
+  return {
+    ...actual,
+    statSync: (path: string, ...args: unknown[]) => {
+      if (mocks.throwStat) {
+        const err = new Error("EACCES: permission denied, stat");
+        (err as NodeJS.ErrnoException).code = "EACCES";
+        throw err;
+      }
+      return actual.statSync(path, ...args);
+    },
+  };
+});
+
 import { scanDisk } from "../src/scan.ts";
 import type { ToolDef } from "../src/types.ts";
 
@@ -116,16 +137,9 @@ describe("scanDisk", () => {
   });
 
   it("captures permission errors (EACCES) without crashing", () => {
-    if (isWin) {
-      // Setting POSIX permission bits is not reliable on Windows;
-      // skip this test on Windows.
-      return;
-    }
-    const locked = join(tmp, "locked");
-    mkdirSync(locked);
-    writeFileSync(join(locked, "secret.txt"), "s", "utf8");
-    // Remove all permissions so readdirSync/statSync throws EACCES
-    chmodSync(locked, 0o000);
+    // Deterministically simulate EACCES via the mocked statSync so the test
+    // passes identically on any OS and regardless of whether CI runs as root.
+    mocks.throwStat = true;
     try {
       const report = scanDisk({
         platform: "linux",
@@ -134,9 +148,10 @@ describe("scanDisk", () => {
       });
       const entry = report.entries[0];
       expect(entry.exists).toBe(false);
-      expect(entry.error).toBeDefined(); // non-ENOENT errors are surfaced
+      expect(entry.error).toBeDefined();
+      expect(entry.error).toContain("EACCES");
     } finally {
-      chmodSync(locked, 0o755); // restore so afterEach can clean up
+      mocks.throwStat = false;
     }
   });
 
