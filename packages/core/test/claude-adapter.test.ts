@@ -10,6 +10,7 @@ import {
 import { scanSessions } from "../src/session.ts";
 import { scanDisk } from "../src/scan.ts";
 import { planClean, runClean } from "../src/clean.ts";
+import { detectPlatform } from "../src/paths.ts";
 import { TOOLS } from "../src/catalog.ts";
 
 describe("Claude Adapter & Session Tests", () => {
@@ -162,8 +163,9 @@ describe("Claude Adapter & Session Tests", () => {
       writeFileSync(memoryDocPath, "# Project Long Term Memory");
       writeFileSync(claudeMdPath, "# Global Claude Guidelines");
 
+      const platform = detectPlatform();
       const scanRes = scanDisk({
-        platform: "win",
+        platform,
         home: mockHome,
         tools: TOOLS,
       });
@@ -190,7 +192,14 @@ describe("Claude Adapter & Session Tests", () => {
     });
 
     it("scans standalone claude-desktop and claude-code tool products independently", () => {
-      const claudeData = join(mockHome, "AppData", "Local", "Claude-Data");
+      const platform = detectPlatform();
+      const isWin = platform === "win";
+      const isMac = platform === "mac";
+      const claudeData = isWin
+        ? join(mockHome, "AppData", "Local", "Claude-Data")
+        : isMac
+        ? join(mockHome, "Library", "Application Support", "Claude")
+        : join(mockHome, ".config", "Claude");
       const claudeCodeProjects = join(mockHome, ".claude", "projects", "my-repo");
       mkdirSync(claudeData, { recursive: true });
       mkdirSync(claudeCodeProjects, { recursive: true });
@@ -203,7 +212,7 @@ describe("Claude Adapter & Session Tests", () => {
 
       // 1. Scan claude-desktop standalone
       const desktopScan = scanDisk({
-        platform: "win",
+        platform,
         home: mockHome,
         env: { LOCALAPPDATA: join(mockHome, "AppData", "Local"), APPDATA: join(mockHome, "AppData", "Roaming") },
         toolIds: ["claude-desktop"],
@@ -213,7 +222,7 @@ describe("Claude Adapter & Session Tests", () => {
 
       // 2. Scan claude-code standalone
       const codeSessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
         toolIds: ["claude-code"],
         tools: TOOLS,

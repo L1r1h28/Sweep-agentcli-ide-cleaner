@@ -1290,6 +1290,7 @@ export const TOOLS: ToolDef[] = [
           ],
           linux: [
             "~/.config/Trae/CachedData",
+            "~/.config/Trae/ModularData/ckg_server",
             "~/.config/Trae/GPUCache",
             "~/.config/Trae/Cache",
             "~/.config/Trae/Code Cache",

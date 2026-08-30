@@ -42,11 +42,17 @@ export function expandPath(
   const localAppData =
     env.LOCALAPPDATA ??
     (platform === "win" ? joinHome(home, platform, "AppData", "Local") : home);
+  const temp =
+    env.TEMP ??
+    env.TMP ??
+    (platform === "win" ? joinHome(home, platform, "AppData", "Local", "Temp") : "/tmp");
 
   let out = template;
   out = out.replaceAll("%USERPROFILE%", home);
   out = out.replaceAll("%APPDATA%", appData);
   out = out.replaceAll("%LOCALAPPDATA%", localAppData);
+  out = out.replaceAll("%TEMP%", temp);
+  out = out.replaceAll("%TMP%", temp);
 
   // Replace other Windows %VAR% patterns
   out = out.replace(/%([a-zA-Z0-9_]+)%/g, (match, varName) => {

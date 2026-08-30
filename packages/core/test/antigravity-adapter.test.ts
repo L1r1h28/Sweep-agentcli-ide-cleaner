@@ -12,6 +12,7 @@ import {
   cleanAntigravitySession
 } from "../src/adapters/antigravity.ts";
 import { scanSessions, cleanSessions } from "../src/session.ts";
+import { detectPlatform } from "../src/paths.ts";
 
 describe("Antigravity Adapter & CJK Visual Width Tests", () => {
   describe("CJK & East Asian Display Width", () => {
@@ -98,11 +99,12 @@ describe("Antigravity Adapter & CJK Visual Width Tests", () => {
       writeFileSync(join(convDir, `${uuid}.db`), "sqlite-db-mock-data-bytes");
       writeFileSync(join(convDir, `${uuid}.db-wal`), "wal-bytes");
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
         home: mockHome,
         toolIds: ["antigravity"],
-        platform: "win",
-        env: { USERPROFILE: mockHome, APPDATA: join(mockHome, "AppData", "Roaming") }
+        platform,
+        env: { USERPROFILE: mockHome, HOME: mockHome, APPDATA: join(mockHome, "AppData", "Roaming") }
       });
 
       expect(sessions.length).toBe(1);

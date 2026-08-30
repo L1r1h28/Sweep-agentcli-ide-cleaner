@@ -12,6 +12,7 @@ import {
 import { scanSessions, cleanSessions } from "../src/session.ts";
 import { scanDisk } from "../src/scan.ts";
 import { planClean, runClean } from "../src/clean.ts";
+import { detectPlatform } from "../src/paths.ts";
 import { TOOLS } from "../src/catalog.ts";
 
 describe("Codex Adapter & Deep Session Tests", () => {
@@ -146,9 +147,10 @@ describe("Codex Adapter & Deep Session Tests", () => {
         "utf-8"
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
         home: mockHome,
-        platform: "win",
+        platform,
         toolIds: ["codex"],
       });
 
@@ -173,9 +175,10 @@ describe("Codex Adapter & Deep Session Tests", () => {
       writeFileSync(join(codexDir, "auth.json"), '{"token":"secret"}');
       writeFileSync(join(cacheDir, "temp.log"), "temporary-log-bytes");
 
+      const platform = detectPlatform();
       const report = scanDisk({
         home: mockHome,
-        platform: "win",
+        platform,
         toolIds: ["codex", "codex-cli"],
       });
 
