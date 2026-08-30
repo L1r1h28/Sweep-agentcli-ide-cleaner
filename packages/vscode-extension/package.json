@@ -2,7 +2,7 @@
   "name": "sweep-aicleaner",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "publisher": "L1r1h28",
   "repository": {
     "type": "git",

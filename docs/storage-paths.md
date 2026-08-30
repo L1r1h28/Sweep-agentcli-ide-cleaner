@@ -260,25 +260,70 @@ C:\Users\<user>\AppData\Roaming\Trae\
 
 ---
 
-## 6. Claude Code（Anthropic）
+## 6. Anthropic Claude (Claude Code CLI 與 Claude Desktop)
 
-實際根目錄：`%USERPROFILE%\.claude\`（本機已存在 `backups/` 與 `sessions/`）
+實際根目錄：
+- **Claude Code CLI**：`%USERPROFILE%\.claude\` 與 `%USERPROFILE%\.claude.json`
+- **Claude Desktop (應用程式)**：`%LOCALAPPDATA%\Claude-Data\`、`%LOCALAPPDATA%\Claude\` 與 `%APPDATA%\Claude\`
+
+### 6.1 Claude Code CLI 資料夾樹 (`~/.claude\`)
 
 ```
 %USERPROFILE%\.claude\             (CLAUDE_CONFIG_DIR 可覆寫)
-├── sessions\                      🔴 Session 對話紀錄
-├── backups\                       🔴 備份存檔
-├── projects\                      🔴 JSONL 對話，依工作目錄分類
-│   └── <encoded-cwd>\
-│       └── <session-id>.jsonl
-├── file-history\                  🔴 編輯前快照（Rewind 用）
-├── paste-cache\                   🔴 大型貼上暫存
-├── uploads\                       🔴 附件
-├── history.jsonl                  🔴 輸入歷史（上箭頭）
+├── projects\                      🔴 JSONL 對話，依工作目錄分類 (projects/<encoded-cwd>/<session-id>.jsonl)
+├── sessions\                      🔴 CLI 階段金鑰與會話狀態 (*.key)
+├── backups\                       🔴 .claude.json 自動備份存檔 (.claude.json.backup.*)
+├── file-history\                  🔴 檔案編輯前完整快照 (Rewind 復原用，佔用大容量，可安全獨立清理)
+├── paste-cache\                   🔴 大型剪貼簿暫存
+├── uploads\                       🔴 附件上傳暫存
+├── history.jsonl                  🔴 命令列全域 Prompt 輸入歷史
 ├── stats-cache.json               🟡 統計快取
-├── usage-data\                    🟡 使用量資料
-└── settings.json                  ⛔ 不要刪
+├── usage-data\                    🟡 使用量資料快取
+├── cache\                         🟡 本地快取 (如 changelog.md 等)
+├── downloads\                     🟡 下載暫存
+├── memory\                        ⛔ **專案長期記憶庫 (MEMORY.md，禁止刪除)**
+├── skills\                        ⛔ **自訂技能庫 (skills/，禁止刪除)**
+├── plugins\                       ⛔ **外掛擴充套件 (plugins/，禁止刪除)**
+└── settings.json                  ⛔ **全域設定檔 (settings.json，禁止刪除)**
 ```
+
+### 6.2 Claude Desktop (Windows 應用程式快取樹)
+
+```
+C:\Users\<user>\AppData\Local\Claude\          (主程式與日誌)
+├── app-0.9.1\Claude.exe           ⛔ 應用程式本體
+└── logs\                          🟡 應用程式日誌 (main.log, claude.ai-web.log, mcp.log)
+
+C:\Users\<user>\AppData\Local\Claude-Data\     (Chromium / Electron 數據核心快取)
+├── Cache\                         🟡 網路快取 (Cache_Data: data_0, data_1, data_2, index)
+├── Code Cache\                    🟡 V8 位元碼編譯快取 (js, wasm)
+├── DawnCache\                     🟡 WebGPU / Dawn 著色器快取
+├── GPUCache\                      🟡 GPU 渲染快取
+├── IndexedDB\                     🟡 本地資料庫暫存
+├── Local Storage\                 🟡 本地儲存暫存
+├── Session Storage\               🟡 會話暫存
+├── WebStorage\                    🟡 WebStorage 暫存
+├── blob_storage\                  🟡 Blob 快取
+└── logs\                          🟡 執行日誌 (main.log)
+
+C:\Users\<user>\AppData\Roaming\Claude\        (Roaming 設定與快取)
+├── Cache\                         🟡 Roaming 網路快取
+├── Code Cache\                    🟡 Roaming 代碼快取
+├── Crashpad\                      🟡 崩潰傾印暫存
+├── claude_desktop_config.json     ⛔ **MCP 伺服器核心設定檔 (絕對不要刪除)**
+└── logs\                          🟡 日誌
+```
+
+**注意事項與調優重點：**
+- **專案 Slug 解碼與 Session 標題解析**：
+  - 支援 POSIX（`-Users-name-my-app`）與 Windows（`C__Users_name_my-app`）雙向解碼還原乾淨專案名稱。
+  - 對 `projects/<slug>/*.jsonl` 前 40 行高效解析，提取 `type === 'user'` 之 `message.content` 或 `text` 作為標題，並套用 East Asian Width 適配。
+- **快取暫存分離與空間釋放**：
+  - `file-history/` 儲存大量編輯前快照，佔用極大空間，可安全歸類清理。
+  - `%LOCALAPPDATA%\Claude-Data` 與 `%APPDATA%\Claude` 內之 Electron 快取可安全清理。
+- **白名單絕對保護**：
+  - `claude_desktop_config.json`（MCP 配置）、`~/.claude/memory/`（長期記憶 `MEMORY.md`）、`settings.json`、`CLAUDE.md` 永不被掃描為刪除目標。
+
 
 ---
 

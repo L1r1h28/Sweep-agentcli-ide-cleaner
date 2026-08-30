@@ -11,6 +11,11 @@ import {
   extractCodexPromptAndMeta,
   scanCodexSessions,
 } from "./adapters/codex.ts";
+import {
+  decodeClaudeProjectSlug,
+  extractClaudeSessionMeta,
+  scanClaudeSessions,
+} from "./adapters/claude.ts";
 import { backupRoot, copyToBackup } from "./backup.ts";
 import { NEVER_DELETE_GLOBS, TOOLS } from "./catalog.ts";
 import { loadConfig } from "./config.ts";
@@ -462,9 +467,39 @@ export function scanSessions(options?: {
     }
   }
 
-  // 3. Process all other tools (or targets not Antigravity or Codex conversations)
+  // 3. Check if Claude Code is among targets
+  const claudeTargets = convTargets.filter((r) => r.toolId === "claude-code");
+  if (claudeTargets.length > 0) {
+    const toolDef = tools.find((t) => t.id === "claude-code") || { name: "Claude Code", id: "claude-code" };
+    const claudeRootDirs: string[] = [];
+
+    for (const r of claudeTargets) {
+      for (const p of r.resolvedPaths) {
+        if (!existsSync(p)) continue;
+        claudeRootDirs.push(p);
+      }
+    }
+
+    if (claudeRootDirs.length > 0) {
+      const defaultTargetId = claudeTargets[0]!.target.id;
+      const found = scanClaudeSessions({
+        claudeRootDirs,
+        toolId: "claude-code",
+        toolName: toolDef.name,
+        defaultTargetId,
+        nowMs,
+      });
+
+      for (const s of found) {
+        s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+        sessions.push(s);
+      }
+    }
+  }
+
+  // 4. Process all other tools (or targets not Antigravity, Codex, or Claude Code conversations)
   for (const r of convTargets) {
-    if (agVariantIds.includes(r.toolId) || codexVariantIds.includes(r.toolId)) continue;
+    if (agVariantIds.includes(r.toolId) || codexVariantIds.includes(r.toolId) || r.toolId === "claude-code") continue;
 
     for (const targetPath of r.resolvedPaths) {
       if (!existsSync(targetPath)) continue;

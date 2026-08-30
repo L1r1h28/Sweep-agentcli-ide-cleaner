@@ -78,14 +78,14 @@ Items marked with a **Shield (`$(shield)`)** badge are protected by whitelist ru
  
 ### Option 1: Direct Download (.vsix)
 
-Download `sweep-aicleaner-1.1.6.vsix` directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**, then install via command line or IDE UI:
+Download `sweep-aicleaner-1.1.7.vsix` directly from **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)**, then install via command line or IDE UI:
 
 ```bash
 # In VS Code:
-code --install-extension sweep-aicleaner-1.1.6.vsix
+code --install-extension sweep-aicleaner-1.1.7.vsix
 
 # In Cursor:
-cursor --install-extension sweep-aicleaner-1.1.6.vsix
+cursor --install-extension sweep-aicleaner-1.1.7.vsix
 ```
 
 Or open your editor, go to **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`), click `...` at the top right, and select **Install from VSIX...**.

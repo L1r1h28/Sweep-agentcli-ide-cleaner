@@ -7,6 +7,26 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.7] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### Anthropic Claude Code & Claude Desktop Deep Optimization (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Project & Session Association Engine (`decodeClaudeProjectSlug`)**:
+  - Implemented bidirectional project slug decoder supporting Windows format (`C__Users_name_Projects_my-app`), POSIX format (`-Users-name-Projects-my-app`), and URL-encoded paths to cleanly restore readable project names.
+  - Implemented defensive JSONL parser supporting 2026 schema (`type: "user"`, `message.content` text/array, `cwd`, `timestamp`, `sessionId`), extracting human user prompts as session titles with East Asian CJK display width alignment.
+  - Recursively associated project session JSONL files with their corresponding subagent/tool-result artifact directories (`~/.claude/projects/<slug>/<session-id>/`).
+- **File History Cache Separation & Disk Reclaim**:
+  - Distinctly separated `~/.claude/file-history/` (large edit rollback snapshots) and `paste-cache/` / `uploads/` from permanent configurations, enabling safe disk space reclamation.
+  - Classified `~/.claude/stats-cache.json`, `usage-data/`, `cache/` (changelog), and `downloads/` under low-risk fast cache clean targets.
+- **Claude Desktop Electron Runtime Integration**:
+  - Added support for Claude Desktop application cache and log targets on Windows (`%LOCALAPPDATA%\Claude-Data`, `%LOCALAPPDATA%\Claude\logs`, `%APPDATA%\Claude`), macOS (`~/Library/Application Support/Claude`, `~/Library/Caches/Claude`), and Linux (`~/.config/Claude`, `~/.cache/Claude`).
+- **Strict Permanent Whitelist & MCP Protection**:
+  - Added permanent `NEVER_DELETE_GLOBS` protection for `claude_desktop_config.json` (MCP server definitions), `~/.claude/memory/**` (`MEMORY.md` long-term project memory), `settings.json`, `.claude.json`, `CLAUDE.md`, `skills/`, and `plugins/`.
+
+
+---
+
 ## [1.1.6] - 2026-08-31
 
 ### ✨ Features & Enhancements

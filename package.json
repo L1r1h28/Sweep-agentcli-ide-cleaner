@@ -1,6 +1,6 @@
 {
   "name": "sweep-agentcli-ide-cleaner-monorepo",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "private": true,
   "description": "Sweep cleaner for AI coding tool caches and conversation history.",
   "workspaces": [

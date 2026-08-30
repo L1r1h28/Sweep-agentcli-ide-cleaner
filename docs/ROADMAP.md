@@ -194,9 +194,11 @@
 
 ## Commit 15 [v1.1.7] — Anthropic Claude Code 深度調優與專案會話關聯
 
-- [ ] **專案會話層級歸屬**：解析 `~/.claude/projects/` 底下子目錄之 Git Repo 名稱與 Session 標題
-- [ ] **File History 快取精準清理**：區隔 `file-history/` 暫存檔與核心對話紀錄
-- [ ] **白名單保護機制驗證**：確保 `settings.json` 與 `CLAUDE.md` 受白名單嚴格保護
+- [x] **專案會話層級歸屬**：解析 `~/.claude/projects/` 底下子目錄之 Git Repo 名稱（`decodeClaudeProjectSlug`）與 Session 標題（2026 JSONL Schema）
+- [x] **File History 快取精準清理**：區隔 `file-history/` 暫存檔與核心對話紀錄，納入快取清理流程
+- [x] **白名單保護機制驗證**：確保 `settings.json`、`.claude.json`、`CLAUDE.md`、`claude_desktop_config.json` 與 `memory/MEMORY.md` 受白名單嚴格保護
+- [x] **Claude Desktop 整合**：納入 Windows `%LOCALAPPDATA%\Claude-Data` 與 `%APPDATA%\Claude` 之 Electron 快取與日誌
+
 
 ## Commit 16 [v1.1.8] — Codeium Windsurf & Cascade 深度調優
 

@@ -1,6 +1,6 @@
 {
   "name": "@aicleaner/cli",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Sweep CLI — scan and clean AI coding tool caches and conversations.",
   "type": "module",
   "bin": {

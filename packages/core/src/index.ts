@@ -12,5 +12,6 @@ export * from "./config.ts";
 export * from "./filter.ts";
 export * from "./adapters/antigravity.ts";
 export * from "./adapters/codex.ts";
+export * from "./adapters/claude.ts";
 
 
