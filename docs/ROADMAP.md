@@ -92,6 +92,18 @@
   - `packages/vscode-extension/README.zh-TW.md`（繁體中文）
   - `packages/vscode-extension/README.zh-CN.md`（簡體中文）
 
+### 3. 細緻化對話清理機制 (Granular Conversation Cleaning & Management)
+- [ ] **依時間/年齡篩選清理 (Time-based Cleanup)**：
+  - 支援清理超過指定天數的歷史對話（例如 `--older-than 30d` / 7 天前 / 90 天前），保留近期活躍的 session。
+- [ ] **依專案/工作區篩選 (Project/Workspace-scoped Cleanup)**：
+  - 支援針對特定工作區目錄（如 Claude Code `projects/<encoded-cwd>`、Kiro sessions、Antigravity brain）清理對話，保留核心專案歷史。
+- [ ] **個別 Session 瀏覽與挑選刪除 (Individual Session Inspection & Selective Cleaning)**：
+  - 在 VS Code 側邊欄樹狀結構或 QuickPick 中列出獨立 session（顯示建立日期、標題/首句摘要、佔用容量），支援單選或多選刪除特定對話。
+- [ ] **大型 Session 篩選與清理 (Size-based / Heavy Session Filtering)**：
+  - 找出佔用過大空間的異常 session（例如包含大型 tool results、截圖、錄影或超過 50 MB 的 session）。
+- [ ] **對話封存與匯出 (Export & Archive to Markdown/JSON)**：
+  - 在執行清理前提供將對話匯出成一般 Markdown 或 JSON 格式歸檔的功能，兼顧釋放空間與知識留存。
+
 ## Commit 7 — CI / Release 收尾 `[Push]`
 
 - [ ] CI 在 Windows / macOS / Linux 執行 build 與 test
