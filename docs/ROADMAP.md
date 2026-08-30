@@ -8,7 +8,7 @@
 
 ---
 
-## ✅ Commit 1 — Monorepo 基礎建置
+## ✅ Commit 1 [v0.1.0] — Monorepo 基礎建置
 
 - [x] 建立 root `package.json` 與 `workspaces: ["packages/*"]`
 - [x] `packages/core`：共用 catalog、scan、clean、backup、format、paths 引擎
@@ -24,7 +24,7 @@
 - [x] 確認 `node --experimental-strip-types packages/cli/src/run.ts help` 正常執行
 - [x] **Push 到 GitHub**
 
-## ✅ Commit 2 — Core 單元測試 `[Push]`
+## ✅ Commit 2 [v0.1.1] — Core 單元測試 `[Push]`
 
 - [x] 為路徑解析加入 Windows / macOS / Linux 測試
 - [x] 為六個工具的 catalog 與真實路徑分類加入測試
@@ -36,7 +36,7 @@
 - [x] `npm test` 全部通過
 - [x] Push 到 GitHub
 
-## ✅ Commit 3 — CLI 獨立 Binary `[Push]`
+## ✅ Commit 3 [v0.2.0] — CLI 獨立 Binary `[Push]`
 
 - [x] 選定 CLI binary 打包工具：Node.js SEA (Single Executable Application)
 - [x] 產生 Windows x64 `.exe` (驗證通過)
@@ -47,7 +47,7 @@
 - [x] 加入 SHA-256 checksums (`SHA256SUMS.txt`)
 - [x] Push 到 GitHub
 
-## ✅ Commit 4 — CLI Release `[Push]` `[Release]`
+## ✅ Commit 4 [v1.0.0] — CLI Release `[Push]` `[Release]`
 
 - [x] 在乾淨 Windows / macOS / Linux 環境執行 scan dry-run
 - [x] 確認不會掃描或刪除 repository 外未列入 catalog 的資料
@@ -59,7 +59,7 @@
 - [x] 觸發 GitHub Actions Release 工作流產出發布物
 - [x] 上傳 CLI binaries、VSIX、checksums 與自動擷取之 Release notes
 
-## ✅ Commit 5 — VS Code Extension 實作與 v1.0.1 修復 `[Push]`
+## ✅ Commit 5 [v1.0.1] — VS Code Extension 實作與 v1.0.1 修復 `[Push]` `[Release]`
 
 - [x] Extension 整合 `@aicleaner/core` 引擎（取代舊版 demo stub）
 - [x] 實作 `SweepTreeDataProvider` 樹狀資料提供者，解決 `sweep.tools` 側邊欄空白與資料提供者未註冊錯誤
@@ -68,7 +68,7 @@
 - [x] 驗證 Codex sandbox 與 Kiro extensions 保護規則
 - [x] 重新打包 VSIX 並完成 v1.0.1 發布
 
-## ✅ Commit 6 — 預設備份路徑統一至 `~/.sweep/backups/` 與 UI 圖示更新 `[Push]`
+## ✅ Commit 6 [v1.0.2] — 預設備份路徑統一至 `~/.sweep/backups/` 與 UI 圖示更新 `[Push]`
 
 - [x] **預設備份路徑規格統一 (`~/.sweep/backups/`)**：
   - [x] 核心備份路徑遷移：將 `~/AI-Cleaner-Backups/` 遷移為 `~/.sweep/backups/<timestamp>/`（`packages/core/src/backup.ts`）
@@ -79,7 +79,7 @@
   - [x] 更新 VS Code Extension 圖示為 Lucide `brush-cleaning` SVG（`packages/vscode-extension/media/icon.svg`）
   - [x] 各語言 README 補齊 Lucide ISC License 銘謝條款
 
-## Commit 7 — VS Code Extension UI 按鈕優化與多語系 (i18n) `[Push]`
+## ✅ Commit 7 [v1.0.3] — VS Code Extension UI 按鈕優化與多語系 (i18n) `[Push]`
 
 - [x] **VS Code Extension UI 按鈕優化與行為修復**：
   - [x] 移除重複且無效的自訂開合按鈕（移除 `package.json` 自訂 `expandAll` 與 `collapseAll`）
@@ -98,7 +98,7 @@
 - [x] 驗證多語系切換與 UI 操作正常
 - [x] Push 到 GitHub
 
-## Commit 8 — 細緻化對話清理機制 (Granular Conversation Cleaning) `[Push]`
+## ✅ Commit 8 [v1.1.0] — 細緻化對話清理機制 (Granular Conversation Cleaning) `[Push]`
 
 - [x] **修復 ByteDance Trae 掃描與記憶路徑支援 (Trae Scan & SOLO Memory Fix)**：
   - [x] 補齊 Trae SOLO Agent 記憶路徑（`~/.trae/memory`、`~/.trae/worktrees`）與完整 Electron/IDE 快取路徑（`Code Cache`、`monitor`、`WebStorage`、`User/globalStorage/.ckg`、`aha`、`workspaceStorage` 等）
@@ -114,7 +114,7 @@
 - [x] 撰寫單元測試覆蓋細緻化篩選與對話封存邏輯
 - [x] Push 到 GitHub
 
-## Commit 9 — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
+## Commit 9 [v1.1.0] — 備份管理與一鍵還原機制 (Backup Management & Restore) `[Push]`
 
 - [ ] **備份管理與一鍵還原機制 (Backup Management & One-Click Restore)**：
   - [ ] Core 還原引擎（`packages/core/src/restore.ts`）：建立 `manifest.json` 記錄原始路徑、時間與工具對應
@@ -130,7 +130,7 @@
 - [ ] 撰寫單元測試覆蓋備份清單、過期清理與還原機制
 - [ ] Push 到 GitHub
 
-## Commit 10 — 使用者自訂設定與排除名單 (Custom Settings & Whitelist) `[Push]`
+## Commit 10 [v1.1.0] — 使用者自訂設定與排除名單 (Custom Settings & Whitelist) `[Push]`
 
 - [ ] **使用者自訂設定與排除名單 (Custom Settings & Whitelist)**：
   - [ ] 自訂工具儲存路徑記憶（支援非標準路徑、便攜版、自訂磁碟代號、自訂環境變數路徑）
@@ -140,7 +140,7 @@
 - [ ] 撰寫單元測試覆蓋自訂路徑與白名單過濾規則
 - [ ] Push 到 GitHub
 
-## Commit 11 — CI / Release 工作流擴充與商店發布配置 `[Push]`
+## Commit 11 [v1.1.0] — CI / Release 工作流擴充與商店發布配置 `[Push]`
 
 - [ ] CI 在 Windows / macOS / Linux 執行完整 build 與 test
 - [x] 升級 CI / Release workflows 之 Node.js 版本至 Node.js 24 (與本機環境統一)
@@ -159,7 +159,7 @@
 - [ ] 確認 GitHub repository 的 description、license、README 與版本號一致
 - [ ] Push 到 GitHub
 
-## Commit 12 — 官方商店發布 (Marketplace & npm) 與 v1.1.0 正式發行 `[Push]` `[Release]`
+## Commit 12 [v1.1.0] — 官方商店發布 (Marketplace & npm) 與 v1.1.0 正式發行 `[Push]` `[Release]`
 
 - [ ] **商店帳號與發行者身分設定 (Publishers & Tokens Setup)**：
   - [ ] 註冊微軟發行者（Publisher ID: `L1r1h28`）並在 Azure DevOps 產出 PAT（Marketplace Manage 權限）
