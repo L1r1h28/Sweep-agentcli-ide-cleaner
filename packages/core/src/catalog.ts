@@ -366,7 +366,7 @@ export const TOOLS: ToolDef[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Codex (OpenAI) — CLI + Desktop share the same backend
+  // 4. Codex (OpenAI) — CLI + Desktop shared backend
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: "codex",
@@ -377,8 +377,8 @@ export const TOOLS: ToolDef[] = [
       "OpenAI Codex. Desktop App and CLI share the same ~/.codex backend. WARNING: .sandbox-bin/ (≈340 MB) is the sandbox runtime — never delete it.",
     notes: [
       "Desktop App and CLI share ~/.codex/sessions — deleting affects every client.",
-      "session_index.jsonl + thread_history_1.sqlite hold conversation metadata.",
-      ".sandbox-bin/ is the sandbox execution environment, NOT cache or sessions — leave it alone.",
+      "session_index.jsonl provides semantic thread_name titles for rollout-*.jsonl sessions.",
+      ".sandbox-bin/ is the sandbox execution environment, NOT cache or sessions — protected by whitelist.",
       "memories_1.sqlite + memories/ hold long-term memory (high risk to delete).",
     ],
     targets: [
@@ -435,36 +435,231 @@ export const TOOLS: ToolDef[] = [
       },
       {
         id: "codex-cache",
-        label: "Cache & logs",
+        label: "Cache, .tmp, plugins & logs",
         kind: "cache",
         risk: "low",
-        description: "cache/, computer-use/, tmp/, visualizations/, models_cache.json, logs_2.sqlite, queue_1.sqlite.",
+        description: "cache/, tmp/, .tmp/, plugins/cache/, visualizations/, computer-use/, models_cache.json, logs_2.sqlite, queue_1.sqlite.",
         paths: {
           win: [
             "%USERPROFILE%\\.codex\\cache",
-            "%USERPROFILE%\\.codex\\computer-use",
             "%USERPROFILE%\\.codex\\tmp",
+            "%USERPROFILE%\\.codex\\.tmp",
+            "%USERPROFILE%\\.codex\\plugins\\cache",
+            "%USERPROFILE%\\.codex\\plugins\\.remote-plugin-install-staging",
             "%USERPROFILE%\\.codex\\visualizations",
+            "%USERPROFILE%\\.codex\\computer-use",
             "%USERPROFILE%\\.codex\\models_cache.json",
-            "%USERPROFILE%\\.codex\\logs_2.sqlite",
+            "%USERPROFILE%\\.codex\\sqlite\\logs_2.sqlite",
+            "%USERPROFILE%\\.codex\\sqlite\\logs_2.sqlite-wal",
+            "%USERPROFILE%\\.codex\\sqlite\\logs_2.sqlite-shm",
             "%USERPROFILE%\\.codex\\queue_1.sqlite",
           ],
           mac: [
             "~/.codex/cache",
-            "~/.codex/computer-use",
             "~/.codex/tmp",
+            "~/.codex/.tmp",
+            "~/.codex/plugins/cache",
+            "~/.codex/plugins/.remote-plugin-install-staging",
             "~/.codex/visualizations",
+            "~/.codex/computer-use",
             "~/.codex/models_cache.json",
-            "~/.codex/logs_2.sqlite",
+            "~/.codex/sqlite/logs_2.sqlite",
+            "~/.codex/sqlite/logs_2.sqlite-wal",
+            "~/.codex/sqlite/logs_2.sqlite-shm",
             "~/.codex/queue_1.sqlite",
           ],
           linux: [
             "~/.codex/cache",
-            "~/.codex/computer-use",
             "~/.codex/tmp",
+            "~/.codex/.tmp",
+            "~/.codex/plugins/cache",
+            "~/.codex/plugins/.remote-plugin-install-staging",
             "~/.codex/visualizations",
+            "~/.codex/computer-use",
             "~/.codex/models_cache.json",
-            "~/.codex/logs_2.sqlite",
+            "~/.codex/sqlite/logs_2.sqlite",
+            "~/.codex/sqlite/logs_2.sqlite-wal",
+            "~/.codex/sqlite/logs_2.sqlite-shm",
+            "~/.codex/queue_1.sqlite",
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 5. Codex Desktop (OpenAI Windows App / Electron)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "codex-desktop",
+    name: "Codex Desktop",
+    shortName: "CX-App",
+    products: ["Desktop App"],
+    blurb:
+      "OpenAI Codex Desktop application. UI cache in Windows MSIX Packages (%LOCALAPPDATA%\\Packages\\OpenAI.Codex_*) and Electron UI cache.",
+    notes: [
+      "Electron UI Cache (web/, Cache/, GPUCache/) in Windows MSIX Packages can be safely cleared.",
+      "Sessions and CLI backend are shared in ~/.codex/sessions.",
+    ],
+    targets: [
+      {
+        id: "codex-app-cache",
+        label: "Desktop UI & WebView Cache",
+        kind: "cache",
+        risk: "low",
+        description: "Electron UI cache (web, Cache, GPUCache, Logs, WebStorage) in Windows MSIX package & AppData.",
+        paths: {
+          win: [
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\web",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\Cache",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\GPUCache",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\DawnGraphiteCache",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\DawnWebGPUCache",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\Session Storage",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\Local Storage",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\blob_storage",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Codex\\Crashpad",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Local\\Codex\\Logs",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\AC\\INetCache",
+            "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\AC\\Temp",
+            "%LOCALAPPDATA%\\OpenAI\\Codex\\runtimes",
+            "%APPDATA%\\Codex\\Cache",
+            "%APPDATA%\\Codex\\GPUCache",
+            "%LOCALAPPDATA%\\Codex\\Cache",
+          ],
+          mac: [
+            "~/Library/Application Support/Codex/Cache",
+            "~/Library/Application Support/Codex/GPUCache",
+            "~/Library/Application Support/Codex/Code Cache",
+            "~/Library/Application Support/OpenAI/Codex",
+            "~/Library/Caches/com.openai.codex",
+            "~/Library/Caches/Codex",
+          ],
+          linux: [
+            "~/.config/Codex/Cache",
+            "~/.config/Codex/GPUCache",
+            "~/.config/Codex/Code Cache",
+            "~/.config/OpenAI/Codex",
+            "~/.cache/Codex",
+          ],
+        },
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 6. Codex CLI (OpenAI)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "codex-cli",
+    name: "Codex CLI",
+    shortName: "CX-CLI",
+    products: ["CLI"],
+    blurb:
+      "OpenAI Codex command line interface. Storage located in ~/.codex.",
+    notes: [
+      "CLI conversations and rollout logs under ~/.codex/sessions.",
+      "WARNING: .sandbox-bin/ (≈340 MB) is the sandbox runtime — protected by whitelist and never deleted.",
+    ],
+    targets: [
+      {
+        id: "codex-cli-sessions",
+        label: "CLI Sessions",
+        kind: "conversations",
+        risk: "high",
+        description: "rollout-*.jsonl under ~/.codex/sessions, archived_sessions, and session_index.jsonl.",
+        paths: {
+          win: [
+            "%USERPROFILE%\\.codex\\sessions",
+            "%USERPROFILE%\\.codex\\archived_sessions",
+            "%USERPROFILE%\\.codex\\session_index.jsonl",
+          ],
+          mac: [
+            "~/.codex/sessions",
+            "~/.codex/archived_sessions",
+            "~/.codex/session_index.jsonl",
+          ],
+          linux: [
+            "~/.codex/sessions",
+            "~/.codex/archived_sessions",
+            "~/.codex/session_index.jsonl",
+          ],
+        },
+      },
+      {
+        id: "codex-cli-memory",
+        label: "CLI Long-term memory",
+        kind: "conversations",
+        risk: "high",
+        description: "memories/, memories_1.sqlite, thread_history_1.sqlite, goals_1.sqlite — agent long-term memory.",
+        paths: {
+          win: [
+            "%USERPROFILE%\\.codex\\memories",
+            "%USERPROFILE%\\.codex\\memories_1.sqlite",
+            "%USERPROFILE%\\.codex\\thread_history_1.sqlite",
+            "%USERPROFILE%\\.codex\\goals_1.sqlite",
+          ],
+          mac: [
+            "~/.codex/memories",
+            "~/.codex/memories_1.sqlite",
+            "~/.codex/thread_history_1.sqlite",
+            "~/.codex/goals_1.sqlite",
+          ],
+          linux: [
+            "~/.codex/memories",
+            "~/.codex/memories_1.sqlite",
+            "~/.codex/thread_history_1.sqlite",
+            "~/.codex/goals_1.sqlite",
+          ],
+        },
+      },
+      {
+        id: "codex-cli-cache",
+        label: "CLI Cache & Temp",
+        kind: "cache",
+        risk: "low",
+        description: "cache/, tmp/, .tmp/, plugins/cache/, visualizations/, computer-use/.",
+        paths: {
+          win: [
+            "%USERPROFILE%\\.codex\\cache",
+            "%USERPROFILE%\\.codex\\tmp",
+            "%USERPROFILE%\\.codex\\.tmp",
+            "%USERPROFILE%\\.codex\\plugins\\cache",
+            "%USERPROFILE%\\.codex\\plugins\\.remote-plugin-install-staging",
+            "%USERPROFILE%\\.codex\\visualizations",
+            "%USERPROFILE%\\.codex\\computer-use",
+            "%USERPROFILE%\\.codex\\models_cache.json",
+            "%USERPROFILE%\\.codex\\sqlite\\logs_2.sqlite",
+            "%USERPROFILE%\\.codex\\sqlite\\logs_2.sqlite-wal",
+            "%USERPROFILE%\\.codex\\sqlite\\logs_2.sqlite-shm",
+            "%USERPROFILE%\\.codex\\queue_1.sqlite",
+          ],
+          mac: [
+            "~/.codex/cache",
+            "~/.codex/tmp",
+            "~/.codex/.tmp",
+            "~/.codex/plugins/cache",
+            "~/.codex/plugins/.remote-plugin-install-staging",
+            "~/.codex/visualizations",
+            "~/.codex/computer-use",
+            "~/.codex/models_cache.json",
+            "~/.codex/sqlite/logs_2.sqlite",
+            "~/.codex/sqlite/logs_2.sqlite-wal",
+            "~/.codex/sqlite/logs_2.sqlite-shm",
+            "~/.codex/queue_1.sqlite",
+          ],
+          linux: [
+            "~/.codex/cache",
+            "~/.codex/tmp",
+            "~/.codex/.tmp",
+            "~/.codex/plugins/cache",
+            "~/.codex/plugins/.remote-plugin-install-staging",
+            "~/.codex/visualizations",
+            "~/.codex/computer-use",
+            "~/.codex/models_cache.json",
+            "~/.codex/sqlite/logs_2.sqlite",
+            "~/.codex/sqlite/logs_2.sqlite-wal",
+            "~/.codex/sqlite/logs_2.sqlite-shm",
             "~/.codex/queue_1.sqlite",
           ],
         },
@@ -893,5 +1088,12 @@ export const NEVER_DELETE_GLOBS = [
   "**/.sandbox-bin/**",
   "**/.sandbox/**",
   "**/.sandbox-secrets/**",
+  "**/.codex/rules/**",
+  "**/.codex/skills/**",
+  "**/.codex/pets/**",
+  "**/.codex/sqlite/codex-dev.db",
+  "**/.codex/sqlite/state_5.sqlite",
+  "**/.codex/plugins/.plugin-appserver/**",
+  "**/OpenAI/Codex/bin/**",
   "**/extensions/**",
 ];

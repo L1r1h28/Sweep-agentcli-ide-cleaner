@@ -182,15 +182,15 @@
 - [x] **未安裝軟體動態過濾 (Installed Tools Only Filter)**：
   - [x] UI 樹狀檢視與 CLI 掃描支援 `sweep.hideUninstalledTools`，提供精簡乾淨的視圖
 
-## Commit 14 [v1.1.6] — OpenAI Codex 深度調優、Session 解析與 UI 互動精進
+## Commit 14 [v1.1.6] — OpenAI Codex 深度調優、Session 解析與 UI 互動精進 `[Push]`
 
-- [ ] **OpenAI Codex 深度調優與防護 (Codex Engine Refinement)**：
-  - [ ] **Session 智慧標題解析**：解析 Codex `sessions/rollout-*.jsonl` 首則訊息與 Workspace 名稱
-  - [ ] **產品線獨立展示**：區隔 Codex Desktop 與 Codex CLI 運作快取與會話
-  - [ ] **沙盒與憑證防護確認**：確保 `.sandbox-bin/` 與 `auth.json` 永不被掃描為可刪除目標
-- [ ] **UI / UX 與擴充套件視覺補齊 (Visual & Picker UX Enhancements)**：
-  - [ ] **延伸模組商店圖示補齊 (Marketplace PNG Icon)**：產出 128x128 `media/icon.png` 並設定於 `package.json` 頂層 `"icon"`，解決 VS Code 擴充套件管理面板圖示空白問題
-  - [ ] **會話選擇器軟體來源標註 (Session Picker Tool Distinction)**：在 `sweep.pickSessionsToClean` 的 QuickPick 項目中顯式標記工具來源（如 `[Antigravity IDE]`、`[Codex]`），讓使用者多工具批量挑選時能清晰辨別軟體歸屬
+- [x] **OpenAI Codex 深度調優與防護 (Codex Engine Refinement)**：
+  - [x] **Session 智慧標題解析**：解析 Codex `sessions/rollout-*.jsonl` 首則訊息與 Workspace 名稱，並對照 `session_index.jsonl` 之 `thread_name`
+  - [x] **產品線獨立展示**：區隔 Codex Desktop（Windows MSIX 封裝與 Electron 快取）與 Codex CLI（`.tmp/`, `plugins/cache/`, `visualizations/`）運作快取與會話
+  - [x] **沙盒、伴侶與憑證防護確認**：確保 `.sandbox-bin/`、`auth.json`、`pets/`、`rules/`、`skills/` 永不被掃描為可刪除目標，嚴格保護 `memories_1.sqlite` 核心長期記憶
+- [x] **UI / UX 與擴充套件視覺補齊 (Visual & Picker UX Enhancements)**：
+  - [x] **延伸模組商店圖示補齊 (Marketplace PNG Icon)**：產出 128x128 `media/icon.png` 並設定於 `package.json` 頂層 `"icon"`，解決 VS Code 擴充套件管理面板圖示空白問題
+  - [x] **會話選擇器軟體來源標註 (Session Picker Tool Distinction)**：在 `sweep.pickSessionsToClean` 與 `sweep.exportSession` 的 QuickPick 項目中顯式標記工具來源（如 `[Antigravity IDE]`、`[Codex]`），讓使用者多工具批量挑選時能清晰辨別軟體歸屬
 
 ## Commit 15 [v1.1.7] — Anthropic Claude Code 深度調優與專案會話關聯
 
@@ -212,6 +212,8 @@
 
 ## Commit 18 [v1.1.10] — UI / UX 全面打磨與互動強化
 
+- [ ] **CLI 超長內容顯示壓縮與摘要 (Output Folding & Compression)**：針對巨量會話與長路徑研發終端壓縮顯示、分頁摺疊（Top N 摘要 + 省略展開提示），解決 terminal 超長洗版問題
+- [ ] **特定軟體獨立掃描與清理 (Single-Tool Scoped Scan & Clean)**：強化 `--tool <id>` 專屬模式，支援單一軟體的獨立即時掃描、清理與專屬會話交互
 - [ ] **未安裝工具過濾切換**：在 VS Code View Title 與 CLI 提供未安裝/空項目隱藏開關
 - [ ] **多選批次清理與搜尋**：Extension 支援快速勾選特定 Session 批次清理與關鍵字篩選
 - [ ] **即時動態容量計算**：清理後動態更新 Tree View 節點容量與釋放空間提示

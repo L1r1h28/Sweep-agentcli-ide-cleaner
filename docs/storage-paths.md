@@ -69,44 +69,81 @@ C:\Users\<user>\AppData\Roaming\Antigravity IDE\    350 MB  ← Electron 快取�
 
 ---
 
-## 2. Codex（OpenAI）
+## 2. OpenAI Codex（Desktop 應用程式與 CLI 後端）
 
-實際根目錄：`%USERPROFILE%\.codex\`（CLI + Desktop 共用）
+實際根目錄：
+- **Codex CLI / 共用後端**：`%USERPROFILE%\.codex\`
+- **Codex Desktop (Windows MSIX App / Electron)**：`%LOCALAPPDATA%\Packages\OpenAI.Codex_*\` 與 `%LOCALAPPDATA%\OpenAI\Codex\`
 
-### 實際掃描到的資料夾樹
+### 2.1 Codex CLI / 共用後端資料夾樹 (`~/.codex\`)
 
 ```
-C:\Users\<user>\.codex\              949 MB 總計
-├── sessions\                        10 MB  🔴 rollout-*.jsonl 完整對話
-├── archived_sessions\                0 MB  🔴 歸檔的 session
-├── memories\                         ?     🔴 長期記憶
-├── memories_1.sqlite                 ?     🔴
-├── thread_history_1.sqlite           ?     🔴 對話執行緒歷史
-├── session_index.jsonl               0 MB  🔴 session 索引
-├── goals_1.sqlite                    0 MB  🔴 目標追蹤
-├── .codex-global-state.json          0 MB  ⛔/🔴 全域狀態
-├── computer-use\                     0 MB  🟡 電腦操作快取
-├── cache\                            0 MB  🟡 一般快取
-├── logs_2.sqlite                     0 MB  🟡 日誌
-├── queue_1.sqlite                    0 MB  🟡 工作佇列
-├── models_cache.json                 0 MB  🟡 模型快取
-├── tmp\                              0 MB  🟡 暫存
-├── visualizations\                   0 MB  🟡 視覺化快取
-├── .sandbox-bin\                   340 MB  ⛔ **沙盒執行環境（不要刪）**
-├── .sandbox\                         0 MB  ⛔ 沙盒根目錄
-├── .sandbox-secrets\                 0 MB  ⛔ 沙盒憑證
-├── plugins\                          0 MB  ⛔ 插件
-├── rules\                            0 MB  ⛔ 規則設定
-├── skills\                           0 MB  ⛔ 技能設定
-├── vendor_imports\                   0 MB  ⛔ 第三方匯入
-├── auth.json                         0 MB  ⛔ 認證憑證
-└── config.toml                       0 MB  ⛔ 主要設定
+C:\Users\<user>\.codex\                    950 MB 總計
+├── sessions\                               15 MB  🔴 rollout-*.jsonl 完整對話（階層式 YYYY/MM/DD/*.jsonl）
+├── session_index.jsonl                      0 MB  🔴 對話索引（含 id 與 thread_name 語意標題對照）
+├── archived_sessions\                       0 MB  🔴 歸檔之對話 Sessions
+├── sqlite\                                  9 MB  🔴/🟡 資料庫目錄
+│   ├── memories_1.sqlite                    0 MB  🔴 Agent 長期核心記憶（嚴格保護，高風險）
+│   ├── goals_1.sqlite                       0 MB  🔴 目標追蹤記錄（高風險）
+│   ├── state_5.sqlite                       0 MB  🔴 執行狀態快照
+│   ├── logs_2.sqlite (+wal/shm)             8 MB  🟡 執行階段紀錄資料庫（可清理）
+│   └── codex-dev.db                         1 MB  ⛔ 開發核心設定（保護）
+├── .tmp\                                  142 MB  🟡 下載快取、市場擴充模組暫存（可安全清理）
+├── plugins\                               412 MB  🟡/⛔ 外掛模組
+│   ├── cache\                              50 MB  🟡 外掛下載快取（可清理）
+│   ├── .remote-plugin-install-staging\      0 MB  🟡 安裝暫存（可清理）
+│   └── .plugin-appserver\                 362 MB  ⛔ 外掛伺服器執行檔主機（保護）
+├── visualizations\                          0 MB  🟡 圖表與 HTML 視覺化輸出快取（可清理）
+├── computer-use\                            0 MB  🟡 電腦操作快取（可清理）
+├── cache\                                   0 MB  🟡 一般運作快取（可清理）
+├── tmp\                                     0 MB  🟡 臨時檔案（可清理）
+├── .sandbox-bin\                          340 MB  ⛔ **沙盒執行環境二進位檔（codex.exe 等，絕對不要刪除）**
+├── .sandbox\                                0 MB  ⛔ 沙盒根目錄標記
+├── .sandbox-secrets\                        0 MB  ⛔ 沙盒安全憑證
+├── pets\                                    2 MB  ⛔ **Desktop 伴侶寵物精靈圖與設定（reze 等，不要刪除）**
+├── rules\                                   0 MB  ⛔ 使用者自訂規則（default.rules）
+├── skills\                                  0 MB  ⛔ 技能定義庫（.system/）
+├── vendor_imports\                          6 MB  ⛔ 匯入之技能範本庫
+├── auth.json                                0 MB  ⛔ **OpenAI 授權登入憑證（絕對不要刪除）**
+└── config.toml                              0 MB  ⛔ 全域設定檔
 ```
 
-**注意事項：**
-- `.sandbox-bin/`（340 MB）是 Codex 沙盒執行環境，**絕對不要清除**；它不是對話，是工具執行所需的二進位檔
-- `sessions/` 目前只有 9.6 MB，但隨使用量會累積
-- Desktop App 與 CLI **共用 sessions/**，刪除後兩端都會失去歷史
+### 2.2 Codex Desktop (Windows 應用程式快取樹)
+
+```
+C:\Users\<user>\AppData\Local\Packages\OpenAI.Codex_2p2nqsd0c76g0\   210 MB
+└── LocalCache\
+    ├── Roaming\Codex\                     205 MB  ← Electron UI 快取
+    │   ├── web\                           176 MB  🟡 Web 靜態資源與組件快取
+    │   ├── Cache\                          25 MB  🟡 Chromium 網路快取
+    │   ├── GPUCache\                        2 MB  🟡 GPU 渲染快取
+    │   ├── DawnGraphiteCache\               1 MB  🟡 Graphite 快取
+    │   ├── DawnWebGPUCache\                 1 MB  🟡 WebGPU 快取
+    │   ├── Session Storage\                 0 MB  🟡 會話暫存
+    │   ├── Local Storage\                   0 MB  🟡 本地儲存
+    │   ├── Network\                         0 MB  🟡 網路記錄
+    │   └── Crashpad\                        0 MB  🟡 崩潰暫存
+    └── Local\Codex\
+        └── Logs\                            5 MB  🟡 應用程式日誌
+└── AC\
+    ├── INetCache\                           0 MB  🟡 暫存快取
+    └── Temp\                                0 MB  🟡 暫存快取
+
+C:\Users\<user>\AppData\Local\OpenAI\Codex\  814 MB
+├── runtimes\                              319 MB  🟡 舊版/下載執行階段快取 (cua_node)
+└── bin\                                   495 MB  ⛔ 應用程式相依二進位工具 (rg.exe, node.exe 等)
+```
+
+**架構與調優重點：**
+- **Session 深層階層掃描與語意標題解析**：
+  - `sessions/` 下採用 `sessions/YYYY/MM/DD/rollout-*.jsonl` 深層目錄，需支援階層式遞迴探勘。
+  - `session_index.jsonl` 提供 `id` 與 `thread_name` 映射（如「修正 TUI 錯誤訊息遺失」、「新增三個 llama.cpp 模型」），優先作為語意化標題。
+  - Rollout 檔案內首行包含 `turn_context`（`payload.cwd` / `workspace_roots` 提取真實專案名），使用者訊息過濾 `<environment_context>` 系統注入標籤後作為標題備選。
+- **安全防護白名單**：
+  - `.sandbox-bin/`、`auth.json`、`.sandbox/`、`.sandbox-secrets/`、`rules/`、`skills/`、`pets/`、`sqlite/memories_1.sqlite` 嚴格納入保護。
+- **產品線獨立管理**：
+  - **Codex Desktop**：聚焦清理 `%LOCALAPPDATA%\Packages\OpenAI.Codex_*\LocalCache\Roaming\Codex` 內之 `web/`、`Cache/`、`GPUCache/` 等 Electron 快取（約 200+ MB）。
+  - **Codex CLI**：聚焦管理 `.tmp/`、`plugins/cache/`、`visualizations/` 與對話 Sessions。
 
 ---
 

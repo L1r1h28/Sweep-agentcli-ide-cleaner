@@ -10,6 +10,8 @@ export type ToolId =
   | "antigravity-desktop"
   | "antigravity-cli"
   | "codex"
+  | "codex-desktop"
+  | "codex-cli"
   | "claude-code"
   | "windsurf"
   | "kiro"

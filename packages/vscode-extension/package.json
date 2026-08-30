@@ -2,7 +2,7 @@
   "name": "sweep-aicleaner",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "publisher": "L1r1h28",
   "repository": {
     "type": "git",
@@ -12,6 +12,7 @@
     "vscode": "^1.85.0"
   },
   "l10n": "./l10n",
+  "icon": "media/icon.png",
   "categories": [
     "Other"
   ],

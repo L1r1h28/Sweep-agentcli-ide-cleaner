@@ -626,9 +626,9 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const items = allSessions.map((s) => ({
-        label: s.title || s.id,
+        label: `[${s.toolName}] ${s.title || s.id}`,
         description: `${formatBytes(s.bytes)} · ${s.ageDays}d ago`,
-        detail: `[${s.toolName}] ${s.projectName ? `Project: ${s.projectName} · ` : ""}${s.path}`,
+        detail: `${s.projectName ? `Project: ${s.projectName} · ` : ""}${s.path}`,
         session: s,
       }));
 
@@ -680,8 +680,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
         const picked = await vscode.window.showQuickPick(
           allSessions.map((s) => ({
-            label: s.title || s.id,
-            description: `${s.toolName} · ${formatBytes(s.bytes)}`,
+            label: `[${s.toolName}] ${s.title || s.id}`,
+            description: `${formatBytes(s.bytes)} · ${s.ageDays}d ago`,
+            detail: `${s.projectName ? `Project: ${s.projectName} · ` : ""}${s.path}`,
             session: s,
           })),
           { placeHolder: vscode.l10n.t("Select conversation session to export") }

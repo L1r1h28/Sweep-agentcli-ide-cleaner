@@ -7,6 +7,33 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2026-08-31
+
+### ✨ Features & Enhancements
+
+#### OpenAI Codex Deep Optimization & Session Engine (`@aicleaner/core`, `@aicleaner/cli`, `sweep-aicleaner`)
+- **Deep Hierarchical Session Discovery**:
+  - Implemented recursive scanner supporting Codex nested date session structures (`~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`) and archived sessions.
+  - Linked `~/.codex/session_index.jsonl` to map session UUIDs with `thread_name` topics (e.g. "修正 TUI 錯誤訊息遺失", "新增三個 llama.cpp 模型") for instant semantic identification.
+  - Extracted real workspace project roots from `turn_context` (`cwd` / `workspace_roots`).
+  - Implemented human prompt extraction from `response_item` (`input_text`) and `event_msg` (`user_message` / `UserMessage`), automatically skipping injected system `<environment_context>` blocks.
+  - Applied East Asian CJK display width truncation (26 visual columns) with elegant ellipsis fallback.
+- **Product Line Separation (Codex Desktop vs Codex CLI)**:
+  - Added `codex-desktop` tool definition with verified Windows MSIX package storage paths (`%LOCALAPPDATA%\Packages\OpenAI.Codex_*\LocalCache\Roaming\Codex\` including `web/`, `Cache/`, `GPUCache/`, `Logs/`, and `AC/INetCache`), plus macOS and Linux Electron paths.
+  - Added `codex-cli` tool definition focusing on `.tmp/` (downloads & marketplaces), `plugins/cache/`, `visualizations/`, `models_cache.json`, and CLI execution traces.
+  - Preserved `codex` umbrella tool entry for full backward compatibility.
+- **Security & Core Agent Memory Protection**:
+  - Protected `.sandbox-bin/` (`codex.exe`, `codex-command-runner-*.exe`), `.sandbox/`, `.sandbox-secrets/`, `auth.json`, `rules/`, `skills/`, and `pets/` (Desktop companion sprites & configs) via strict `NEVER_DELETE_GLOBS`.
+  - Classified `memories_1.sqlite` and `goals_1.sqlite` under high-risk agent long-term memory targets to prevent unintended deletion.
+
+#### VS Code Extension UI & QuickPick Enhancements (`sweep-aicleaner`)
+- **Marketplace PNG Icon**:
+  - Added 128x128 high-resolution `media/icon.png` and configured `"icon": "media/icon.png"` in `package.json`, resolving the blank icon issue in the VS Code Extensions manager view.
+- **Session Picker Software Source Tagging**:
+  - Added distinct `[ToolName]` prefixes in QuickPick items for `sweep.pickSessionsToClean` and `sweep.exportSession` (e.g., `[Codex] 修正 TUI 錯誤訊息遺失`, `[Antigravity IDE] Refactor auth`), allowing effortless tool filtering and multi-tool session management.
+
+---
+
 ## [1.1.5] - 2026-08-31
 
 ### ✨ Features & Enhancements

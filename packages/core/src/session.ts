@@ -7,6 +7,10 @@ import {
   sanitizeAntigravityPrompt,
   truncateByDisplayWidth,
 } from "./adapters/antigravity.ts";
+import {
+  extractCodexPromptAndMeta,
+  scanCodexSessions,
+} from "./adapters/codex.ts";
 import { backupRoot, copyToBackup } from "./backup.ts";
 import { NEVER_DELETE_GLOBS, TOOLS } from "./catalog.ts";
 import { loadConfig } from "./config.ts";
@@ -167,18 +171,44 @@ function extractTranscriptInfo(filePath: string): { title?: string; projectName?
         if (!projectName && obj.content && typeof obj.content === "string") {
           projectName = extractProjectFromContent(obj.content);
         }
-        if (!title && (obj.type === "USER_INPUT" || obj.source === "USER_EXPLICIT" || obj.role === "user")) {
+        if (!title && (obj.type === "USER_INPUT" || obj.source === "USER_EXPLICIT")) {
           const raw = typeof obj.content === "string" ? obj.content : JSON.stringify(obj.content ?? "");
           const sanitized = sanitizeAntigravityPrompt(raw, 26);
           if (sanitized) {
             title = sanitized;
           }
         }
-        // Codex style
+        // Codex style (turn_context, response_item, event_msg, workspace)
+        if (!projectName && obj.type === "turn_context" && obj.payload) {
+          if (obj.payload.cwd) projectName = extractCleanProjectName(obj.payload.cwd);
+          else if (Array.isArray(obj.payload.workspace_roots) && obj.payload.workspace_roots[0]) {
+            projectName = extractCleanProjectName(obj.payload.workspace_roots[0]);
+          }
+        }
+        if (!projectName && obj.workspace) {
+          projectName = extractCleanProjectName(obj.workspace);
+        }
+        if (!title && obj.type === "response_item" && obj.payload?.type === "message" && obj.payload.role === "user") {
+          const c = obj.payload.content;
+          if (Array.isArray(c) && c[0]?.text && !String(c[0].text).startsWith("<environment_context>")) {
+            title = truncateByDisplayWidth(String(c[0].text).replace(/[\r\n]+/g, " ").trim(), 26);
+          }
+        }
+        if (!title && obj.type === "event_msg" && obj.payload?.type === "user_message" && obj.payload.message) {
+          if (!String(obj.payload.message).startsWith("<environment_context>")) {
+            title = truncateByDisplayWidth(String(obj.payload.message).replace(/[\r\n]+/g, " ").trim(), 26);
+          }
+        }
         if (!title && obj.payload?.messages) {
           const firstUser = obj.payload.messages.find((m: any) => m.role === "user");
           if (firstUser?.content) {
             title = truncateByDisplayWidth(String(firstUser.content).replace(/[\r\n]+/g, " ").trim(), 26);
+          }
+        }
+        if (!title && obj.role === "user" && obj.content) {
+          const raw = typeof obj.content === "string" ? obj.content : JSON.stringify(obj.content);
+          if (!raw.startsWith("<environment_context>")) {
+            title = sanitizeAntigravityPrompt(raw, 26) || truncateByDisplayWidth(raw.replace(/[\r\n]+/g, " ").trim(), 26);
           }
         }
       } catch {
@@ -388,9 +418,53 @@ export function scanSessions(options?: {
     }
   }
 
-  // 2. Process all other tools (or targets not Antigravity conversations)
+  // 2. Check if Codex variants (CLI, Desktop, Shared) are among targets
+  const codexVariantIds: ToolId[] = ["codex", "codex-desktop", "codex-cli"];
+  const codexTargets = convTargets.filter((r) => codexVariantIds.includes(r.toolId));
+
+  for (const cxToolId of codexVariantIds) {
+    const specificTargets = codexTargets.filter((r) => r.toolId === cxToolId);
+    if (specificTargets.length === 0) continue;
+
+    const toolDef = tools.find((t) => t.id === cxToolId) || { name: "Codex", id: cxToolId };
+    const sessionDirs: string[] = [];
+    const indexPaths: string[] = [];
+
+    for (const r of specificTargets) {
+      for (const p of r.resolvedPaths) {
+        if (!existsSync(p)) continue;
+        try {
+          const st = statSync(p);
+          if (st.isDirectory()) {
+            sessionDirs.push(p);
+          } else if (p.endsWith("session_index.jsonl")) {
+            indexPaths.push(p);
+          }
+        } catch {}
+      }
+    }
+
+    if (sessionDirs.length > 0) {
+      const defaultTargetId = specificTargets[0]!.target.id;
+      const found = scanCodexSessions({
+        sessionDirs,
+        sessionIndexPaths: indexPaths,
+        toolId: cxToolId,
+        toolName: toolDef.name,
+        targetId: defaultTargetId,
+        nowMs,
+      });
+
+      for (const s of found) {
+        s.isWhitelisted = isSessionWhitelisted(s, config.whitelist);
+        sessions.push(s);
+      }
+    }
+  }
+
+  // 3. Process all other tools (or targets not Antigravity or Codex conversations)
   for (const r of convTargets) {
-    if (agVariantIds.includes(r.toolId)) continue; // Already unified above
+    if (agVariantIds.includes(r.toolId) || codexVariantIds.includes(r.toolId)) continue;
 
     for (const targetPath of r.resolvedPaths) {
       if (!existsSync(targetPath)) continue;

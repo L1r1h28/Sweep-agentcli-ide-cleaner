@@ -19,13 +19,13 @@ vi.mock("node:fs", async (importOriginal) => {
   const actual = (await importOriginal()) as typeof import("node:fs");
   return {
     ...actual,
-    statSync: (path: string, ...args: unknown[]) => {
+    statSync: (path: string, ...args: any[]) => {
       if (mocks.throwStat) {
         const err = new Error("EACCES: permission denied, stat");
         (err as NodeJS.ErrnoException).code = "EACCES";
         throw err;
       }
-      return actual.statSync(path, ...args);
+      return (actual.statSync as any)(path, ...args);
     },
   };
 });
