@@ -668,7 +668,7 @@ export const TOOLS: ToolDef[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Claude Code & Claude Desktop (Anthropic)
+  // Claude Code (Anthropic — Umbrella)
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: "claude-code",
@@ -753,28 +753,43 @@ export const TOOLS: ToolDef[] = [
           ],
         },
       },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Claude Desktop (Standalone App)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: "claude-desktop",
+    name: "Claude Desktop",
+    shortName: "CD",
+    products: ["Claude Desktop App"],
+    blurb:
+      "Anthropic Claude Desktop standalone Electron application runtime caches, shader data, logs, and storage.",
+    notes: [
+      "Electron WebStorage, Code Cache, GPUCache, and logs can be safely cleaned.",
+      "claude_desktop_config.json stores MCP server configurations and is strictly protected.",
+    ],
+    targets: [
       {
-        id: "cc-desktop-cache",
-        label: "Claude Desktop cache & logs",
+        id: "cd-app-cache",
+        label: "Desktop app runtime caches",
         kind: "cache",
         risk: "low",
-        description: "Claude Desktop Electron runtime caches (Cache, Code Cache, DawnCache, GPUCache, WebStorage, logs).",
+        description: "Electron runtime caches (Cache_Data, Code Cache, DawnCache, GPUCache, WebStorage).",
         paths: {
           win: [
             "%LOCALAPPDATA%\\Claude-Data",
-            "%LOCALAPPDATA%\\Claude\\logs",
             "%APPDATA%\\Claude\\Cache",
             "%APPDATA%\\Claude\\Code Cache",
             "%APPDATA%\\Claude\\DawnCache",
             "%APPDATA%\\Claude\\GPUCache",
             "%APPDATA%\\Claude\\IndexedDB",
             "%APPDATA%\\Claude\\WebStorage",
-            "%APPDATA%\\Claude\\logs",
             "%APPDATA%\\Claude\\Crashpad",
           ],
           mac: [
             "~/Library/Caches/Claude",
-            "~/Library/Logs/Claude",
             "~/Library/Application Support/Claude/Cache",
             "~/Library/Application Support/Claude/Code Cache",
             "~/Library/Application Support/Claude/DawnCache",
@@ -788,6 +803,18 @@ export const TOOLS: ToolDef[] = [
             "~/.config/Claude/GPUCache",
             "~/.config/Claude/WebStorage",
           ],
+        },
+      },
+      {
+        id: "cd-logs",
+        label: "Desktop application logs",
+        kind: "cache",
+        risk: "low",
+        description: "Application and renderer runtime logs (main.log, claude.ai-web.log, mcp.log).",
+        paths: {
+          win: ["%LOCALAPPDATA%\\Claude\\logs", "%APPDATA%\\Claude\\logs"],
+          mac: ["~/Library/Logs/Claude"],
+          linux: ["~/.config/Claude/logs"],
         },
       },
     ],

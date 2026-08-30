@@ -188,5 +188,37 @@ describe("Claude Adapter & Session Tests", () => {
       expect(existsSync(settingsPath)).toBe(true);
       expect(existsSync(memoryDocPath)).toBe(true);
     });
+
+    it("scans standalone claude-desktop and claude-code tool products independently", () => {
+      const claudeData = join(mockHome, "AppData", "Local", "Claude-Data");
+      const claudeCodeProjects = join(mockHome, ".claude", "projects", "my-repo");
+      mkdirSync(claudeData, { recursive: true });
+      mkdirSync(claudeCodeProjects, { recursive: true });
+
+      writeFileSync(join(claudeData, "test-cache.bin"), "cache-data-12345");
+      writeFileSync(
+        join(claudeCodeProjects, "session-cli-1.jsonl"),
+        JSON.stringify({ type: "user", message: { content: "Claude Code prompt" } })
+      );
+
+      // 1. Scan claude-desktop standalone
+      const desktopScan = scanDisk({
+        platform: "win",
+        home: mockHome,
+        env: { LOCALAPPDATA: join(mockHome, "AppData", "Local"), APPDATA: join(mockHome, "AppData", "Roaming") },
+        toolIds: ["claude-desktop"],
+        tools: TOOLS,
+      });
+      expect(desktopScan.entries.some((e) => e.toolId === "claude-desktop" && e.exists)).toBe(true);
+
+      // 2. Scan claude-code standalone
+      const codeSessions = scanSessions({
+        platform: "win",
+        home: mockHome,
+        toolIds: ["claude-code"],
+        tools: TOOLS,
+      });
+      expect(codeSessions.some((s) => s.toolId === "claude-code")).toBe(true);
+    });
   });
 });

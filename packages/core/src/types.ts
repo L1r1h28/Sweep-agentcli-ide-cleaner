@@ -13,6 +13,7 @@ export type ToolId =
   | "codex-desktop"
   | "codex-cli"
   | "claude-code"
+  | "claude-desktop"
   | "windsurf"
   | "kiro"
   | "trae";

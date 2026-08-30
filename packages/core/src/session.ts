@@ -467,13 +467,18 @@ export function scanSessions(options?: {
     }
   }
 
-  // 3. Check if Claude Code is among targets
-  const claudeTargets = convTargets.filter((r) => r.toolId === "claude-code");
-  if (claudeTargets.length > 0) {
-    const toolDef = tools.find((t) => t.id === "claude-code") || { name: "Claude Code", id: "claude-code" };
+  // 3. Check if Claude variants (Claude Code, Claude Desktop) are among targets
+  const claudeVariantIds: ToolId[] = ["claude-code", "claude-desktop"];
+  const claudeTargets = convTargets.filter((r) => claudeVariantIds.includes(r.toolId));
+
+  for (const ccToolId of claudeVariantIds) {
+    const specificTargets = claudeTargets.filter((r) => r.toolId === ccToolId);
+    if (specificTargets.length === 0) continue;
+
+    const toolDef = tools.find((t) => t.id === ccToolId) || { name: "Claude Code", id: ccToolId };
     const claudeRootDirs: string[] = [];
 
-    for (const r of claudeTargets) {
+    for (const r of specificTargets) {
       for (const p of r.resolvedPaths) {
         if (!existsSync(p)) continue;
         claudeRootDirs.push(p);
@@ -481,10 +486,10 @@ export function scanSessions(options?: {
     }
 
     if (claudeRootDirs.length > 0) {
-      const defaultTargetId = claudeTargets[0]!.target.id;
+      const defaultTargetId = specificTargets[0]!.target.id;
       const found = scanClaudeSessions({
         claudeRootDirs,
-        toolId: "claude-code",
+        toolId: ccToolId,
         toolName: toolDef.name,
         defaultTargetId,
         nowMs,
@@ -497,9 +502,9 @@ export function scanSessions(options?: {
     }
   }
 
-  // 4. Process all other tools (or targets not Antigravity, Codex, or Claude Code conversations)
+  // 4. Process all other tools (or targets not Antigravity, Codex, or Claude conversations)
   for (const r of convTargets) {
-    if (agVariantIds.includes(r.toolId) || codexVariantIds.includes(r.toolId) || r.toolId === "claude-code") continue;
+    if (agVariantIds.includes(r.toolId) || codexVariantIds.includes(r.toolId) || claudeVariantIds.includes(r.toolId)) continue;
 
     for (const targetPath of r.resolvedPaths) {
       if (!existsSync(targetPath)) continue;
