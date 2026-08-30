@@ -9,7 +9,8 @@
     "build:extension": "npm run build --workspace=sweep-aicleaner",
     "build": "npm run build:cli && npm run build:extension",
     "test": "npm run test --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present"
+    "clean": "npm run clean --workspaces --if-present",
+    "bump": "node scripts/bump-version.mjs"
   },
   "license": "MIT",
   "author": "L1r1h28",
