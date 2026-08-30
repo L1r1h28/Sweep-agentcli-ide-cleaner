@@ -59,22 +59,38 @@
 - [x] 觸發 GitHub Actions Release 工作流產出發布物
 - [x] 上傳 CLI binaries、VSIX、checksums 與自動擷取之 Release notes
 
-## Commit 5 — VS Code Extension 實作驗證 `[Push]`
+## ✅ Commit 5 — VS Code Extension 實作與 v1.0.1 修復 `[Push]`
 
-- [ ] Extension 真正使用 `@aicleaner/core` 引擎（目前 `extension.js` 為 demo stub）
-- [ ] 在 VS Code Extension Development Host 驗證掃描指令
-- [ ] 驗證只清理快取的指令不會刪除對話紀錄
-- [ ] 驗證清理對話紀錄前有明確警告與 backup 選項
-- [ ] 驗證 Codex sandbox 與 Kiro extensions 保護規則
-- [ ] 重新打包 VSIX 並以乾淨 VS Code 安裝測試
-- [ ] Push 到 GitHub
+- [x] Extension 整合 `@aicleaner/core` 引擎（取代舊版 demo stub）
+- [x] 實作 `SweepTreeDataProvider` 樹狀資料提供者，解決 `sweep.tools` 側邊欄空白與資料提供者未註冊錯誤
+- [x] 驗證只清理快取的指令不會刪除對話紀錄
+- [x] 驗證清理對話紀錄前有明確警告與 backup 選項
+- [x] 驗證 Codex sandbox 與 Kiro extensions 保護規則
+- [x] 重新打包 VSIX 並完成 v1.0.1 發布
 
-## Commit 6 — VS Code Extension Release `[Push]` `[Release]`
+## 📌 待修復與後續改進項目 (Next Iterations)
 
-- [ ] 修正 release workflow 的 extension 名稱與版本
-- [ ] 版本升級至下一個正式版本
-- [ ] 建立 GitHub Release
-- [ ] 上傳 VSIX
+### 1. VS Code Extension UI 按鈕優化與行為修復
+- [ ] **移除重複的摺疊按鈕**：
+  - 診斷：`package.json` 中的 `view/title` 註冊了自訂 `sweep.collapseAll`，同時 `createTreeView` 啟用了 `showCollapseAll: true`，導致標題列出現兩個摺疊圖示。
+  - 改善方案：移除多餘的自訂 collapse 按鈕，保留 VS Code 原生 `showCollapseAll` 機制。
+- [ ] **修復「展開所有節點 (Expand All)」功能**：
+  - 診斷：單純觸發 `refresh()` 無法讓 VS Code TreeView 主動展開子項目。
+  - 改善方案：使用 `treeView.reveal()` 配合 `{ expand: 3 }` 或在 `SweepTreeDataProvider` 中加入全域展開狀態控制，確保一鍵展開所有工具與目標項目。
+- [ ] **簡化標題列按鈕配置**：
+  - 標題列僅保留核心功能：🔍 掃描、🗑️ 清理快取、⚠️ 清理對話紀錄、與原生 ➖ 摺疊。
+
+### 2. VS Code Extension 多語系 i18n 支援（繁中 / 英文 / 簡中）
+- [ ] **選單與指令本地化 (`package.nls.json`)**：
+  - `package.nls.json`（預設英文 English）
+  - `package.nls.zh-tw.json`（繁體中文）
+  - `package.nls.zh-cn.json`（簡體中文）
+- [ ] **程式碼內部字串本地化 (`vscode.l10n`)**：
+  - 使用 `vscode.l10n.t()` 封裝延伸模組之通知訊息、確認視窗（Modal）、進度提示與 Tooltip 說明。
+- [ ] **Extension 專屬多語系文件**：
+  - `packages/vscode-extension/README.md`（英文）
+  - `packages/vscode-extension/README.zh-TW.md`（繁體中文）
+  - `packages/vscode-extension/README.zh-CN.md`（簡體中文）
 
 ## Commit 7 — CI / Release 收尾 `[Push]`
 
