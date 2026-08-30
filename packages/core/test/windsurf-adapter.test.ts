@@ -9,6 +9,7 @@ import {
 import { scanSessions } from "../src/session.ts";
 import { scanDisk } from "../src/scan.ts";
 import { planClean, runClean } from "../src/clean.ts";
+import { detectPlatform } from "../src/paths.ts";
 import { TOOLS } from "../src/catalog.ts";
 import { truncateByDisplayWidth, getDisplayWidth } from "../src/adapters/antigravity.ts";
 
@@ -211,18 +212,26 @@ describe("Windsurf & Cascade Adapter Tests", () => {
       writeFileSync(historyFile, "print('old snapshot')");
 
       // Setup cleanable cache
-      const appDataDir = join(mockHome, "AppData", "Roaming", "Windsurf", "Cache");
+      const platform = detectPlatform();
+      const isWin = platform === "win";
+      const isMac = platform === "mac";
+      const appDataDir = isWin
+        ? join(mockHome, "AppData", "Roaming", "Windsurf", "Cache")
+        : isMac
+        ? join(mockHome, "Library", "Application Support", "Windsurf", "Cache")
+        : join(mockHome, ".config", "Windsurf", "Cache");
       mkdirSync(appDataDir, { recursive: true });
       const cacheFile = join(appDataDir, "data_0");
       writeFileSync(cacheFile, "cache binary bytes");
 
       const scanRes = scanDisk({
-        platform: "win",
+        platform,
         home: mockHome,
         env: {
           APPDATA: join(mockHome, "AppData", "Roaming"),
           LOCALAPPDATA: join(mockHome, "AppData", "Local"),
           USERPROFILE: mockHome,
+          HOME: mockHome,
         },
         toolIds: ["windsurf"],
         tools: TOOLS,

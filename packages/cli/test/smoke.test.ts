@@ -229,7 +229,13 @@ describe("CLI Smoke & End-to-End Tests", () => {
     const wsMemories = join(fakeHome, ".codeium", "windsurf", "memories");
     const wsSkills = join(fakeHome, ".codeium", "windsurf", "skills", "my-skill");
     const wsMcp = join(fakeHome, ".codeium", "windsurf", "mcp_config.json");
-    const wsCache = join(fakeHome, "AppData", "Roaming", "Windsurf", "Cache");
+    const isWin = process.platform === "win32";
+    const isMac = process.platform === "darwin";
+    const wsCache = isWin
+      ? join(fakeHome, "AppData", "Roaming", "Windsurf", "Cache")
+      : isMac
+      ? join(fakeHome, "Library", "Application Support", "Windsurf", "Cache")
+      : join(fakeHome, ".config", "Windsurf", "Cache");
 
     mkdirSync(wsCascade, { recursive: true });
     mkdirSync(wsTrackerHistory, { recursive: true });

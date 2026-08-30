@@ -8,6 +8,7 @@ import {
 } from "../src/adapters/kiro.ts";
 import { scanSessions } from "../src/session.ts";
 import { scanDisk } from "../src/scan.ts";
+import { detectPlatform } from "../src/paths.ts";
 import { planClean, runClean } from "../src/clean.ts";
 import { getTool, TOOLS } from "../src/catalog.ts";
 import { truncateByDisplayWidth, getDisplayWidth } from "../src/adapters/antigravity.ts";
@@ -24,15 +25,26 @@ describe("AWS Kiro & Kiro CLI Adapter Tests", () => {
   let mockKiroCacheDir: string;
 
   beforeEach(() => {
+    const platform = detectPlatform();
+    const isWin = platform === "win";
+    const isMac = platform === "mac";
     mockHome = join(tmpdir(), `sweep-kr-test-${Math.random().toString(36).slice(2, 8)}`);
-    mockAppData = join(mockHome, "AppData", "Roaming");
+    mockAppData = isWin
+      ? join(mockHome, "AppData", "Roaming")
+      : isMac
+      ? join(mockHome, "Library", "Application Support")
+      : join(mockHome, ".config");
     mockKiroAgentDir = join(mockAppData, "Kiro", "User", "globalStorage", "kiro.kiroagent");
     mockKiroCliSessions = join(mockHome, ".kiro", "sessions");
     mockKiroExtensions = join(mockHome, ".kiro", "extensions");
     mockKiroSteering = join(mockHome, ".kiro", "steering");
     mockKiroSkills = join(mockHome, ".kiro", "skills");
     mockKiroSettings = join(mockHome, ".kiro", "settings");
-    mockKiroCacheDir = join(mockAppData, "Kiro", "Cache");
+    mockKiroCacheDir = isWin
+      ? join(mockAppData, "Kiro", "Cache")
+      : isMac
+      ? join(mockHome, "Library", "Caches", "Kiro")
+      : join(mockAppData, "Kiro", "Cache");
 
     mkdirSync(mockKiroAgentDir, { recursive: true });
     mkdirSync(mockKiroCliSessions, { recursive: true });
@@ -133,10 +145,11 @@ describe("AWS Kiro & Kiro CLI Adapter Tests", () => {
         })
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["kiro"],
       });
 
@@ -156,10 +169,11 @@ describe("AWS Kiro & Kiro CLI Adapter Tests", () => {
         JSON.stringify({ sessionId: "cli-only", title: "CLI Only Chat" })
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["kiro-ide"],
       });
 
@@ -178,10 +192,11 @@ describe("AWS Kiro & Kiro CLI Adapter Tests", () => {
         JSON.stringify({ sessionId: "cli-only", title: "CLI Only Chat" })
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["kiro-cli"],
       });
 
@@ -205,10 +220,11 @@ describe("AWS Kiro & Kiro CLI Adapter Tests", () => {
       writeFileSync(settingsFile, '{"key": "value"}');
       writeFileSync(cacheFile, "temp cache data");
 
+      const platform = detectPlatform();
       const report = scanDisk({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["kiro"],
       });
 
@@ -221,9 +237,13 @@ describe("AWS Kiro & Kiro CLI Adapter Tests", () => {
 
       // Verify protected files are not in the plan
       for (const item of cleanPlan) {
+        expect(item.path).not.toContain(".kiro/extensions");
         expect(item.path).not.toContain(".kiro\\extensions");
+        expect(item.path).not.toContain(".kiro/steering");
         expect(item.path).not.toContain(".kiro\\steering");
+        expect(item.path).not.toContain(".kiro/skills");
         expect(item.path).not.toContain(".kiro\\skills");
+        expect(item.path).not.toContain(".kiro/settings");
         expect(item.path).not.toContain(".kiro\\settings");
       }
 

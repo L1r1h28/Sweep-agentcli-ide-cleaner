@@ -8,6 +8,7 @@ import {
 } from "../src/adapters/trae.ts";
 import { scanSessions } from "../src/session.ts";
 import { scanDisk } from "../src/scan.ts";
+import { detectPlatform } from "../src/paths.ts";
 import { planClean, runClean } from "../src/clean.ts";
 import { getTool, TOOLS } from "../src/catalog.ts";
 import { truncateByDisplayWidth, getDisplayWidth } from "../src/adapters/antigravity.ts";
@@ -27,8 +28,15 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
   let mockTraeWebStorageDir: string;
 
   beforeEach(() => {
+    const platform = detectPlatform();
+    const isWin = platform === "win";
+    const isMac = platform === "mac";
     mockHome = join(tmpdir(), `sweep-tr-test-${Math.random().toString(36).slice(2, 8)}`);
-    mockAppData = join(mockHome, "AppData", "Roaming");
+    mockAppData = isWin
+      ? join(mockHome, "AppData", "Roaming")
+      : isMac
+      ? join(mockHome, "Library", "Application Support")
+      : join(mockHome, ".config");
     mockTraeAiAgentDir = join(mockAppData, "Trae", "ModularData", "ai-agent");
     mockTraeCnAiAgentDir = join(mockAppData, "Trae CN", "ModularData", "ai-agent");
     mockTraeMemoryDir = join(mockHome, ".trae", "memory");
@@ -105,10 +113,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
       writeFileSync(walPath, Buffer.alloc(500, 2));
       writeFileSync(shmPath, Buffer.alloc(200, 3));
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["trae-ide"],
       });
 
@@ -138,10 +147,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
         JSON.stringify({ sessionId: "solo-task-abc", title: "SOLO Task ABC" })
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["trae"],
       });
 
@@ -160,10 +170,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
         JSON.stringify({ sessionId: "solo-task-abc", title: "SOLO Task ABC" })
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["trae-ide"],
       });
 
@@ -181,10 +192,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
         JSON.stringify({ sessionId: "solo-task-abc", title: "SOLO Task ABC" })
       );
 
+      const platform = detectPlatform();
       const sessions = scanSessions({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["trae-cli"],
       });
 
@@ -200,10 +212,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
       writeFileSync(join(mockTraeCkgServerDir, "server.log"), "ckg server log");
       writeFileSync(join(mockTraeWebStorageDir, "storage.dat"), "webstorage data");
 
+      const platform = detectPlatform();
       const report = scanDisk({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["trae"],
       });
 
@@ -233,10 +246,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
       writeFileSync(tokenFile, "secret-jwt-token");
       writeFileSync(ckgFile, "ckg index");
 
+      const platform = detectPlatform();
       const report = scanDisk({
-        platform: "win",
+        platform,
         home: mockHome,
-        env: { APPDATA: mockAppData },
+        env: { APPDATA: mockAppData, LOCALAPPDATA: join(mockHome, "AppData", "Local"), USERPROFILE: mockHome, HOME: mockHome },
         toolIds: ["trae"],
       });
 
@@ -248,8 +262,11 @@ describe("ByteDance Trae & SOLO Agent Adapter Tests", () => {
       });
 
       for (const item of cleanPlan) {
+        expect(item.path).not.toContain(".trae/rules");
         expect(item.path).not.toContain(".trae\\rules");
+        expect(item.path).not.toContain(".trae/skills");
         expect(item.path).not.toContain(".trae\\skills");
+        expect(item.path).not.toContain(".trae/permission");
         expect(item.path).not.toContain(".trae\\permission");
         expect(item.path).not.toContain("trae-jwt-token");
       }
