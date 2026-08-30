@@ -5,6 +5,7 @@ import {
   mkdirSync,
   symlinkSync,
   rmSync,
+  chmodSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -112,6 +113,31 @@ describe("scanDisk", () => {
     expect(entry.exists).toBe(false);
     expect(entry.bytes).toBe(0);
     expect(entry.error).toBeUndefined(); // ENOENT is not treated as error
+  });
+
+  it("captures permission errors (EACCES) without crashing", () => {
+    if (isWin) {
+      // Setting POSIX permission bits is not reliable on Windows;
+      // skip this test on Windows.
+      return;
+    }
+    const locked = join(tmp, "locked");
+    mkdirSync(locked);
+    writeFileSync(join(locked, "secret.txt"), "s", "utf8");
+    // Remove all permissions so readdirSync/statSync throws EACCES
+    chmodSync(locked, 0o000);
+    try {
+      const report = scanDisk({
+        platform: "linux",
+        home: tmp,
+        tools: [makeTool(["~/locked"])],
+      });
+      const entry = report.entries[0];
+      expect(entry.exists).toBe(false);
+      expect(entry.error).toBeDefined(); // non-ENOENT errors are surfaced
+    } finally {
+      chmodSync(locked, 0o755); // restore so afterEach can clean up
+    }
   });
 
   it("filters by toolIds", () => {

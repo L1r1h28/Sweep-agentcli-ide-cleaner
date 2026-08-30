@@ -24,17 +24,17 @@
 - [x] 確認 `node --experimental-strip-types packages/cli/src/run.ts help` 正常執行
 - [x] **Push 到 GitHub**
 
-## Commit 2 — Core 單元測試 `[Push]`
+## ✅ Commit 2 — Core 單元測試 `[Push]`
 
-- [ ] 為路徑解析加入 Windows / macOS / Linux 測試
-- [ ] 為六個工具的 catalog 與真實路徑分類加入測試
-- [ ] 為掃描加入：目錄、檔案、符號連結、路結、路徑不存在、權限錯誤測試
-- [ ] 為 `cache` / `conversations` / `all` 三種清理模式加入測試
-- [ ] 測試 dry-run 不刪除檔案
-- [ ] 測試備份後才清理
-- [ ] 測試 Codex sandbox、Kiro extensions 等保護規則永遠不會被刪除
-- [ ] `npm test` 全部通過
-- [ ] Push 到 GitHub
+- [x] 為路徑解析加入 Windows / macOS / Linux 測試
+- [x] 為六個工具的 catalog 與真實路徑分類加入測試
+- [x] 為掃描加入：目錄、檔案、符號連結、路結、路徑不存在、權限錯誤測試
+- [x] 為 `cache` / `conversations` / `all` 三種清理模式加入測試
+- [x] 測試 dry-run 不刪除檔案
+- [x] 測試備份後才清理
+- [x] 測試 Codex sandbox、Kiro extensions 等保護規則永遠不會被刪除
+- [x] `npm test` 全部通過
+- [x] Push 到 GitHub
 
 ## ✅ Commit 3 — CLI 獨立 Binary `[Push]`
 
