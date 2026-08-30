@@ -23,7 +23,7 @@ node packages/cli/src/cli.mjs scan
 cd packages/cli
 npm run build
 npm pack
-npm install -g aicleaner-cli-0.1.0.tgz
+npm install -g aicleaner-cli-1.0.0.tgz
 ```
 
 ---

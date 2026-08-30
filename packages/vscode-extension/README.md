@@ -23,12 +23,14 @@
 
 | Command | Title | Description |
 | :--- | :--- | :--- |
-| `sweep.scanStorage` | **Sweep: Scan storage** | Scans and computes disk consumption across AI tools. |
-| `sweep.cleanStorage` | **Sweep: Clean storage** | Prompts confirmation dialog for dry-run or real clean execution. |
+| `sweep.scan` | **Sweep: Scan storage** | Scans and computes disk consumption across AI tools. |
 | `sweep.cleanCache` | **Sweep: Clean all cache (safe)** | Purges Electron, GPU, and IndexedDB caches safely. |
-| `sweep.cleanConversations` | **Sweep: Clean all conversations** | Cleans transcripts and session databases (with confirmation). |
-| `sweep.openBackupFolder` | **Sweep: Open backup folder** | Opens the local backup directory in your system file manager. |
+| `sweep.cleanConversations` | **Sweep: Clean all conversations (destructive)** | Cleans transcripts and session databases (with confirmation). |
+| `sweep.cleanCacheForTool` | **Sweep: Clean cache for this tool** | Cleans cache for the selected AI tool. |
+| `sweep.cleanConversationsForTool` | **Sweep: Clean conversations for this tool** | Cleans conversations for the selected AI tool. |
 | `sweep.dryRun` | **Sweep: Dry-run all** | Runs a non-destructive simulation to estimate recoverable space. |
+| `sweep.expandAll` | **Sweep: Expand all** | Expands all tool tree items in the storage view. |
+| `sweep.collapseAll` | **Sweep: Collapse all** | Collapses all tool tree items in the storage view. |
 
 ---
 
@@ -49,9 +51,9 @@ npm run pack
 ### Install in VS Code / Cursor
 
 ```bash
-code --install-extension sweep-aicleaner-0.2.0.vsix
+code --install-extension sweep-aicleaner-1.0.0.vsix
 # or in Cursor:
-cursor --install-extension sweep-aicleaner-0.2.0.vsix
+cursor --install-extension sweep-aicleaner-1.0.0.vsix
 ```
 
 ---
