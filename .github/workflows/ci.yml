@@ -36,14 +36,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
             artifact: sweep-linux-x64
           - os: windows-latest
             artifact: sweep-win-x64.exe
           - os: macos-latest
-            artifact: sweep-macos-${{ runner.arch }}
+            artifact: sweep-macos
     needs: test
 
     steps:
@@ -68,7 +67,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: packages/cli/dist/${{ matrix.artifact }}
+          path: packages/cli/dist/sweep-*
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload checksums
@@ -76,4 +76,5 @@ jobs:
         with:
           name: ${{ matrix.artifact }}-checksums
           path: packages/cli/dist/SHA256SUMS.txt
+          if-no-files-found: error
           retention-days: 7
