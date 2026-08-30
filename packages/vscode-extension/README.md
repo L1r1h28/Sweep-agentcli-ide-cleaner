@@ -2,7 +2,7 @@
 
 > Visual Studio Code & Cursor extension for inspecting storage footprint and cleaning caches vs. conversation history for modern AI coding tools.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../../LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/blob/main/LICENSE)
 [![VS Code Engine](https://img.shields.io/badge/vscode-%5E1.85.0-blue.svg)](package.json)
 
 `sweep-aicleaner` brings the power of Sweep directly into your IDE. Quickly discover how many gigabytes are consumed by background AI caches, IndexedDB stores, and agent session databases without leaving your editor.
@@ -64,4 +64,4 @@ The extension is bundled using `esbuild` into a single, self-contained CommonJS 
 
 ## 📄 License
 
-MIT © [L1r1h28](../../LICENSE)
+MIT © [L1r1h28](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/blob/main/LICENSE)

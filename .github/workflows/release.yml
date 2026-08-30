@@ -114,11 +114,25 @@ jobs:
           "
           cat RELEASE_NOTES_BODY.md
 
+      - name: Setup Node for extension packaging
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies & package VS Code extension
+        run: |
+          npm ci
+          npm run build --workspace=sweep-aicleaner
+          cd packages/vscode-extension
+          npm pkg set version=${{ inputs.version }} --no-git-tag-version
+          npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository --out ../../dist/sweep-aicleaner-${{ inputs.version }}.vsix
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.version }}
-          name: v${{ inputs.version }} — Sweep CLI
+          name: v${{ inputs.version }} — Sweep AI Cleaner
           body_path: RELEASE_NOTES_BODY.md
           files: |
             dist/sweep-windows-x64.exe
@@ -126,5 +140,6 @@ jobs:
             dist/sweep-darwin-x64
             dist/sweep-linux-x64
             dist/SHA256SUMS.txt
+            dist/sweep-aicleaner-${{ inputs.version }}.vsix
           draft: ${{ inputs.draft }}
           prerelease: false
