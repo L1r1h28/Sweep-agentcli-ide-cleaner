@@ -182,11 +182,15 @@
 - [x] **未安裝軟體動態過濾 (Installed Tools Only Filter)**：
   - [x] UI 樹狀檢視與 CLI 掃描支援 `sweep.hideUninstalledTools`，提供精簡乾淨的視圖
 
-## Commit 14 [v1.1.6] — OpenAI Codex 深度調優、Session 解析與沙箱防護驗證
+## Commit 14 [v1.1.6] — OpenAI Codex 深度調優、Session 解析與 UI 互動精進
 
-- [ ] **Session 智慧標題解析**：解析 Codex `sessions/rollout-*.jsonl` 首則訊息與 Workspace 名稱
-- [ ] **產品線獨立展示**：區隔 Codex Desktop 與 Codex CLI 運作快取與會話
-- [ ] **沙盒與憑證防護確認**：確保 `.sandbox-bin/` 與 `auth.json` 永不被掃描為可刪除目標
+- [ ] **OpenAI Codex 深度調優與防護 (Codex Engine Refinement)**：
+  - [ ] **Session 智慧標題解析**：解析 Codex `sessions/rollout-*.jsonl` 首則訊息與 Workspace 名稱
+  - [ ] **產品線獨立展示**：區隔 Codex Desktop 與 Codex CLI 運作快取與會話
+  - [ ] **沙盒與憑證防護確認**：確保 `.sandbox-bin/` 與 `auth.json` 永不被掃描為可刪除目標
+- [ ] **UI / UX 與擴充套件視覺補齊 (Visual & Picker UX Enhancements)**：
+  - [ ] **延伸模組商店圖示補齊 (Marketplace PNG Icon)**：產出 128x128 `media/icon.png` 並設定於 `package.json` 頂層 `"icon"`，解決 VS Code 擴充套件管理面板圖示空白問題
+  - [ ] **會話選擇器軟體來源標註 (Session Picker Tool Distinction)**：在 `sweep.pickSessionsToClean` 的 QuickPick 項目中顯式標記工具來源（如 `[Antigravity IDE]`、`[Codex]`），讓使用者多工具批量挑選時能清晰辨別軟體歸屬
 
 ## Commit 15 [v1.1.7] — Anthropic Claude Code 深度調優與專案會話關聯
 
