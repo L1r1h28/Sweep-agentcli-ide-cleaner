@@ -10,7 +10,9 @@
     "build": "npm run build:cli && npm run build:extension",
     "test": "npm run test --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
-    "bump": "node scripts/bump-version.mjs"
+    "bump": "node scripts/bump-version.mjs",
+    "ci:watch": "node scripts/fetch-ci-results.mjs",
+    "ci:fetch": "node scripts/fetch-ci-results.mjs"
   },
   "license": "MIT",
   "author": "L1r1h28",
