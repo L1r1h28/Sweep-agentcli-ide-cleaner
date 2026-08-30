@@ -5,6 +5,23 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-08-30
+
+### 🐛 Bug Fixes & Enhancements
+
+#### VS Code Extension (`sweep-aicleaner`)
+- **Fix Activity Bar Storage View**: Implemented and registered `SweepTreeDataProvider` for the `sweep.tools` view container, resolving the *"There are no registered data providers to provide view data"* error upon extension launch.
+- **Tree View Hierarchy**:
+  - **Tool nodes**: Displays per-tool storage breakdown (e.g. `484 MB (💾 82 MB · 💬 402 MB)`).
+  - **Target categories**: Categorizes into safe cache (💾 🟡) vs. high-risk conversations (💬 🔴) with file counters.
+  - **Path items**: Shows resolved paths with real-time detection indicators (✓ found / ✗ missing).
+- **Interactive Commands**: Fully wired up commands for scanning storage, cleaning safe cache, cleaning conversations (with destructive modal warning & automated backup), per-tool cleaning, and dry-run preview.
+- **Standalone Bundle**: Self-contained CommonJS packaging with `@aicleaner/core` bundled via `esbuild`.
+
+#### CLI (`@aicleaner/cli`)
+- **Module Resolution**: Fixed binary/script runner in `cli.mjs` to properly resolve `dist/run.cjs`.
+- **Version Reporting**: Corrected `--version` output to accurately reflect package versions.
+
 ---
 
 ## [1.0.0] - 2026-08-30

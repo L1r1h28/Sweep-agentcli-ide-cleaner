@@ -2,7 +2,7 @@
   "name": "sweep-aicleaner",
   "displayName": "Sweep — AI Tools Cleaner",
   "description": "Scan and clean Antigravity, Codex, Claude Code, Windsurf, Kiro, and Trae caches vs conversations.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "sweep",
   "repository": {
     "type": "git",
