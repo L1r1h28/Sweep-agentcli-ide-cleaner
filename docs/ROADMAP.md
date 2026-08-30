@@ -144,22 +144,22 @@
 
 ## Commit 11 [v1.1.3] — CI / Release 工作流擴充與商店發布配置 `[Push]`
 
-- [ ] CI 在 Windows / macOS / Linux 執行完整 build 與 test
+- [x] CI 在 Windows / macOS / Linux 執行完整 build 與 test
 - [x] 升級 CI / Release workflows 之 Node.js 版本至 Node.js 24 (與本機環境統一)
-- [ ] Release workflow 使用 `--no-git-tag-version` 與 `--no-dependencies` 打包 VSIX
-- [ ] **擴充 `.github/workflows/release.yml` 商店自動化發布工作流 (Store Publishing Pipeline)**：
-  - [ ] 支援 workflow inputs 勾選 `publish_stores`（預設 true，草稿模式可跳過）
-  - [ ] **VS Code Marketplace 發布步驟**：
+- [x] Release workflow 使用 `--no-git-tag-version` 與 `--no-dependencies` 打包 VSIX
+- [x] **擴充 `.github/workflows/release.yml` 商店自動化發布工作流 (Store Publishing Pipeline)**：
+  - [x] 支援 workflow inputs 勾選 `publish_stores`（預設 true，草稿模式可跳過）
+  - [x] **VS Code Marketplace 發布步驟**：
     - 使用 `npx @vscode/vsce publish --packagePath dist/*.vsix -p ${{ secrets.VSCE_PAT }}`
-  - [ ] **Open VSX Registry 發布步驟**（供 Cursor / VSCodium 安裝）：
+  - [x] **Open VSX Registry 發布步驟**（供 Cursor / VSCodium 安裝）：
     - 使用 `npx ovsx publish dist/*.vsix -p ${{ secrets.OVSX_PAT }}`
-  - [ ] **npm 官方套件庫發布步驟**（供 `npm i -g @aicleaner/cli`）：
+  - [x] **npm 官方套件庫發布步驟**（供 `npm i -g @aicleaner/cli`）：
     - 設定 `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`
     - 依序發布 `@aicleaner/core` 與 `@aicleaner/cli`（`--access public`）
-  - [ ] 加入 Token 存在性檢查與發布失敗警告機制
-- [ ] 確認 workflow 不會上傳私人設定、skills、`node_modules` 或本機掃描報告
-- [ ] 確認 GitHub repository 的 description、license、README 與版本號一致
-- [ ] Push 到 GitHub
+  - [x] 加入 Token 存在性檢查與發布失敗警告機制
+- [x] 確認 workflow 不會上傳私人設定、skills、`node_modules` 或本機掃描報告
+- [x] 確認 GitHub repository 的 description、license、README 與版本號一致
+- [x] Push 到 GitHub
 
 ## Commit 12 [v1.2.0] — 官方商店發布 (Marketplace & npm) 與 v1.2.0 正式發行 `[Push]` `[Release]`
 

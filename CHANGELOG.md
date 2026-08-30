@@ -7,6 +7,19 @@ All notable changes to Sweep (CLI, VS Code Extension, and Core Engine) will be d
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2026-08-31
+
+### 🚀 CI / CD & Release Automation
+- **Store Publishing Pipeline in GitHub Actions**:
+  - Expanded `.github/workflows/release.yml` with automated publishing to **Visual Studio Marketplace** (`@vscode/vsce`), **Open VSX Registry** (`ovsx`), and **npm Registry** (`@aicleaner/core` & `@aicleaner/cli`).
+  - Added `publish_stores` workflow dispatch input with automatic safety skip on draft mode.
+  - Implemented safe token validation checks (`VSCE_PAT`, `OVSX_PAT`, `NPM_TOKEN`) with non-fatal warning alerts (`::warning::`) to ensure smooth builds even when individual tokens are not configured.
+  - Standardized extension publisher configuration (`L1r1h28`) for Marketplace verification.
+- **Packaging Integrity**:
+  - Maintained zero-dependency VSIX bundling with strict `.vscodeignore` exclusions protecting source files, credentials, and local configuration.
+
+---
+
 ## [1.1.2] - 2026-08-31
 
 ### ✨ Features & Enhancements

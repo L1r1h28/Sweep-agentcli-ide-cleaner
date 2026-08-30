@@ -4,11 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本號（例如 0.4.0，不要加 v）'
+        description: '版本號（例如 1.1.3，不要加 v）'
         required: true
         type: string
       draft:
         description: '建立為草稿 (true/false)'
+        required: false
+        type: boolean
+        default: false
+      publish_stores:
+        description: '發布至各大商店 (VS Code Marketplace, Open VSX, npm)'
         required: false
         type: boolean
         default: true
@@ -71,7 +76,7 @@ jobs:
           retention-days: 7
 
   publish-release:
-    name: Publish GitHub Release
+    name: Publish GitHub Release & Store Packages
     needs: build-cli-binaries
     runs-on: ubuntu-latest
 
@@ -128,3 +133,44 @@ jobs:
             dist/SHA256SUMS.txt
           draft: ${{ inputs.draft }}
           prerelease: false
+
+      # --- Store Publishing Pipeline ---
+      - name: Publish to VS Code Marketplace
+        if: ${{ inputs.publish_stores && !inputs.draft }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::warning title=VSCE_PAT Missing::VSCE_PAT secret not found, skipping VS Code Marketplace publishing."
+          else
+            echo "Publishing VSIX to VS Code Marketplace..."
+            npx --yes @vscode/vsce publish --packagePath dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$VSCE_PAT"
+          fi
+
+      - name: Publish to Open VSX Registry
+        if: ${{ inputs.publish_stores && !inputs.draft }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "::warning title=OVSX_PAT Missing::OVSX_PAT secret not found, skipping Open VSX publishing."
+          else
+            echo "Publishing VSIX to Open VSX Registry..."
+            npx --yes ovsx publish dist/sweep-aicleaner-${{ inputs.version }}.vsix -p "$OVSX_PAT"
+          fi
+
+      - name: Publish packages to npm Registry
+        if: ${{ inputs.publish_stores && !inputs.draft }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning title=NPM_TOKEN Missing::NPM_TOKEN secret not found, skipping npm packages publishing."
+          else
+            echo "Setting up npm authentication..."
+            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+            echo "Publishing @aicleaner/core to npm..."
+            npm publish --workspace=@aicleaner/core --access public
+            echo "Publishing @aicleaner/cli to npm..."
+            npm publish --workspace=@aicleaner/cli --access public
+          fi

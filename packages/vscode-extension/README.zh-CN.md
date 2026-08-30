@@ -78,14 +78,14 @@
  
 ### 方式 1：直接下载安装 (.vsix)
 
-从 **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)** 下载最新版 `sweep-aicleaner-1.1.2.vsix`，并通过命令行或 IDE 界面安装：
+从 **[GitHub Releases](https://github.com/L1r1h28/Sweep-agentcli-ide-cleaner/releases)** 下载最新版 `sweep-aicleaner-1.1.3.vsix`，并通过命令行或 IDE 界面安装：
 
 ```bash
 # 在 VS Code 中安装:
-code --install-extension sweep-aicleaner-1.1.2.vsix
+code --install-extension sweep-aicleaner-1.1.3.vsix
 
 # 在 Cursor 中安装:
-cursor --install-extension sweep-aicleaner-1.1.2.vsix
+cursor --install-extension sweep-aicleaner-1.1.3.vsix
 ```
 
 或打开编辑器，切换至 **Extensions** 扩展面板 (`Ctrl+Shift+X` / `Cmd+Shift+X`)，点击右上角 `...` 菜单并选择 **Install from VSIX...**。
