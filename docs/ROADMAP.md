@@ -47,17 +47,17 @@
 - [x] 加入 SHA-256 checksums (`SHA256SUMS.txt`)
 - [x] Push 到 GitHub
 
-## Commit 4 — CLI Release `[Push]` `[Release]`
+## ✅ Commit 4 — CLI Release `[Push]` `[Release]`
 
 - [x] 在乾淨 Windows / macOS / Linux 環境執行 scan dry-run
 - [x] 確認不會掃描或刪除 repository 外未列入 catalog 的資料
 - [x] 確認 conversation 清理必須明確指定 `--kind conversations`，不能預設刪除
 - [x] 確認 `--backup` 可以還原清理前資料
 - [x] 修正 release workflow 的 package 名稱與 workspace 路徑
-- [x] 補齊各套件與專案之完整 README 文件與 CLI Release Notes
-- [ ] 版本升級至下一個正式版本 (v1.0.0 / 0.4.0)
-- [ ] 觸發 GitHub Actions Release 工作流產出發布物
-- [ ] 上傳 CLI binaries、checksums 與 release notes
+- [x] 補齊各套件與專案之完整 README 文件與 CHANGELOG.md
+- [x] 版本統一至 v1.0.0 正式版本
+- [x] 觸發 GitHub Actions Release 工作流產出發布物
+- [x] 上傳 CLI binaries、VSIX、checksums 與自動擷取之 Release notes
 
 ## Commit 5 — VS Code Extension 實作驗證 `[Push]`
 
