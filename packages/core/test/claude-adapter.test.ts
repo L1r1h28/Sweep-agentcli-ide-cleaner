@@ -198,8 +198,8 @@ describe("Claude Adapter & Session Tests", () => {
       const claudeData = isWin
         ? join(mockHome, "AppData", "Local", "Claude-Data")
         : isMac
-        ? join(mockHome, "Library", "Application Support", "Claude")
-        : join(mockHome, ".config", "Claude");
+        ? join(mockHome, "Library", "Caches", "Claude")
+        : join(mockHome, ".cache", "Claude");
       const claudeCodeProjects = join(mockHome, ".claude", "projects", "my-repo");
       mkdirSync(claudeData, { recursive: true });
       mkdirSync(claudeCodeProjects, { recursive: true });
