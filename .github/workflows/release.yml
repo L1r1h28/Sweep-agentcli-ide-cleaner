@@ -27,9 +27,7 @@ jobs:
             artifact: cli-linux-x64
           - os: windows-latest
             artifact: cli-windows-x64
-          - os: macos-13
-            artifact: cli-darwin-x64
-          - os: macos-14
+          - os: macos-latest
             artifact: cli-darwin-arm64
     runs-on: ${{ matrix.os }}
 
@@ -40,7 +38,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -117,7 +115,7 @@ jobs:
       - name: Setup Node for extension packaging
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies & package VS Code extension
@@ -134,12 +132,9 @@ jobs:
           tag_name: v${{ inputs.version }}
           name: v${{ inputs.version }} — Sweep AI Cleaner
           body_path: RELEASE_NOTES_BODY.md
+          fail_on_unmatched_files: false
           files: |
-            dist/sweep-windows-x64.exe
-            dist/sweep-darwin-arm64
-            dist/sweep-darwin-x64
-            dist/sweep-linux-x64
+            dist/sweep-*
             dist/SHA256SUMS.txt
-            dist/sweep-aicleaner-${{ inputs.version }}.vsix
           draft: ${{ inputs.draft }}
           prerelease: false

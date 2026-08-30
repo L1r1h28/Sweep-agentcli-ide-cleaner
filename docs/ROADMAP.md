@@ -79,6 +79,7 @@
 ## Commit 7 — CI / Release 收尾 `[Push]`
 
 - [ ] CI 在 Windows / macOS / Linux 執行 build 與 test
+- [x] 升級 CI / Release workflows 之 Node.js 版本至 Node.js 24 (與本機環境統一)
 - [ ] Release workflow 使用 `--no-git-tag-version`
 - [ ] Release workflow 使用 `--no-dependencies` 打包 VSIX
 - [ ] 確認 workflow 不會上傳私人設定、skills、`node_modules` 或本機掃描報告
